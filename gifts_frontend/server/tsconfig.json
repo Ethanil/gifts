@@ -1,0 +1,4 @@
+{
+  "extends": "../.nuxt/tsconfig.server.json",
+  "types": ["@types/node", "@nuxt/types", "mande/nuxt"]
+}
