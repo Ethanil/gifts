@@ -29,7 +29,7 @@ app = connex_app.app
 # from flask_cors import CORS
 # CORS(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "mariadb+mariadbconnector://root:123@127.0.0.1:3306/gifts_db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mariadb+mariadbconnector://root:123@localhost/ethanil"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['CORS_HEADERS'] = 'Content-Type'
 

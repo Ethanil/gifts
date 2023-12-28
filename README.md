@@ -89,12 +89,10 @@ paste the following code into it
 ```
 [program:gifts_frontend]
 directory=%(ENV_HOME)s/gifts/gifts_frontend
-command=npm run dev
+command=node .output/server/index.mjs
 autostart=true
 autorestart=true
-environment=
-    NUXT_HOST=0.0.0.0
-    NUXT_PORT=8000
+environment=NITRO_PORT=8000
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
 
