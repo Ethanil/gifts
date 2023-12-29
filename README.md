@@ -25,17 +25,19 @@ install the packages with
 pip install -r requirements.txt
 ```
 
-install uwsgi with
-```bash
-pip install uwsgi
-```
 
 ## Test the backend installation
 To test that everything worked start the backend-server
 ```bash
-uwsgi uwsgi.ini
+uvicorn main:app --host 127.0.0.1 --port 5000
 ```
-and stop it with `ctrl+c`
+
+if you want to test some more start another console and use
+```bash
+curl 127.0.0.1:5000/api/items
+```
+
+then stop the uvicorn-process with `ctrl+c`
 
 ## Setup supervisord daemon
 ### Create daemon.ini
@@ -52,7 +54,10 @@ paste the following code into it
 ```
 [program:gifts_backend]
 directory=%(ENV_HOME)s/gifts/gifts_backend
-command=%(ENV_HOME)s/gifts/gifts_backend/.venv/bin/uwsgi uwsgi.ini
+command=%(ENV_HOME)s/gifts/gifts_backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 5000
+autostart=true
+autorestart=true
+stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
 ### Start supervisord
@@ -93,6 +98,7 @@ command=node .output/server/index.mjs
 autostart=true
 autorestart=true
 environment=NITRO_PORT=8000
+stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
 

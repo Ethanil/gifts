@@ -24,10 +24,9 @@ connex_app.add_middleware(
     allow_headers=["*"],
 )
 
+
 app = connex_app.app
 
-# from flask_cors import CORS
-# CORS(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "mariadb+mariadbconnector://root:123@localhost/ethanil"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
