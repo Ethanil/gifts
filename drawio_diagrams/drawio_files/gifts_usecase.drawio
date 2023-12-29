@@ -1,11 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram name="Seite-1" id="1dOUznpDONLhGp0KXryv">
-        <mxGraphModel dx="382" dy="907" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="15000" pageHeight="15000" math="0" shadow="0">
+        <mxGraphModel dx="862" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="15000" pageHeight="15000" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="OieUruuSKdxP-jb9oesy-3" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="260" y="130" width="490" height="1230" as="geometry"/>
+                    <mxGeometry x="250" y="130" width="540" height="1400" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-15" target="OieUruuSKdxP-jb9oesy-11" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -20,16 +20,10 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-15" value="Schenkender" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="1030" width="30" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="OieUruuSKdxP-jb9oesy-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="OieUruuSKdxP-jb9oesy-17" target="OieUruuSKdxP-jb9oesy-9" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="OieUruuSKdxP-jb9oesy-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-17" target="OieUruuSKdxP-jb9oesy-11" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
+                    <mxGeometry x="120" y="1200" width="30" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-17" value="Beschenkter" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="870" width="30" height="60" as="geometry"/>
+                    <mxGeometry x="830" y="1020" width="30" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -46,40 +40,46 @@
                 <mxCell id="3" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;rounded=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="2" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
+                <mxCell id="8" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;rounded=0;" edge="1" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-1" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
-                    <mxGeometry x="100" y="200" width="30" height="60" as="geometry"/>
+                    <mxGeometry x="90" y="370" width="30" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-22" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-8" edge="1">
                     <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="460" y="295" as="targetPoint"/>
+                        <mxPoint x="450" y="465" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-4" value="Gift module" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="480.00489361702137" y="130" width="90" height="30" as="geometry"/>
+                    <mxGeometry x="470.00489361702137" y="130" width="90" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-6" value="Anlegen von Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="456" y="170" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="445" y="520" width="140" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-8" value="Anlegen von Geschenkgruppen" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="260" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="446" y="350" width="140" height="70" as="geometry"/>
                 </mxCell>
-                <mxCell id="OieUruuSKdxP-jb9oesy-10" value="Bearbeiten von Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="450" width="140" height="70" as="geometry"/>
+                <mxCell id="OieUruuSKdxP-jb9oesy-10" value="Bearbeiten von selbstangelegten Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="445" y="620" width="140" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-9" value="Einladen von (befreundeten) Nutzern in Geschenkgruppe als Beschenkter" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="435" y="760" width="180" height="110" as="geometry"/>
+                    <mxGeometry x="425" y="930" width="180" height="110" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-11" value="Einladen von (befreundeten) Nutzern in Geschenkgruppe als Schenkender" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="435" y="910" width="180" height="110" as="geometry"/>
+                    <mxGeometry x="425" y="1080" width="180" height="110" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-31" value="Reservieren eines Geschenks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="1090" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="445" y="1260" width="140" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-33" value="Anfrage für das mitreservieren eines Geschenks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="1170" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="445" y="1340" width="140" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-35" value="Freigabe für das mitreservieren eines Geschenks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="1250" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="445" y="1420" width="140" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" parent="1" source="OieUruuSKdxP-jb9oesy-40" target="OieUruuSKdxP-jb9oesy-8" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -90,13 +90,36 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-40" value="Hinzufügen einer betreuten Person" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="370" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="446" y="440" width="140" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="OieUruuSKdxP-jb9oesy-43" value="Eintragen von Events" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="455" y="540" width="140" height="70" as="geometry"/>
+                    <mxGeometry x="445" y="710" width="140" height="70" as="geometry"/>
                 </mxCell>
-                <mxCell id="2" value="Löschen von Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="456" y="630" width="140" height="70" as="geometry"/>
+                <mxCell id="2" value="Löschen von selbstangelegten Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="446" y="800" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" style="edgeStyle=none;html=1;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="4" target="OieUruuSKdxP-jb9oesy-8">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="6">
+                    <mxGeometry x="0.5404" relative="1" as="geometry">
+                        <mxPoint x="-2" y="-9" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="4" value="Registrieren" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="445" y="250" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Einloggen" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="446" y="170" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="OieUruuSKdxP-jb9oesy-9">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="OieUruuSKdxP-jb9oesy-11">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Gruppenadmin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="1030" width="30" height="60" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
