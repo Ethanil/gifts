@@ -60,19 +60,6 @@ autorestart=true
 stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
-### Start supervisord
-reread the config
-```bash
-supervisorctl reread
-```
-update the services
-```bash
-supervisorctl update
-```
-after a few seconds you should see the process running with
-```bash
-supervisorctl status
-```
 
 # Frontend
 ## Setup
@@ -106,3 +93,18 @@ environment=NITRO_PORT=8000
 stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
+
+
+# Start supervisord
+reread the config
+```bash
+supervisorctl reread
+```
+update the services
+```bash
+supervisorctl update
+```
+after a few seconds you should see the process running with
+```bash
+supervisorctl status
+```
