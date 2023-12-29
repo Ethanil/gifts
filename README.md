@@ -81,6 +81,11 @@ Navigate to the frontend and install the packages with
 ```bash
 npm install
 ```
+Build the frontend
+```bash
+npm run build
+```
+you know should have an `.output/server/index.mjs` file. This is the entry-point of the node server.
 ### supervisord
 Navigate into your service.d directory with
 ```bash
@@ -101,51 +106,3 @@ environment=NITRO_PORT=8000
 stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
-
-# Nuxt 3 Minimal Starter
-
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
-
-## Setup
-
-Make sure to install the dependencies:
-
-```bash
-# npm
-npm install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-
-```
-[program:gifts_frontend]
-directory=/home/ethanil/giftSharing
-command=node .output/server/index.mjs --prefix %(ENV_HOME)s/giftSharing/
-autostart=true
-autorestart=true
-```
