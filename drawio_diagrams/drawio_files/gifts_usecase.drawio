@@ -1,0 +1,104 @@
+<mxfile host="65bd71144e">
+    <diagram name="Seite-1" id="1dOUznpDONLhGp0KXryv">
+        <mxGraphModel dx="382" dy="907" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="15000" pageHeight="15000" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="OieUruuSKdxP-jb9oesy-3" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="130" width="490" height="1230" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-15" target="OieUruuSKdxP-jb9oesy-11" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-15" target="OieUruuSKdxP-jb9oesy-31" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-15" target="OieUruuSKdxP-jb9oesy-33" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-15" target="OieUruuSKdxP-jb9oesy-35" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-15" value="Schenkender" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="1030" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="OieUruuSKdxP-jb9oesy-17" target="OieUruuSKdxP-jb9oesy-9" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-17" target="OieUruuSKdxP-jb9oesy-11" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-17" value="Beschenkter" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="870" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-43" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-40" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;rounded=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-1" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="200" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-22" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OieUruuSKdxP-jb9oesy-1" target="OieUruuSKdxP-jb9oesy-8" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="460" y="295" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-4" value="Gift module" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="480.00489361702137" y="130" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-6" value="Anlegen von Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="456" y="170" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-8" value="Anlegen von Geschenkgruppen" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="260" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-10" value="Bearbeiten von Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="450" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-9" value="Einladen von (befreundeten) Nutzern in Geschenkgruppe als Beschenkter" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="435" y="760" width="180" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-11" value="Einladen von (befreundeten) Nutzern in Geschenkgruppe als Schenkender" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="435" y="910" width="180" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-31" value="Reservieren eines Geschenks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="1090" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-33" value="Anfrage für das mitreservieren eines Geschenks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="1170" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-35" value="Freigabe für das mitreservieren eines Geschenks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="1250" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" parent="1" source="OieUruuSKdxP-jb9oesy-40" target="OieUruuSKdxP-jb9oesy-8" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-42" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="OieUruuSKdxP-jb9oesy-41" vertex="1" connectable="0">
+                    <mxGeometry x="-0.0909" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-40" value="Hinzufügen einer betreuten Person" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="370" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="OieUruuSKdxP-jb9oesy-43" value="Eintragen von Events" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="540" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="Löschen von Geschenken" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="456" y="630" width="140" height="70" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
