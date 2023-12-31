@@ -17,6 +17,7 @@
 */.DS_Store
 */.fleet
 */.idea
+*/.vscode
 
 # Local env files
 */.env
