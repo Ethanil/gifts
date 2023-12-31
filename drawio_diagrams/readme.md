@@ -36,6 +36,7 @@
 - Zeitpunkt:Timestamp
 - Email:Varchar [Email->Nutzer.Email]
 - Name:Varchar [Name -> Geschenk.Name]
+- Öffentlich: Boolean
 
 ### Event
 - __Name:Varchar__
