@@ -1,3 +1,5 @@
+PyJWT~=2.8.0
+flask~=3.0.0
 h11~=0.14.0
 pip~=23.3.2
 attrs~=23.1.0
@@ -24,9 +26,8 @@ watchfiles~=0.21.0
 greenlet~=3.0.3
 anyio~=4.2.0
 urllib3~=2.1.0
-flask~=3.0.0
 starlette~=0.32.0.post1
-connexion[flask,swagger-ui,uvicorn]~=3.0.5
+connexion~=3.0.5
 jsonschema~=4.20.0
 inflection~=0.5.1
 httpx~=0.26.0
@@ -34,6 +35,5 @@ python-multipart~=0.0.6
 requests~=2.31.0
 referencing~=0.32.0
 setuptools~=69.0.3
-SQLAlchemy~=2.0.23
+SQLAlchemy~=2.0.24
 marshmallow~=3.20.1
-flask-marshmallow[sqlalchemy]

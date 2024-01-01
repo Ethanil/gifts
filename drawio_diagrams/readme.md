@@ -35,6 +35,7 @@
 - Inhalt:Text
 - Zeitpunkt:Timestamp
 - Email:Varchar [Email->Nutzer.Email]
+- ID:Integer [ID->Geschenkgruppe.ID]
 - Name:Varchar [Name -> Geschenk.Name]
 - Öffentlich: Boolean
 

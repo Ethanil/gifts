@@ -4,19 +4,14 @@ from config import db
 from models import Item, item_schema, items_schema
 
 
-def read_all():
+def read_all(user, token_info):
+    print(user)
+    print(token_info)
     items = Item.query.all()
     return items_schema.dump(items)
 
 
-def create(item):
-    if item is None:
-        item = {}
-        print("item was none?!?!")
-        item["name"] = "TestItem"
-        item["description"] = "TestDescription"
-        item["rank"] = 4
-        item["price"] = 12.4
+def create(item, user, token_info):
     name = item.get("name")
     description = item.get("description")
     rank = item.get("rank")

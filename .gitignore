@@ -1,32 +1,32 @@
 # Nuxt dev/build outputs
-*/.output
-*/.data
-*/.nuxt
-*/.nitro
-*/.cache
-*/dist
+**/.output
+**/.data
+**/.nuxt
+**/.nitro
+**/.cache
+**/dist
 
 # Node dependencies
-*/node_modules
+**/node_modules
 
 # Logs
-*/logs
-*/*.log
+**/logs
+**/*.log
 
 # Misc
-*/.DS_Store
-*/.fleet
-*/.idea
-*/.vscode
+**/.DS_Store
+**/.fleet
+**/.idea
+**/.vscode
 
 # Local env files
-*/.env
-*/.env.*
-*/!.env.example
+**/.env
+**/.env.*
+**/!.env.example
 
 # Python files
-*/__pycache__
-*/gen
-*/venv
-*/.venv
-*/to-uninstall.txt
+**/gen
+**/venv
+**/.venv
+**/to-uninstall.txt
+**/__pycache__

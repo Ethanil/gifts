@@ -1,0 +1,101 @@
+openapi: 3.0.0
+info:
+  title: "RP Flask REST API"
+  description: "An API about items"
+  version: "1.0.0"
+
+servers:
+  - url: "/api"
+
+components:
+  schemas:
+    Item:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - rank
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        rank:
+          type: integer
+    Login:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "ex@ample.com"
+        password:
+          type: string
+          format: password
+          example: "very1Secure$Password2With&Special3Characters_"
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+      x-bearerInfoFunc: api.auth.decode_token
+
+security:
+  - bearerAuth: []
+paths:
+  /items:
+    get:
+      operationId: "api.items.read_all"
+      tags:
+        - "Items"
+      summary: "Read the list of items"
+      responses:
+        "200":
+          description: "Successfully read item list"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+    post:
+      operationId: "api.items.create"
+      tags:
+        - "Items"
+      summary: "Create an item"
+      requestBody:
+        x-body-name: "item"
+        description: "Item to create"
+        required: True
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Item"
+      responses:
+        "201":
+          description: "Successfully created person"
+        "406":
+          description: "Item with that description already exists"
+  /auth/login:
+    post:
+      operationId: "api.auth.login"
+      summary: "Validates Userlogin and returns bearertoken"
+      requestBody:
+        x-body-name: "authentication"
+        description: "Email and Password to validate"
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        "201":
+          description: "Succesfully logged in"
+      security:
+        []
