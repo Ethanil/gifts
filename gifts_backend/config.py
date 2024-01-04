@@ -1,20 +1,13 @@
 import pathlib
-
 import connexion
 from connexion.middleware import MiddlewarePosition
 from starlette.middleware.cors import CORSMiddleware
-
-
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_marshmallow import Marshmallow
 
 
 basedir = pathlib.Path(__file__).parent.resolve()
-
 connex_app = connexion.FlaskApp(__name__, specification_dir=basedir)
-
-
 connex_app.add_middleware(
     CORSMiddleware,
     position=MiddlewarePosition.BEFORE_EXCEPTION,
@@ -23,8 +16,6 @@ connex_app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 app = connex_app.app
 
 

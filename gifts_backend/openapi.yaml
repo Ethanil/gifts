@@ -1,30 +1,45 @@
 openapi: 3.0.0
 info:
-  title: "RP Flask REST API"
-  description: "An API about items"
-  version: "1.0.0"
+  title: Gift Management REST API
+  description: An API for a gift-managing service for friends and families
+  version: 1.0.0
 
 servers:
-  - url: "/api"
+  - url: /api
 
 components:
   schemas:
-    Item:
+    UserWithoutPassword:
       type: object
       required:
-        - name
-        - description
-        - price
-        - rank
+        - email
+        - firstName
+        - lastName
       properties:
-        name:
+        email:
           type: string
-        description:
+          format: email
+          example: ex@ample.com
+        firstName:
           type: string
-        price:
-          type: number
-        rank:
-          type: integer
+          example: Max
+        lastName:
+          type: string
+          example: Mustermann
+        avatar:
+          type: string
+          format: byte
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserWithoutPassword'
+        - type: object
+          required:
+            - password
+          properties:
+            password:
+              type: string
+              format: password
+              example: very1Secure$Password2With&Special3Characters_
     Login:
       type: object
       required:
@@ -34,68 +49,592 @@ components:
         email:
           type: string
           format: email
-          example: "ex@ample.com"
+          example: ex@ample.com
         password:
           type: string
           format: password
-          example: "very1Secure$Password2With&Special3Characters_"
+          example: very1Secure$Password2With&Special3Characters_
+    Gift:
+      type: object
+      required:
+        - name
+        - price
+        - giftStrength
+      properties:
+        name:
+          type: string
+          example: A very cool gift
+        price:
+          type: number
+          format: float
+          minimum: 0
+          multipleOf: 0.01
+          example: 12.24
+        giftStrength:
+          type: string
+          enum: [OKAY, GOOD, GREAT, AMAZING, AWESOME]
+          example: AWESOME
+        description:
+          type: string
+          example: A description of the item
+        link:
+          type: string
+          format: uri
+          example: www.amazon.de
+        picture:
+          type: string
+          format: bytes
+          example: 0100000101000010010000110100010001000101010001100100011101001000
+    GiftGroup:
+      type: object
+      required:
+        - name
+        - editable
+      properties:
+        name:
+          type: string
+          example: A group for my dog
+        editable:
+          type: boolean
+          example: true
+    GiftGroupWithIsBeingGifted:
+      allOf:
+        - $ref: '#/components/schemas/GiftGroup'
+        - type: object
+          required:
+            - isBeingGifted
+          properties:
+            isBeingGifted:
+              type: boolean
+              example: false
+    Event:
+      type: object
+      required:
+        - name
+        - date
+      properties:
+        name:
+          type: string
+          example: Birthday of Max Mustermann
+        date:
+          type: string
+          format: date
+          example: 2020-01-01
+    Comment:
+      type: object
+      required:
+        - content
+        - public
+      properties:
+        content:
+          type: string
+          example: This is the content of the comment. It can and probably wil be a longer text.
+        public:
+          type: boolean
+          example: false
+  parameters:
+    email:
+      in: path
+      name: email
+      description: e-Mail-Address of the User
+      example: ex@ample.com
+      required: true
+      schema:
+        type: string
+        format: email
+
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
-      x-bearerInfoFunc: api.auth.decode_token
+      bearerFormat: JWT
+      x-bearerInfoFunc: api.users.decode_token
 
 security:
   - bearerAuth: []
 paths:
-  /items:
-    get:
-      operationId: "api.items.read_all"
+  /users:
+    post:
+      operationId: api.users.create
       tags:
-        - "Items"
-      summary: "Read the list of items"
+        - User
+      summary: Create a new User
+      requestBody:
+        x-body-name: user
+        description: User to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
       responses:
-        "200":
-          description: "Successfully read item list"
+        201:
+          description: Successfully created user
+        406:
+          description: User with that email already exists
+      security:
+        []
+    get:
+      operationId: api.users.read_all
+      tags:
+        - User
+      summary: Read the list of Users
+      responses:
+        200:
+          description: Succesfully read User list
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Item"
-    post:
-      operationId: "api.items.create"
+                  $ref: "#/components/schemas/UserWithoutPassword"
+        401:
+          description: User is not authorized to read User list
+  /users/{email}:
+    delete:
+      operationId: api.users.delete
+      summary: Delete an User
       tags:
-        - "Items"
-      summary: "Create an item"
+      - User
+      parameters:
+        - $ref: "#/components/parameters/email"
+      responses:
+        204:
+          description: Succesfully deleted the user
+    put:
+      operationId: api.users.update
+      summary: Update an User
+      tags:
+        - User
+      parameters:
+        - $ref: "#/components/parameters/email"
       requestBody:
-        x-body-name: "item"
-        description: "Item to create"
-        required: True
+        x-body-name: new_user_data
+        description: User data to update
+        required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Item"
+              $ref: "#/components/schemas/UserWithoutPassword"
       responses:
-        "201":
-          description: "Successfully created person"
-        "406":
-          description: "Item with that description already exists"
+        200:
+          description: Succesfully updated user
+  /giftgroups:
+    get:
+      operationId: api.giftgroups.read_all
+      tags:
+        - Gift Groups
+      summary: Read the list of Giftgroups for the authorized user
+      responses:
+        200:
+          description: Successfully read Giftgroup list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GiftGroupWithIsBeingGifted"
+    post:
+      operationId: api.giftgroups.create
+      tags:
+        - Gift Groups
+      summary: Create a Giftgroups for the authorized user
+      requestBody:
+        x-body-name: giftgroup
+        description: Giftgroup to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftGroup"
+      responses:
+        201:
+          description: Successfully created Giftgroup
+  /giftgroups/{giftgroup_id}:
+    put:
+      operationId: api.giftgroups.update
+      tags:
+        - Gift Groups
+      summary: Update an existing Giftgroup
+      requestBody:
+        x-body-name: giftgroup
+        description: Giftgroup to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftGroup"
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the existing group
+          example: 4
+      responses:
+        201:
+          description: Succesfully updated Giftgroup
+  /giftgroups/{giftgroup_id}/{email}:
+    post:
+      operationId: api.giftgroups.addUserToGroup
+      tags:
+        - Gift Groups
+      summary: Add an User to an existing Giftgroup
+      parameters:
+        - $ref: "#/components/parameters/email"
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the user should be added to
+          example: 4
+      responses:
+        201:
+          description: Succesfully created Giftgroup-user relation
+    delete:
+      operationId: api.giftgroups.removeUserOffGroup
+      tags:
+        - Gift Groups
+      summary: remove a user from a Group and delete that Group if there are no more related users
+      parameters:
+        - $ref: "#/components/parameters/email"
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the user should be removed from
+          example: 4
+      responses:
+        204:
+          description: Succesfully removed the user from the Group
   /auth/login:
     post:
-      operationId: "api.auth.login"
-      summary: "Validates Userlogin and returns bearertoken"
+      operationId: api.users.login
+      tags:
+        - Authentication
+      summary: Validates Userlogin and returns bearertoken
       requestBody:
-        x-body-name: "authentication"
-        description: "Email and Password to validate"
+        x-body-name: authentication
+        description: Email and Password to validate
         required: true
         content:
           application/x-www-form-urlencoded:
             schema:
               $ref: "#/components/schemas/Login"
       responses:
-        "201":
-          description: "Succesfully logged in"
+        201:
+          description: Succesfully logged in
       security:
         []
+  /gifts/{giftgroup_id}:
+    post:
+      operationId: api.gifts.create
+      tags:
+        - Gift
+      summary: Create a new Gift
+      requestBody:
+        x-body-name: gift
+        description: Gift to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Gift"
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the user should be added to
+          example: 4
+      responses:
+        201:
+          description: Successfully created Gift
+    get:
+      operationId: api.gifts.read_all
+      tags:
+        - Gift
+      summary: Read the list of Gifts seen by the authorized User in that Group
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the gift should be added to
+          example: 4
+      responses:
+        200:
+          description: Succesfully read Gift list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Gift"
+  /gifts/{giftgroup_id}/{gift_id}:
+    put:
+      operationId: api.gifts.update
+      tags:
+        - Gift
+      summary: Update a Gift
+      requestBody:
+        x-body-name: gift
+        description: Gift to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Gift"
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group of the too be updated gift
+          example: 4
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the to be updated gift
+          example: 4
+      responses:
+        200:
+          description: Successfully updated gift
+    delete:
+      operationId: api.gifts.delete
+      tags:
+        - Gift
+      summary: Delete a Gift
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group of the to be deleted gift
+          example: 4
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the to be deleted gift
+          example: 4
+      responses:
+        204:
+          description: Successfully deleted the gift
+  /events:
+    post:
+      operationId: api.events.create
+      tags:
+        - Event
+      summary: Create a new Event
+      requestBody:
+        x-body-name: event
+        description: Event to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        201:
+          description: Successfully created Event
+    get:
+      operationId: api.events.read_all
+      tags:
+        - Event
+      summary: Read the list of all Events
+      responses:
+        200:
+          description: Succesfully read Event list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+  /events/{event_id}:
+    put:
+      operationId: api.events.update
+      tags:
+        - Event
+      summary: Update an existing Event
+      requestBody:
+        x-body-name: event
+        description: Event to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      parameters:
+        - in: path
+          name: event_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the event of the too be updated gift
+          example: 4
+      responses:
+        200:
+          description: Successfully updated Event
+    delete:
+      operationId: api.events.delete
+      tags:
+        - Event
+      summary: Delete an existing Event
+      parameters:
+        - in: path
+          name: event_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the event of the too be updated gift
+          example: 4
+      responses:
+        204:
+          description: Successfully deleted the Event
+  /comments/{gift_id}:
+    post:
+      operationId: api.comments.create
+      tags:
+        - Comment
+      summary: Create a new Comment
+      requestBody:
+        x-body-name: comment
+        description: Comment to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+      parameters:
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the gift the comment should be added to
+          example: 4
+      responses:
+        201:
+          description: Successfully created Comment
+        404:
+          description: No Gift with that id
+        400:
+          description: User can't create a comment he can't access afterwards
+    get:
+      operationId: api.comments.read_all
+      tags:
+        - Comment
+      summary: Read the list of all Comments of the gift the authorized user can see
+      parameters:
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the gift the comment should be added to
+          example: 4
+      responses:
+        200:
+          description: Succesfully read Comment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Gift"
+        404:
+          description: No Gift with that id
+  /comments/{gift_id}/{comment_id}:
+    put:
+      operationId: api.comments.update
+      tags:
+        - Comment
+      summary: Update an existing Comment
+      requestBody:
+        x-body-name: comment
+        description: Comment to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+      parameters:
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the existing gift
+          example: 4
+        - in: path
+          name: comment_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the existing comment
+          example: 4
+      responses:
+        200:
+          description: Successfully updated comment
+        404:
+          description: No Comment or gift with that id
+        403:
+          description: User not allowed to update comment
+        400:
+          description: User can't change visibility so that he can't access his comment
+    delete:
+      operationId: api.comments.delete
+      tags:
+        - Comment
+      summary: Delete an existing Comment
+      parameters:
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the existing gift
+          example: 4
+        - in: path
+          name: comment_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the existing comment
+          example: 4
+      responses:
+        204:
+          description: Successfully deleted the comment
+        404:
+          description: No Comment or gift with that id
+        403:
+          description: User not allowed to delete comment
