@@ -23,6 +23,7 @@ class Actions(str, Enum):
 
 
 def create(giftgroup_id, gift, user, token_info, picture=""):
+    gift.pop('id', None)
     if isinstance(picture, FileStorage):
         # filename = werkzeug.utils.secure_filename(picture.filename)
         filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"

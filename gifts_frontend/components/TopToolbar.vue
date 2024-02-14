@@ -1,11 +1,11 @@
 <template>
   <div>
-    <v-app-bar app fixed dense color="appbar_primary appbar_primary_text--text">
+    <v-app-bar density="compact" color="primary">
       <v-row class="d-flex align-center">
         <v-col cols="1" class="d-flex align-start">
           <div>
             <NuxtLink to="/">
-              <v-icon style="height: 48px; width: 120px" size="x-large">
+              <v-icon class="pl-12" size="x-large" color="white">
                 mdi-gift-open-outline
               </v-icon>
             </NuxtLink>

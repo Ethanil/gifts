@@ -50,6 +50,7 @@
   </v-dialog>
 </template>
 <script setup lang="ts">
+import type { PropType } from "vue";
 const emit = defineEmits(["submitForm"]);
 const giftDialog = defineModel("giftDialog", { default: false });
 // const addGiftDialog = ref(false);
@@ -67,17 +68,30 @@ const uploadRules = [
 const giftImage = ref<File[] | undefined>(undefined);
 const base64Image = ref("");
 
-const giftData = defineModel("giftData", {
-  default: {
-    name: "",
-    price: 0,
-    giftStrength: 3,
-    description: "",
-    link: "",
-    picture: "",
-    availableActions: [],
+
+const props = defineProps({
+  propGiftData: {
+    type: Object as PropType<Gift>,
+    default: {
+      id: 0,
+      name: "",
+      price: 0,
+      giftStrength: 3,
+      description: "",
+      link: "",
+      picture: "",
+      availableActions: () => [],
+    },
   },
 });
+
+watch(props, (newVal) => {
+  for (const [key, value] of Object.entries(newVal.propGiftData as Gift)) {
+    (giftData.value as any)[key] = value;
+  }
+});
+
+const giftData = ref<Gift>(props.propGiftData);
 
 async function handleImageInput(files: File[] | undefined) {
   if (!files || files.length != 1) {
@@ -99,14 +113,16 @@ async function handleImageInput(files: File[] | undefined) {
 
 async function submitForm() {
   const gift = {
+    id: giftData.value.id,
     name: giftData.value.name,
     price: giftData.value.price,
-    giftStrength: giftData.value.giftStrength,
+    giftStrength: +giftData.value.giftStrength,
     description: giftData.value.description,
     link: giftData.value.link,
-    picture: giftImage.value?[0] : "",
+    picture: giftImage.value ? [0] : "",
     availableActions: [],
   } as Gift;
+  console.log(gift);
   emit("submitForm", gift);
   giftDialog.value = false;
 }

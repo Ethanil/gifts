@@ -1,10 +1,18 @@
-from flask import make_response,abort
+from flask import make_response, abort
 from models import GiftGroup, giftGroup_schema, giftGroups_schema, User, IsBeingGifted, isBeingGifted_schema
 from config import db
 
 
 def read_all(user, token_info):
     giftGroups = GiftGroup.query.all()
+    # decorate giftGroups with Ownership-value
+    decorated_gift_groups = [(giftGroup,
+                              [len(giftGroup.isBeingGifted) if beingGifted.user_email == user else float('inf') for
+                               beingGifted in giftGroup.isBeingGifted]) for giftGroup in giftGroups]
+    # sort on Ownershipvalue, then groupname
+    decorated_gift_groups = sorted(sorted(decorated_gift_groups, key=lambda tuple: tuple[0].name),
+                                   key=lambda tuple: tuple[1])
+    giftGroups = [giftGroup for giftGroup, _ in decorated_gift_groups]
     res = giftGroups_schema.dump(giftGroups)
     for entry in res:
         existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == entry.get("id"),
@@ -48,8 +56,8 @@ def addUserToGroup(email, giftgroup_id, user, token_info):
     if existing_relation is not None:
         abort(
             409,
-              f"Giftgroup Relation between {giftgroup_id} und {email} already exists."
-              )
+            f"Giftgroup Relation between {giftgroup_id} und {email} already exists."
+        )
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     existing_user = User.query.filter(User.email == email).one_or_none()
     if existing_user is not None:
@@ -70,7 +78,8 @@ def addUserToGroup(email, giftgroup_id, user, token_info):
 
 
 def removeUserOffGroup(email, giftgroup_id, user, token_info):
-    existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == giftgroup_id, IsBeingGifted.user_email == email).one_or_none()
+    existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == giftgroup_id,
+                                                   IsBeingGifted.user_email == email).one_or_none()
     if existing_relation is None:
         abort(
             404,

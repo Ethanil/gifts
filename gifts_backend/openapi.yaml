@@ -420,7 +420,7 @@ paths:
         description: Gift to update
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/Gift"
       parameters:
