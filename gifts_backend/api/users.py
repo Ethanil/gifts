@@ -2,7 +2,8 @@ from flask import make_response, abort
 from config import db
 import time
 import jwt
-from models import User, user_schema, users_schema_without_password, giftGroup_schema, IsBeingGifted
+from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, IsBeingGifted
+
 
 def create(user):
     email = user.get("email")
@@ -11,8 +12,9 @@ def create(user):
         user.pop("avatar", None)
         new_user = user_schema.load(user, session=db.session)
         db.session.add(new_user)
-        #TODO internationalisation?
-        new_giftGroup = giftGroup_schema.load({"name": f"{user.get('firstName')} {user.get('lastName')}'s Liste", "editable": False}, session=db.session)
+        # TODO internationalisation?
+        new_giftGroup = giftGroup_schema.load(
+            {"name": f"{user.get('firstName')} {user.get('lastName')}'s Liste", "editable": False}, session=db.session)
         db.session.add(new_giftGroup)
         new_user.isBeingGifted.add(IsBeingGifted(giftGroup=new_giftGroup))
         db.session.commit()
@@ -27,6 +29,16 @@ def create(user):
 def read_all(user, token_info):
     users = User.query.all()
     return users_schema_without_password.dump(users), 200
+
+
+def get_session(user, token_info):
+    exisiting_user = User.query.filter(User.email == user).one_or_none()
+    if exisiting_user is None:
+        abort(
+            404,
+            f"User with email {user} not found"
+        )
+    return user_schema_without_password.dump(exisiting_user), 200
 
 
 def delete(email, user, token_info):
@@ -74,7 +86,8 @@ issuer = "theIssuerOfTheToken"
 
 
 def login(authentication):
-    email, password = authentication.values()
+    email = authentication["email"]
+    password = authentication["password"]
     # check if credentials are correct
     existing_user = User.query.filter(User.email == email).one_or_none()
     if existing_user is None:
@@ -102,7 +115,12 @@ def login(authentication):
         "sub": email,
         "username": email
     }
-    return jwt.encode(payload, key, algorithm=algorithm)
+    return make_response({
+        "access_token": jwt.encode(payload, key, algorithm=algorithm),
+        "token_type": "JWT",
+        "expires_in": tokenLifeTimeSeconds
+    }), 200
+
 
 
 def decode_token(token):

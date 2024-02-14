@@ -18,6 +18,7 @@
 **/.fleet
 **/.idea
 **/.vscode
+**/pictures
 
 # Local env files
 **/.env

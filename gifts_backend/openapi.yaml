@@ -72,7 +72,7 @@ components:
           example: 12.24
         giftStrength:
           type: string
-          enum: [OKAY, GOOD, GREAT, AMAZING, AWESOME]
+          enum: [ OKAY, GOOD, GREAT, AMAZING, AWESOME ]
           example: AWESOME
         description:
           type: string
@@ -83,8 +83,12 @@ components:
           example: www.amazon.de
         picture:
           type: string
-          format: bytes
-          example: 0100000101000010010000110100010001000101010001100100011101001000
+          format: binary
+        availableActions:
+          type: array
+          items:
+            type: string
+            enum: [ EDIT, DELETE, RESERVE, STOP_RESERVE, FREE_RESERVE, STOP_FREE_RESERVE, REQUEST_FREE_RESERVE, STOP_REQUEST_FREE_RESERVE ]
     GiftGroup:
       type: object
       required:
@@ -151,7 +155,7 @@ components:
       x-bearerInfoFunc: api.users.decode_token
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 paths:
   /users:
     post:
@@ -173,7 +177,7 @@ paths:
         406:
           description: User with that email already exists
       security:
-        []
+        [ ]
     get:
       operationId: api.users.read_all
       tags:
@@ -195,7 +199,7 @@ paths:
       operationId: api.users.delete
       summary: Delete an User
       tags:
-      - User
+        - User
       parameters:
         - $ref: "#/components/parameters/email"
       responses:
@@ -324,14 +328,23 @@ paths:
         description: Email and Password to validate
         required: true
         content:
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
               $ref: "#/components/schemas/Login"
       responses:
         201:
           description: Succesfully logged in
       security:
-        []
+        [ ]
+  /auth/getSession:
+    get:
+      operationId: api.users.get_session
+      tags:
+        - Authentication
+      summary: Returns User Data after login
+      responses:
+        200:
+          description: Succesfully got Session
   /gifts/{giftgroup_id}:
     post:
       operationId: api.gifts.create
@@ -343,7 +356,7 @@ paths:
         description: Gift to create
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/Gift"
       parameters:
@@ -359,7 +372,7 @@ paths:
         201:
           description: Successfully created Gift
     get:
-      operationId: api.gifts.read_all
+      operationId: api.gifts.read
       tags:
         - Gift
       summary: Read the list of Gifts seen by the authorized User in that Group
@@ -372,6 +385,21 @@ paths:
           required: true
           description: the id of the group the gift should be added to
           example: 4
+      responses:
+        200:
+          description: Succesfully read Gift list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Gift"
+  /gifts:
+    get:
+      operationId: api.gifts.read_all
+      tags:
+        - Gift
+      summary: Read the list of Gifts seen by the authorized User in all Groups
       responses:
         200:
           description: Succesfully read Gift list
@@ -440,6 +468,46 @@ paths:
       responses:
         204:
           description: Successfully deleted the gift
+    patch:
+      operationId: api.gifts.patch
+      tags:
+        - Gift
+      summary: Do an Action on the gift in a certain giftgroup
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group of the to be deleted gift
+          example: 4
+        - in: path
+          name: gift_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the to be deleted gift
+          example: 4
+        - in: query
+          name: reserve
+          schema:
+            type: boolean
+          description: Whether the gift should be reserved or the reservation should be canceled
+        - in: query
+          name: free_reserve
+          schema:
+            type: boolean
+          description: Whether the gift should reservable by more users or this behaviour should be stopped
+        - in: query
+          name: request_free_reserve
+          schema:
+            type: boolean
+          description: Whether the user requests to have free reservation or stop this behaviour
+      responses:
+        200:
+          description: Successfully updated gift
   /events:
     post:
       operationId: api.events.create
