@@ -1,45 +1,52 @@
 <template>
     <v-list
-        v-if="emptyStrategy !== 'hide' || users.length > 0"
+        v-if="
+            outerProps.emptyStrategy !== 'hide' || outerProps.users.length > 0
+        "
         density="compact"
         slim
     >
         <v-list-subheader>
-            <v-icon :icon="titleIcon" />
-            {{ title }}
+            <v-icon :icon="outerProps.titleIcon" />
+            {{ outerProps.title }}
         </v-list-subheader>
-        <template v-for="user in users">
+        <template v-for="(user, key) in outerProps.users" :key="key">
             <v-list-item>
                 <template #prepend>
                     <v-avatar
-                        :icon="avatar ? '' : 'mdi-account-outline'"
-                        :image="avatar"
+                        :icon="outerProps.avatar ? '' : 'mdi-account-outline'"
+                        :image="outerProps.avatar"
                     />
                 </template>
                 {{ user.firstName }} {{ user.lastName }}
-                <template v-if="actionEnabled" #append>
-                    <v-tooltip v-if="actionTooltip">
+                <template v-if="outerProps.actionEnabled" #append>
+                    <v-tooltip v-if="outerProps.actionTooltip">
                         <template #activator="{ props }">
                             <v-icon
                                 v-bind="props"
-                                :icon="actionIcon"
+                                :icon="outerProps.actionIcon"
                                 @click="emit('action', user)"
                             />
                         </template>
-                        {{ actionTooltip(user) }}
+                        {{ outerProps.actionTooltip(user) }}
                     </v-tooltip>
-                    <v-icon v-else :icon="actionIcon" />
+                    <v-icon v-else :icon="outerProps.actionIcon" />
                 </template>
-                <template v-else-if="ownActionEnabled && data.email === user.email" #append>
-                    <v-tooltip v-if="ownActionTooltip">
+                <template
+                    v-else-if="
+                        outerProps.ownActionEnabled && data.email === user.email
+                    "
+                    #append
+                >
+                    <v-tooltip v-if="outerProps.ownActionTooltip">
                         <template #activator="{ props }">
                             <v-icon
                                 v-bind="props"
-                                :icon="ownActionIcon"
+                                :icon="outerProps.ownActionIcon"
                                 @click="emit('action', user)"
                             />
                         </template>
-                        {{ ownActionTooltip(user) }}
+                        {{ outerProps.ownActionTooltip(user) }}
                     </v-tooltip>
                     <v-icon v-else :icon="ownActionIcon" />
                 </template>
@@ -49,18 +56,18 @@
 </template>
 <script setup lang="ts">
 import type { PropType } from "vue";
-const {data} = useAuth();
-const props = defineProps({
+const { data } = useAuth();
+const outerProps = defineProps({
     users: { type: Array<User>, required: true },
-    avatar: { type: String },
+    avatar: { type: String, default: undefined },
     actionEnabled: { type: Boolean, default: true },
-    actionIcon: { type: String },
-    actionTooltip: { type: Function },
+    actionIcon: { type: String, default: undefined },
+    actionTooltip: { type: Function, default: undefined },
     ownActionEnabled: { type: Boolean, default: true },
-    ownActionIcon: { type: String },
-    ownActionTooltip: { type: Function },
+    ownActionIcon: { type: String, default: undefined },
+    ownActionTooltip: { type: Function, default: undefined },
     title: { type: String, required: true },
-    titleIcon: { type: String },
+    titleIcon: { type: String, default: undefined },
     emptyStrategy: {
         type: String as PropType<"do nothing" | "hide">,
         default: "do nothing",

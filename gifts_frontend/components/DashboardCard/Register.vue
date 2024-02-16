@@ -29,8 +29,8 @@
                     :rules="emailRules"
                 />
                 <v-text-field
-                    class="mt-5"
                     v-model="registrationFormRef.password"
+                    class="mt-5"
                     :type="showPassword1 ? 'text' : 'password'"
                     :append-inner-icon="
                         showPassword1 ? 'mdi-eye' : 'mdi-eye-off'
@@ -43,7 +43,7 @@
                     :rules="passwordRules"
                     @click:append-inner="showPassword1 = !showPassword1"
                 >
-                    <template #loader="slotProps">
+                    <template #loader>
                         <div
                             :style="
                                 'background-color: ' +
@@ -53,12 +53,12 @@
                                 '%;'
                             "
                             class="password-strength"
-                        ></div>
+                        />
                     </template>
                 </v-text-field>
                 <v-text-field
-                    class="mt-3"
                     v-model="registrationFormRef.reentered_password"
+                    class="mt-3"
                     :type="showPassword2 ? 'text' : 'password'"
                     :append-inner-icon="
                         showPassword2 ? 'mdi-eye' : 'mdi-eye-off'
@@ -82,9 +82,9 @@
                 <v-btn
                     color="primary"
                     :loading="loading"
-                    @click="registrationDialog = false"
                     block
                     class="mt-2"
+                    @click="registrationDialog = false"
                 >
                     Schließen
                 </v-btn>
@@ -101,7 +101,7 @@ const emailRules = [
             String(email)
                 .toLowerCase()
                 .match(
-                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                 ) !== null
         )
             return true;
@@ -154,7 +154,7 @@ watch(
     () => registrationFormRef.value.password,
     (newValue) => {
         let successes = 0;
-        for (let rule of passwordRules) {
+        for (const rule of passwordRules) {
             if (rule(newValue) === true) successes++;
         }
         switch (successes) {
@@ -175,9 +175,9 @@ watch(
                 break;
         }
         passwordStrengthWidth.value = String(
-            (successes / passwordRules.length) * 100
+            (successes / passwordRules.length) * 100,
         );
-    }
+    },
 );
 
 const registerAlert = ref({} as { title: string; text: string });
@@ -187,9 +187,10 @@ async function handleRegistrationClick(event: any) {
     loading.value = false;
     if (results.valid) {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { reentered_password, ...formWithoutReentered } =
                 registrationFormRef.value;
-            const resp = await signUp(formWithoutReentered, { external: true });
+            const _ = await signUp(formWithoutReentered, { external: true });
             registerAlert.value = {} as { title: string; text: string };
         } catch (e: any) {
             switch (e.response.status) {

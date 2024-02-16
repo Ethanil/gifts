@@ -92,11 +92,11 @@
                         >
                             <template #[`item.picture`]="{ item }">
                                 <v-avatar
-                                    :image="(item.picture as string)"
+                                    :image="item.picture as string"
                                     :size="60"
                                     @click="
                                         openPictureDialog(
-                                            item.picture as string
+                                            item.picture as string,
                                         )
                                     "
                                 />
@@ -110,16 +110,16 @@
                                     size="small"
                                 />
                             </template>
-                            <template #item.price="{ item }"
-                                >{{ item.price }} €</template
-                            >
-                            <template #item.availableActions="{ item }">
+                            <template #[`item.price`]="{ item }">
+                                {{ item.price }} €
+                            </template>
+                            <template #[`item.availableActions`]="{ item }">
                                 <v-container>
                                     <v-row no-gutters>
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'edit'
+                                                    'edit',
                                                 )
                                             "
                                             text="Geschenk bearbeiten"
@@ -140,7 +140,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'delete'
+                                                    'delete',
                                                 )
                                             "
                                             text="Geschenk löschen"
@@ -153,7 +153,7 @@
                                                         size="large"
                                                         @click="
                                                             openDeleteConfirmationDialog(
-                                                                item
+                                                                item,
                                                             )
                                                         "
                                                     >
@@ -165,7 +165,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'reserve'
+                                                    'reserve',
                                                 )
                                             "
                                             text="Geschenk reservieren"
@@ -190,7 +190,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'stop reserve'
+                                                    'stop reserve',
                                                 )
                                             "
                                             text="Reservierung löschen"
@@ -215,7 +215,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'free reserve'
+                                                    'free reserve',
                                                 )
                                             "
                                             text="Zur Reservierung freigeben"
@@ -240,7 +240,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'stop free reserve'
+                                                    'stop free reserve',
                                                 )
                                             "
                                             text="Nicht mehr zur Reservierung freigeben"
@@ -265,7 +265,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'request free reserve'
+                                                    'request free reserve',
                                                 )
                                             "
                                             text="Reservierungs freigabe erbitten"
@@ -290,7 +290,7 @@
                                         <v-tooltip
                                             v-if="
                                                 item.availableActions.includes(
-                                                    'stop request free reserve'
+                                                    'stop request free reserve',
                                                 )
                                             "
                                             text="Nicht mehr Reservierungs freigabe erbitten"
@@ -315,7 +315,7 @@
                                     </v-row>
                                 </v-container>
                             </template>
-                            <template #bottom></template>
+                            <template #bottom />
                         </v-data-table>
                         <gift-form
                             v-model:gift-dialog="addGiftDialog"
@@ -338,15 +338,14 @@
             :prop-gift-data="giftDataToEdit"
             submit-text="Bearbeitung speichern"
             @submit-form="updateGift"
-        ></gift-form>
+        />
         <group-form
             v-model:group-dialog="editGroupDialog"
             :prop-group-data="groupDataToEdit"
             :new-group="false"
             @submit-form="updateGroup"
             @join-group="joinGroup"
-        >
-        </group-form>
+        />
         <v-dialog v-model="deleteConfirmationDialog" max-width="450px">
             <v-card>
                 <v-card-title>Löschen bestätigen</v-card-title>
@@ -368,7 +367,7 @@
             </v-card>
         </v-dialog>
         <v-dialog v-model="pictureDialog" width="50%" height="75%">
-            <v-img :src="curPicture" @click="pictureDialog = false"></v-img>
+            <v-img :src="curPicture" @click="pictureDialog = false" />
         </v-dialog>
     </v-card>
 </template>
@@ -473,7 +472,7 @@ function do_Action(
         reserve?: boolean;
         freeReserve?: boolean;
         requestFreeReserve?: boolean;
-    }
+    },
 ) {
     giftStore.doAction(gift, queryParams);
 }
@@ -510,7 +509,7 @@ const groupDataToEdit = ref<Giftgroup>({
 function updateGroup(giftgroup: Giftgroup) {
     giftgroupStore.updateGroup(giftgroup).then(() => {
         currentTab.value = giftgroups.value.findIndex(
-            (group) => group.id === giftgroup.id
+            (group) => group.id === giftgroup.id,
         );
         if (currentTab.value === -1) currentTab.value = 0;
         groupDataToEdit.value = giftgroups.value[currentTab.value];
@@ -527,7 +526,7 @@ function joinGroup() {
     const giftgroup = giftgroups.value[currentTab.value];
     giftgroupStore.joinGroup(giftgroup).then(() => {
         currentTab.value = giftgroups.value.findIndex(
-            (group) => group.id === giftgroup.id
+            (group) => group.id === giftgroup.id,
         );
         groupDataToEdit.value = giftgroups.value[currentTab.value];
     });

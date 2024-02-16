@@ -33,7 +33,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 ) {
                     this.giftgroups[0].name = "Meine Liste";
                 }
-                console.log(this.giftgroups)
+                console.log(this.giftgroups);
             } catch (error) {
                 console.log(error);
                 return error;
@@ -41,7 +41,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         },
         async addGroup(giftgroup: Giftgroup) {
             try {
-                const response = await api.post(giftgroup);
+                const _ = await api.post(giftgroup);
             } catch (error) {
                 console.log(error);
                 return error;
@@ -51,7 +51,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         },
         async updateGroup(giftgroup: Giftgroup) {
             try {
-                const response = await api.put(`/${giftgroup.id}`, giftgroup);
+                const _ = await api.put(`/${giftgroup.id}`, giftgroup);
             } catch (error) {
                 console.log(error);
                 return error;
@@ -61,18 +61,13 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         },
         async joinGroup(giftgroup: Giftgroup) {
             try {
-                const response = await api.post(`/${giftgroup.id}`, giftgroup);
+                const _ = await api.post(`/${giftgroup.id}`, giftgroup);
             } catch (error) {
                 console.log(error);
                 return error;
             } finally {
                 await this.loadFromAPI();
             }
-        },
-        getInvitableUsers(
-            giftgroup: Giftgroup | undefined = undefined
-        ): User[] {
-            return [];
         },
     },
     getters: {

@@ -1,11 +1,11 @@
 <template>
     <v-dialog v-model="giftDialog" max-width="650px">
         <template #activator="{ props }">
-            <slot name="activator" :props="props"></slot>
+            <slot name="activator" :props="props" />
         </template>
         <v-card>
             <div class="v-system-bar">
-                <v-icon icon="mdi-close" @click="giftDialog = false"></v-icon>
+                <v-icon icon="mdi-close" @click="giftDialog = false" />
             </div>
             <v-form
                 class="pa-5"
@@ -26,8 +26,8 @@
                     label="Link des Geschenks"
                 />
                 <v-rating
-                    hover
                     v-model="giftData.giftStrength"
+                    hover
                     :item-labels="['Ganz okay', 'Okay', 'Gut', 'Super', 'Mega']"
                     :length="5"
                     active-color="primary"
@@ -53,7 +53,7 @@
                         </v-col>
                         <v-col cols="3" align-self="center" offset="2">
                             <v-img
-                                :src="(giftData.picture as string)"
+                                :src="giftData.picture as string"
                                 max-height="64px"
                             />
                         </v-col>
@@ -71,7 +71,10 @@
 <script setup lang="ts">
 import type { PropType } from "vue";
 const emit = defineEmits(["submitForm"]);
-const giftDialog = defineModel("giftDialog", { default: false });
+const giftDialog = defineModel<boolean>("giftDialog", {
+    type: Boolean,
+    default: false,
+});
 const uploadRule = (value: File[] | undefined) => {
     return (
         !value ||
@@ -81,10 +84,10 @@ const uploadRule = (value: File[] | undefined) => {
     );
 };
 // Form-Data
-const props = defineProps({
+const outerProps = defineProps({
     propGiftData: {
         type: Object as PropType<Gift>,
-        default: {
+        default: () => ({
             id: 0,
             name: "",
             price: 0,
@@ -93,7 +96,7 @@ const props = defineProps({
             link: "",
             picture: "",
             availableActions: () => [],
-        },
+        }),
     },
     submitText: {
         type: String,
@@ -102,13 +105,13 @@ const props = defineProps({
 });
 const giftImage = ref<File[] | undefined>(undefined);
 
-watch(props, (newVal) => {
+watch(outerProps, (newVal) => {
     for (const [key, value] of Object.entries(newVal.propGiftData as Gift)) {
         (giftData.value as any)[key] = value;
     }
 });
 
-const giftData = ref<Gift>(props.propGiftData);
+const giftData = ref<Gift>(outerProps.propGiftData);
 
 async function handleImageInput(files: File[] | undefined) {
     if (!files || files.length != 1) {

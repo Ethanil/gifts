@@ -4,11 +4,11 @@
         :max-width="showInviteCol ? '900px' : '600px'"
     >
         <template #activator="{ props }">
-            <slot name="activator" :props="props"></slot>
+            <slot name="activator" :props="props" />
         </template>
         <v-card>
             <div class="v-system-bar">
-                <v-icon @click="groupDialog = false">mdi-close</v-icon>
+                <v-icon @click="groupDialog = false"> mdi-close </v-icon>
             </div>
             <v-alert v-if="willDeleteGroup" type="error">
                 DIE LISTE WIRD GELÖSCHT
@@ -33,7 +33,10 @@
                                 title-icon="mdi-gift-open-outline"
                                 action-icon="mdi-delete-outline"
                                 :action-enabled="isAllowedToEdit && !newGroup"
-                                :action-tooltip="(user:User) => `${user.firstName} ${user.lastName} von der Liste entfernen`"
+                                :action-tooltip="
+                                    (user: User) =>
+                                        `${user.firstName} ${user.lastName} von der Liste entfernen`
+                                "
                                 @action="removeFromBeingGifted"
                             />
                             <group-form-list
@@ -43,7 +46,10 @@
                                 action-icon="mdi-delete-off-outline"
                                 empty-strategy="hide"
                                 :action-enabled="isAllowedToEdit"
-                                :action-tooltip="(user:User) => `Löschen von ${user.firstName} ${user.lastName} rückgängig machen`"
+                                :action-tooltip="
+                                    (user: User) =>
+                                        `Löschen von ${user.firstName} ${user.lastName} rückgängig machen`
+                                "
                                 @action="undoRemoving"
                             />
                         </v-col>
@@ -60,8 +66,13 @@
                                 :action-enabled="isAllowedToEdit"
                                 action-icon="mdi-email-off-outline"
                                 own-action-icon="mdi-email-check-outline"
-                                :own-action-tooltip="(user:User) => `Einladung annehmen`"
-                                :action-tooltip="(user:User) => `Einladung von ${user.firstName} ${user.lastName} zurückziehen`"
+                                :own-action-tooltip="
+                                    (user: User) => `Einladung annehmen`
+                                "
+                                :action-tooltip="
+                                    (user: User) =>
+                                        `Einladung von ${user.firstName} ${user.lastName} zurückziehen`
+                                "
                                 @action="removeFromInvitation"
                             />
                         </v-col>
@@ -72,7 +83,10 @@
                                 title-icon="mdi-gift-outline"
                                 action-icon="mdi-email-outline"
                                 :action-enabled="isAllowedToEdit"
-                                :action-tooltip="(user:User) => `${user.firstName} ${user.lastName} einladen um beschenkt zu werden`"
+                                :action-tooltip="
+                                    (user: User) =>
+                                        `${user.firstName} ${user.lastName} einladen um beschenkt zu werden`
+                                "
                                 @action="putIntoInvitation"
                             />
                         </v-col>
@@ -97,7 +111,7 @@ import { useDisplay } from "vuetify";
 const { data } = useAuth();
 const { lgAndUp } = useDisplay();
 const showInviteCol = computed(
-    () => groupData.value.editable || props.newGroup
+    () => groupData.value.editable || outerProps.newGroup,
 );
 const cols = computed(() => {
     if (lgAndUp.value) {
@@ -110,25 +124,25 @@ const cols = computed(() => {
 const userStore = useUserStore();
 const isAllowedToEdit = computed(
     () =>
-        props.newGroup ||
-        (groupData.value.editable && groupData.value.isBeingGifted)
+        outerProps.newGroup ||
+        (groupData.value.editable && groupData.value.isBeingGifted),
 );
 const giftingUsers = computed(() =>
     userStore.users.filter(
         (user) =>
             !groupData.value.invitations.find(
-                (invitedUser) => invitedUser.user.email === user.email
+                (invitedUser) => invitedUser.user.email === user.email,
             ) &&
             !groupData.value.usersBeingGifted?.find(
-                (beingGiftedUser) => beingGiftedUser.email === user.email
-            )
-    )
+                (beingGiftedUser) => beingGiftedUser.email === user.email,
+            ),
+    ),
 );
 const willDeleteGroup = computed(
     () =>
-        !props.newGroup &&
+        !outerProps.newGroup &&
         groupData.value.usersBeingGifted &&
-        groupData.value.usersBeingGifted.length === 0
+        groupData.value.usersBeingGifted.length === 0,
 );
 const buttonText = computed(() => {
     if (willDeleteGroup.value) return "Liste löschen";
@@ -137,9 +151,9 @@ const buttonText = computed(() => {
 onMounted(async () => {
     await userStore.loadFromAPI();
     const thisUser = userStore.users.find(
-        (user) => user.email === (data.value as any).email
+        (user) => user.email === (data.value as any).email,
     )!;
-    if (props.newGroup) {
+    if (outerProps.newGroup) {
         if (groupData.value.usersBeingGifted) {
             groupData.value.usersBeingGifted?.push(thisUser);
         } else {
@@ -147,14 +161,14 @@ onMounted(async () => {
         }
     }
 });
-const props = defineProps({
+const outerProps = defineProps({
     propGroupData: {
         type: Object as PropType<Giftgroup>,
-        default: {
+        default: () => ({
             name: "",
-            invitations: [],
+            invitations: () => [],
             giftgroup_id: -1,
-        },
+        }),
     },
     newGroup: {
         type: Boolean,
@@ -162,23 +176,25 @@ const props = defineProps({
     },
 });
 const title = computed(() =>
-    props.newGroup ? "Neue Geschenkliste erstellen" : props.propGroupData.name
+    outerProps.newGroup
+        ? "Neue Geschenkliste erstellen"
+        : outerProps.propGroupData.name,
 );
 const groupData = ref<
     Omit<Giftgroup, "invitations"> & {
         invitations: { user: User; fullname: string }[];
     }
 >({
-    ...props.propGroupData,
+    ...outerProps.propGroupData,
     invitations:
-        props.propGroupData.invitations?.map((user) => ({
+        outerProps.propGroupData.invitations?.map((user) => ({
             user: user,
             fullname: `${user.firstName} ${user.lastName}`,
         })) ?? [],
 });
-watch(props, (newVal) => {
+watch(outerProps, (newVal) => {
     for (const [key, value] of Object.entries(
-        newVal.propGroupData as Giftgroup
+        newVal.propGroupData as Giftgroup,
     )) {
         if (key === "invitations") {
             groupData.value.invitations = (value as User[]).map((user) => ({
@@ -196,16 +212,16 @@ watch(props, (newVal) => {
 function joinGroup() {
     emit("joinGroup");
 }
-const groupDialog = defineModel("groupDialog", { default: false });
+const groupDialog = defineModel<boolean>("groupDialog", { default: false });
 const emit = defineEmits(["submitForm", "joinGroup"]);
 async function submitForm(event: any) {
     const results = await event;
     if (results.valid) {
         const invitations = groupData.value.invitations.map(
-            (user) => user.user
+            (user) => user.user,
         );
         emit("submitForm", { ...groupData.value, invitations: invitations });
-        usersThatGetRemoved.value = []
+        usersThatGetRemoved.value = [];
     }
 }
 function putIntoInvitation(user: User) {
@@ -219,15 +235,15 @@ function removeFromInvitation(user: User) {
     else
         groupData.value.invitations.splice(
             groupData.value.invitations.findIndex(
-                (invitation) => invitation.user === user
+                (invitation) => invitation.user === user,
             ),
-            1
+            1,
         );
 }
 const usersThatGetRemoved = ref([] as User[]);
 function removeFromBeingGifted(user: User) {
     const index = groupData.value.usersBeingGifted?.findIndex(
-        (usr) => usr === user
+        (usr) => usr === user,
     );
     if (
         usersThatGetRemoved.value.find((rem_user) => rem_user === user) ||
@@ -240,7 +256,7 @@ function removeFromBeingGifted(user: User) {
 }
 function undoRemoving(user: User) {
     const index = usersThatGetRemoved.value.findIndex(
-        (rem_user) => rem_user === user
+        (rem_user) => rem_user === user,
     );
     if (index === -1) return;
     groupData.value.usersBeingGifted!.push(user);
