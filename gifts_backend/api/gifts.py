@@ -154,7 +154,7 @@ def filter_gifts(gifts: List[Gift], user: str) -> List[Gift]:
     return result
 
 
-def update(gift_id, giftgroup_id, gift, user, token_info):
+def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -172,11 +172,28 @@ def update(gift_id, giftgroup_id, gift, user, token_info):
             401,
             f"Gift with id {gift_id} can't be updated"
         )
+    if isinstance(picture, FileStorage):
+        if existing_gift.picture == "":
+            filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"
+            # Specify the path to your pictures folder
+            folder_path = "pictures"
+
+            # Create the folder if it doesn't exist
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+
+            # Save the image to a file
+            image_filename = os.path.join(folder_path, filename)
+        else:
+            image_filename = existing_gift.picture
+        picture.save(image_filename)
+        gift['picture'] = image_filename
     existing_gift.name = gift.get("name")
     existing_gift.description = gift.get("description")
     existing_gift.price = gift.get("price")
     existing_gift.link = gift.get("link")
     existing_gift.giftStrength = gift.get("giftStrength")
+    existing_gift.picture = gift.get("picture")
     db.session.merge(existing_gift)
     db.session.commit()
     return gift_schema.dump(existing_gift), 200
@@ -202,15 +219,12 @@ def delete(gift_id, giftgroup_id, user, token_info):
         )
     db.session.delete(existing_gift)
     db.session.commit()
+    if existing_gift.picture != "" and os.path.exists(existing_gift.picture):
+        os.remove(existing_gift.picture)
     return make_response(f"Gift with id {gift_id} succesfully deleted from Giftgroup {existing_giftGroup.name}", 204)
 
 
 def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=None, request_free_reserve=None):
-    # if len([i for i in [reserve, free_reserve, request_free_reserve] if i is not None]) > 1:
-    #     abort(
-    #         400,
-    #         "Malformed request, too many query parameters set at once"
-    #     )
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(

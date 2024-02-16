@@ -120,7 +120,7 @@ export const useGiftStore = defineStore("gift", {
         console.log(error);
         return error;
       } finally {
-        this.loadFromAPI();
+        await this.loadFromAPI();
       }
     },
     async deleteGift(gift: Gift) {
@@ -130,7 +130,7 @@ export const useGiftStore = defineStore("gift", {
         console.log(error);
         return error;
       } finally {
-        this.loadFromAPI();
+        await this.loadFromAPI();
       }
     },
     async doAction(
@@ -160,12 +160,12 @@ export const useGiftStore = defineStore("gift", {
         console.log(error);
         return error;
       } finally {
-        this.loadFromAPI();
+        await this.loadFromAPI();
       }
     },
   },
   getters: {
-    getGiftsOfCurrentGroup(state): DatabaseGift[] {
+    getGiftsOfCurrentGroup(state): Gift[] {
       if (!state.gifts || !state.gifts[state.groupId]) return [];
       return state.gifts[state.groupId];
     },

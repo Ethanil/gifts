@@ -1,31 +1,64 @@
 from flask import make_response, abort
-from models import GiftGroup, giftGroup_schema, giftGroups_schema, User, IsBeingGifted, isBeingGifted_schema
+from models import GiftGroup, giftGroup_schema, giftGroups_schema, User, IsBeingGifted, IsInvited, \
+    users_schema_without_password
 from config import db
 
 
 def read_all(user, token_info):
     giftGroups = GiftGroup.query.all()
     # decorate giftGroups with Ownership-value
-    decorated_gift_groups = [(giftGroup,
-                              [len(giftGroup.isBeingGifted) if beingGifted.user_email == user else float('inf') for
-                               beingGifted in giftGroup.isBeingGifted]) for giftGroup in giftGroups]
+    decorated_gift_groups: list[tuple[GiftGroup, int | float]] = []
+    for giftGroup in giftGroups:
+        emails_of_usersBeinggifted = [isBeinggifted.user_email for isBeinggifted in giftGroup.isBeingGifted]
+        if user in emails_of_usersBeinggifted:
+            if not giftGroup.editable:
+                decorated_gift_groups.append((giftGroup, 1))
+            else:
+                decorated_gift_groups.append((giftGroup, 2))
+        else:
+            decorated_gift_groups.append((giftGroup, float('inf')))
     # sort on Ownershipvalue, then groupname
     decorated_gift_groups = sorted(sorted(decorated_gift_groups, key=lambda tuple: tuple[0].name),
                                    key=lambda tuple: tuple[1])
     giftGroups = [giftGroup for giftGroup, _ in decorated_gift_groups]
     res = giftGroups_schema.dump(giftGroups)
-    for entry in res:
-        existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == entry.get("id"),
-                                                       IsBeingGifted.user_email == user).one_or_none()
-        entry["isBeingGifted"] = existing_relation is not None
+    all_users = User.query.all()
+    for index, entry in enumerate(res):
+        entry["isBeingGifted"] = user in [isBeingGifted.user.email for isBeingGifted in giftGroups[index].isBeingGifted]
+        entry["usersBeingGifted"] = users_schema_without_password.dump(
+            [isBeingGifted.user for isBeingGifted in giftGroups[index].isBeingGifted])
+        entry["isInvited"] = user in [isInvited.user.email for isInvited in giftGroups[index].isInvited]
+        entry["invitations"] = users_schema_without_password.dump(
+            [isInvited.user for isInvited in giftGroups[index].isInvited])
+        entry["invitableUsers"] = users_schema_without_password.dump(
+            [invitableUser
+             for invitableUser in all_users
+             if entry["editable"]
+             and invitableUser not in [isInvited.user for isInvited in giftGroups[index].isInvited]
+             and invitableUser not in [isBeingGifted.user for isBeingGifted in giftGroups[index].isBeingGifted]])
     return res, 200
 
 
 def create(giftgroup, user, token_info):
+    if giftgroup.get('name') == "":
+        abort(400,
+              "empty name is not allowed")
     existing_user = User.query.filter(User.email == user).one_or_none()
-    new_giftGroup = giftGroup_schema.load(giftgroup, session=db.session)
+    sanitized_giftgroup = {}
+    sanitized_giftgroup['name'] = giftgroup['name']
+    sanitized_giftgroup['editable'] = True
+    new_giftGroup = giftGroup_schema.load(sanitized_giftgroup, session=db.session)
     db.session.add(new_giftGroup)
     new_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
+    if giftgroup.get('invitations') is not None:
+        for user in giftgroup.get('invitations'):
+            existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
+            if existing_user is None:
+                abort(
+                    404,
+                    f"User with email {user.email} not found"
+                )
+            new_giftGroup.isInvited.add(IsInvited(user=existing_user))
     db.session.commit()
     return giftGroup_schema.dump(new_giftGroup), 201
 
@@ -37,47 +70,70 @@ def update(giftgroup_id, giftgroup, user, token_info):
             404,
             f"Giftgroup with id {giftgroup_id} not found"
         )
-    existing_relation = existing_giftGroup.isBeingGifted
-    if not any(isBeingGifted.user_email == user for isBeingGifted in existing_relation):
+    existing_relations = existing_giftGroup.isBeingGifted
+    if not any(isBeingGifted.user_email == user for isBeingGifted in existing_relations):
         abort(
             403,
             f"User {user} is not allowed to update Giftgroup with id {giftgroup_id}"
         )
-    updated_giftGroup = giftGroup_schema.load(giftgroup, session=db.session)
-    existing_giftGroup.name = updated_giftGroup.name
-    db.merge(existing_giftGroup)
-    db.commit()
+    if not existing_giftGroup.editable:
+        abort(
+            403,
+            "That giftgroup can't be edited"
+        )
+    existing_giftGroup.name = giftgroup['name']
+    invitationEmails = [user["email"] for user in giftgroup.get('invitations')]
+    existing_giftGroup.isInvited = set(
+        filter(lambda isInvited: isInvited.user_email in invitationEmails, existing_giftGroup.isInvited))
+    invitedUser = [isInvited.user for isInvited in existing_giftGroup.isInvited]
+    if giftgroup.get('invitations') is not None:
+        for user in giftgroup.get('invitations'):
+            existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
+            if existing_user is None:
+                abort(
+                    404,
+                    f"User with email {user.email} not found"
+                )
+            if existing_user not in invitedUser:
+                existing_giftGroup.isInvited.add(IsInvited(user=existing_user))
+    isBeingGiftedEmails = [user["email"] for user in giftgroup.get('usersBeingGifted')]
+    existing_giftGroup.isBeingGifted = set(
+        filter(lambda isBeingGifted: isBeingGifted.user_email in isBeingGiftedEmails, existing_giftGroup.isBeingGifted))
+    if len(existing_giftGroup.isBeingGifted) == 0:
+        db.session.delete(existing_giftGroup)
+    else:
+        db.session.merge(existing_giftGroup)
+    db.session.commit()
     return giftGroup_schema.dump(existing_giftGroup), 201
 
 
-def addUserToGroup(email, giftgroup_id, user, token_info):
+def addUserToGroup(giftgroup_id, user, token_info):
     existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == giftgroup_id,
-                                                   IsBeingGifted.user_email == email).one_or_none()
+                                                   IsBeingGifted.user_email == user).one_or_none()
     if existing_relation is not None:
         abort(
             409,
-            f"Giftgroup Relation between {giftgroup_id} und {email} already exists."
+            f"Giftgroup Relation between {giftgroup_id} und {user} already exists."
         )
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
-    existing_user = User.query.filter(User.email == email).one_or_none()
-    if existing_user is not None:
-        if existing_giftGroup is not None:
-            if existing_giftGroup.editable:
-                existing_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
-                db.session.commit()
-                return make_response(f"Giftgroup {giftgroup_id} linked with user_email {email}", 201)
-            else:
-                abort(403,
-                      "Main-Giftgroups can't have more than one member")
-        else:
-            abort(404,
-                  f"Giftgroup with the id {giftgroup_id} does not exist")
-    else:
+    if existing_giftGroup is None:
         abort(404,
-              f"User with email {email} does not exist")
+              f"Giftgroup with the id {giftgroup_id} does not exist")
+    if not existing_giftGroup.editable:
+        abort(403,
+              "Main-Giftgroups can't have more than one member")
+    existing_user = User.query.filter(User.email == user).one_or_none()
+    if existing_user is None:
+        abort(404,
+              f"User with email {user} does not exist")
+    existing_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
+    existing_giftGroup.isInvited = set(filter(lambda invitation:invitation.user_email!=user,GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none().isInvited))
+    db.session.merge(existing_giftGroup)
+    db.session.commit()
+    return make_response(f"Giftgroup {giftgroup_id} linked with user_email {user}", 201)
 
 
-def removeUserOffGroup(email, giftgroup_id, user, token_info):
+def removeUserFromGroup(email, giftgroup_id, user, token_info):
     existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == giftgroup_id,
                                                    IsBeingGifted.user_email == email).one_or_none()
     if existing_relation is None:

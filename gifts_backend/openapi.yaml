@@ -29,6 +29,7 @@ components:
         avatar:
           type: string
           format: byte
+          nullable: true
     User:
       allOf:
         - $ref: '#/components/schemas/UserWithoutPassword'
@@ -84,6 +85,7 @@ components:
         picture:
           type: string
           format: binary
+          nullable: true
         availableActions:
           type: array
           items:
@@ -93,7 +95,6 @@ components:
       type: object
       required:
         - name
-        - editable
       properties:
         name:
           type: string
@@ -101,16 +102,24 @@ components:
         editable:
           type: boolean
           example: true
-    GiftGroupWithIsBeingGifted:
-      allOf:
-        - $ref: '#/components/schemas/GiftGroup'
-        - type: object
-          required:
-            - isBeingGifted
-          properties:
-            isBeingGifted:
-              type: boolean
-              example: false
+        isBeingGifted:
+          type: boolean
+          example: false
+        usersBeingGifted:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserWithoutPassword"
+        isInvited:
+          type: boolean
+          example: false
+        invitations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserWithoutPassword"
+        invitableUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserWithoutPassword"
     Event:
       type: object
       required:
@@ -237,7 +246,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GiftGroupWithIsBeingGifted"
+                  $ref: "#/components/schemas/GiftGroup"
     post:
       operationId: api.giftgroups.create
       tags:
@@ -280,14 +289,12 @@ paths:
       responses:
         201:
           description: Succesfully updated Giftgroup
-  /giftgroups/{giftgroup_id}/{email}:
     post:
       operationId: api.giftgroups.addUserToGroup
       tags:
         - Gift Groups
       summary: Add an User to an existing Giftgroup
       parameters:
-        - $ref: "#/components/parameters/email"
         - in: path
           name: giftgroup_id
           schema:
@@ -299,8 +306,9 @@ paths:
       responses:
         201:
           description: Succesfully created Giftgroup-user relation
+  /giftgroups/{giftgroup_id}/{email}:
     delete:
-      operationId: api.giftgroups.removeUserOffGroup
+      operationId: api.giftgroups.removeUserFromGroup
       tags:
         - Gift Groups
       summary: remove a user from a Group and delete that Group if there are no more related users

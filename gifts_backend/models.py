@@ -29,6 +29,8 @@ class User(db.Model):
     avatar: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")
+    isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="user",
+                                                             cascade="all, delete-orphan")
     hasReserved: db.Mapped[Set["HasReserved"]] = db.relationship(back_populates="user", cascade="all, delete-orphan")
     hasRequestedReservationFreeing: db.Mapped[Set["HasRequestedReservationFreeing"]] = db.relationship(
         back_populates="user", cascade="all, delete-orphan")
@@ -52,6 +54,8 @@ class GiftGroup(db.Model):
     gift: db.Mapped[Set["Gift"]] = db.relationship(back_populates="giftGroup", cascade="all, delete-orphan")
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="giftGroup",
                                                                      cascade="all, delete-orphan", passive_deletes=True)
+    isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="giftGroup",
+                                                             cascade="all, delete-orphan", passive_deletes=True)
     name: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
 
 
@@ -63,6 +67,16 @@ class IsBeingGifted(db.Model):
     giftGroup: db.Mapped["GiftGroup"] = db.relationship(back_populates="isBeingGifted")
     user_email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256), db.ForeignKey("user.email"), primary_key=True)
     user: db.Mapped["User"] = db.relationship(back_populates="isBeingGifted")
+
+
+class IsInvited(db.Model):
+    __tablename__ = "isInvited"
+
+    giftGroup_id: db.Mapped[int] = db.mapped_column(db.INTEGER, db.ForeignKey("giftGroup.id", ondelete="CASCADE"),
+                                                    primary_key=True)
+    giftGroup: db.Mapped["GiftGroup"] = db.relationship(back_populates="isInvited")
+    user_email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256), db.ForeignKey("user.email"), primary_key=True)
+    user: db.Mapped["User"] = db.relationship(back_populates="isInvited")
 
 
 class HasReserved(db.Model):
@@ -159,6 +173,11 @@ class IsBeingGiftedSchema(ma.SQLAlchemyAutoSchema):
         model = IsBeingGifted
 
 
+class IsInvitedSchema(ma.SQLAlchemyAutoSchema):
+    class Meta(BaseSchema.Meta):
+        model = IsInvited
+
+
 class GiftSchema(ma.SQLAlchemyAutoSchema):
     class Meta(BaseSchema.Meta):
         model = Gift
@@ -192,6 +211,8 @@ giftGroup_schema = GiftGroupSchema()
 giftGroups_schema = GiftGroupSchema(many=True)
 isBeingGifted_schema = IsBeingGiftedSchema()
 isBeingGifteds_schema = IsBeingGiftedSchema(many=True)
+isInvited_schema = IsInvitedSchema()
+isInviteds_schema = IsInvitedSchema(many=True)
 gift_schema = GiftSchema()
 gifts_schema = GiftSchema(many=True)
 comment_schema = CommentSchema()

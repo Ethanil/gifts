@@ -5,13 +5,17 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev --hostname 0.0.0.0 --port 8000",
+    "lint": "eslint .",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@nuxt/eslint-config": "^0.2.0",
+    "@nuxtjs/eslint-module": "^4.1.0",
     "@sidebase/nuxt-auth": "^0.6.7",
+    "eslint": "^8.56.0",
     "nuxt": "^3.8.2",
     "sass": "^1.70.0",
     "typescript": "^5.3.3",

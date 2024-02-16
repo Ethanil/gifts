@@ -2,7 +2,7 @@ from flask import make_response, abort
 from config import db
 import time
 import jwt
-from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, IsBeingGifted
+from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, IsBeingGifted, GiftGroup
 
 
 def create(user):
@@ -26,11 +26,19 @@ def create(user):
         )
 
 
-def read_all(user, token_info):
+def read_all(user, token_info, giftgroup_id=-1):
     users = User.query.all()
+    if giftgroup_id == -1:
+        return users_schema_without_password.dump(users), 200
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"Giftgroup with id {giftgroup_id} not found"
+        )
+    users_that_are_being_gifted = [isBeingGifted.user for isBeingGifted in existing_giftGroup.isBeingGifted]
+    users = [user for user in users if user not in users_that_are_being_gifted]
     return users_schema_without_password.dump(users), 200
-
-
 def get_session(user, token_info):
     exisiting_user = User.query.filter(User.email == user).one_or_none()
     if exisiting_user is None:

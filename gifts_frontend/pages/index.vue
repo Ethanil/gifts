@@ -1,3 +1,3 @@
 <template>
-  <Dashboard></Dashboard>
+    <Dashboard></Dashboard>
 </template>
