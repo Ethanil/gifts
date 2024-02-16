@@ -3,7 +3,7 @@ from config import db
 import time
 import jwt
 from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, IsBeingGifted, GiftGroup
-
+from os import getenv
 
 def create(user):
     email = user.get("email")
@@ -87,10 +87,10 @@ def update(email, new_user_data, user, token_info):
     return user_schema.dump(exisiting_user), 201
 
 
-key = "CrazySecretString"
-algorithm = "HS256"
-tokenLifeTimeSeconds = 60 * 60 * 24 * 3
-issuer = "theIssuerOfTheToken"
+key = getenv('JWT_SECRET_KEY')
+algorithm = getenv('HASHING_ALGORITHM')
+tokenLifeTimeSeconds = int(getenv('TOKEN_LIFE_IN_SECONDS'))
+issuer = getenv('JWT_TOKEN_ISSUER')
 
 
 def login(authentication):

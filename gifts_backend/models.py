@@ -3,7 +3,8 @@ from typing import Set, Optional
 from datetime import datetime
 from enum import Enum
 from argon2 import PasswordHasher
-
+from sqlalchemy import event
+import os
 
 class GiftStrength(str, Enum):
     OKAY = 1  # Okay
@@ -122,6 +123,9 @@ class Gift(db.Model):
     hasRequestedReservationFreeing: db.Mapped[Set["HasRequestedReservationFreeing"]] = db.relationship(
         back_populates="gift", cascade="all, delete-orphan", passive_deletes=True)
 
+@event.listens_for(Gift, 'after_delete')
+def delete_picture(mapper, connection, target):
+    os.remove(target.picture)
 
 class Comment(db.Model):
     __tablename__ = "comment"

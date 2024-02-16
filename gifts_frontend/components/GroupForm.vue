@@ -22,7 +22,7 @@
                     />
                 </template>
                 <v-card-title v-else>
-                    {{ title }}
+                    {{ outerProps.propGroupData.name }}
                 </v-card-title>
                 <v-container>
                     <v-row no-gutters>
@@ -107,60 +107,14 @@
     </v-dialog>
 </template>
 <script setup lang="ts">
-import { useDisplay } from "vuetify";
-const { data } = useAuth();
-const { lgAndUp } = useDisplay();
-const showInviteCol = computed(
-    () => groupData.value.editable || outerProps.newGroup,
-);
-const cols = computed(() => {
-    if (lgAndUp.value) {
-        if (showInviteCol.value) return 4;
-        else return 6;
-    }
-    return 12;
-});
-//---------------- Form-Data ----------------//
 const userStore = useUserStore();
-const isAllowedToEdit = computed(
-    () =>
-        outerProps.newGroup ||
-        (groupData.value.editable && groupData.value.isBeingGifted),
-);
-const giftingUsers = computed(() =>
-    userStore.users.filter(
-        (user) =>
-            !groupData.value.invitations.find(
-                (invitedUser) => invitedUser.user.email === user.email,
-            ) &&
-            !groupData.value.usersBeingGifted?.find(
-                (beingGiftedUser) => beingGiftedUser.email === user.email,
-            ),
-    ),
-);
-const willDeleteGroup = computed(
-    () =>
-        !outerProps.newGroup &&
-        groupData.value.usersBeingGifted &&
-        groupData.value.usersBeingGifted.length === 0,
-);
-const buttonText = computed(() => {
-    if (willDeleteGroup.value) return "Liste löschen";
-    else return "Liste speichern";
-});
-onMounted(async () => {
-    await userStore.loadFromAPI();
-    const thisUser = userStore.users.find(
-        (user) => user.email === (data.value as any).email,
-    )!;
-    if (outerProps.newGroup) {
-        if (groupData.value.usersBeingGifted) {
-            groupData.value.usersBeingGifted?.push(thisUser);
-        } else {
-            groupData.value["usersBeingGifted"] = [thisUser];
-        }
-    }
-});
+const { data } = useAuth();
+
+//*********************************************************************//
+//-------------------------------- Data -------------------------------//
+//*********************************************************************//
+const groupDialog = defineModel<boolean>("groupDialog", { default: false });
+const emit = defineEmits(["submitForm", "joinGroup"]);
 const outerProps = defineProps({
     propGroupData: {
         type: Object as PropType<Giftgroup>,
@@ -175,11 +129,6 @@ const outerProps = defineProps({
         default: true,
     },
 });
-const title = computed(() =>
-    outerProps.newGroup
-        ? "Neue Geschenkliste erstellen"
-        : outerProps.propGroupData.name,
-);
 const groupData = ref<
     Omit<Giftgroup, "invitations"> & {
         invitations: { user: User; fullname: string }[];
@@ -206,14 +155,19 @@ watch(outerProps, (newVal) => {
         }
     }
 });
-
-//---------------- Functionality ----------------//
-//---------------- Join Group ----------------//
-function joinGroup() {
-    emit("joinGroup");
-}
-const groupDialog = defineModel<boolean>("groupDialog", { default: false });
-const emit = defineEmits(["submitForm", "joinGroup"]);
+onMounted(async () => {
+    await userStore.loadFromAPI();
+    const thisUser = userStore.users.find(
+        (user) => user.email === (data.value as any).email,
+    )!;
+    if (outerProps.newGroup) {
+        if (groupData.value.usersBeingGifted) {
+            groupData.value.usersBeingGifted?.push(thisUser);
+        } else {
+            groupData.value["usersBeingGifted"] = [thisUser];
+        }
+    }
+});
 async function submitForm(event: any) {
     const results = await event;
     if (results.valid) {
@@ -224,22 +178,42 @@ async function submitForm(event: any) {
         usersThatGetRemoved.value = [];
     }
 }
-function putIntoInvitation(user: User) {
-    groupData.value.invitations.push({
-        user: user,
-        fullname: `${user.firstName} ${user.lastName}`,
-    });
-}
-function removeFromInvitation(user: User) {
-    if (user.email === (data.value as any).email) joinGroup();
-    else
-        groupData.value.invitations.splice(
-            groupData.value.invitations.findIndex(
-                (invitation) => invitation.user === user,
-            ),
-            1,
-        );
-}
+
+//*********************************************************************//
+//-------------------------------- Visual -----------------------------//
+//*********************************************************************//
+import { useDisplay } from "vuetify";
+const { lgAndUp } = useDisplay();
+const showInviteCol = computed(
+    () => groupData.value.editable || outerProps.newGroup,
+);
+const cols = computed(() => {
+    if (lgAndUp.value) {
+        if (showInviteCol.value) return 4;
+        else return 6;
+    }
+    return 12;
+});
+const buttonText = computed(() => {
+    if (willDeleteGroup.value) return "Liste löschen";
+    else return "Liste speichern";
+});
+const isAllowedToEdit = computed(
+    () =>
+        outerProps.newGroup ||
+        (groupData.value.editable && groupData.value.isBeingGifted),
+);
+const willDeleteGroup = computed(
+    () =>
+        !outerProps.newGroup &&
+        groupData.value.usersBeingGifted &&
+        groupData.value.usersBeingGifted.length === 0,
+);
+
+//**********************************************************************//
+//-------------------------------- Lists -------------------------------//
+//**********************************************************************//
+//---------------- Gifted ----------------//
 const usersThatGetRemoved = ref([] as User[]);
 function removeFromBeingGifted(user: User) {
     const index = groupData.value.usersBeingGifted?.findIndex(
@@ -261,5 +235,37 @@ function undoRemoving(user: User) {
     if (index === -1) return;
     groupData.value.usersBeingGifted!.push(user);
     usersThatGetRemoved.value.splice(index, 1);
+}
+//---------------- Invited ----------------//
+function removeFromInvitation(user: User) {
+    if (user.email === (data.value as any).email) joinGroup();
+    else
+        groupData.value.invitations.splice(
+            groupData.value.invitations.findIndex(
+                (invitation) => invitation.user === user,
+            ),
+            1,
+        );
+}
+function joinGroup() {
+    emit("joinGroup");
+}
+//---------------- Gifting ----------------//
+const giftingUsers = computed(() =>
+    userStore.users.filter(
+        (user) =>
+            !groupData.value.invitations.find(
+                (invitedUser) => invitedUser.user.email === user.email,
+            ) &&
+            !groupData.value.usersBeingGifted?.find(
+                (beingGiftedUser) => beingGiftedUser.email === user.email,
+            ),
+    ),
+);
+function putIntoInvitation(user: User) {
+    groupData.value.invitations.push({
+        user: user,
+        fullname: `${user.firstName} ${user.lastName}`,
+    });
 }
 </script>

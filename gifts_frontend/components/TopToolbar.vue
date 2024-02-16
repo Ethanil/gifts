@@ -4,11 +4,14 @@
             <v-row class="d-flex align-center">
                 <v-col cols="1" class="d-flex align-start">
                     <div>
-                        <NuxtLink to="/">
-                            <v-icon class="pl-12" size="x-large" color="white">
-                                mdi-gift-open-outline
-                            </v-icon>
-                        </NuxtLink>
+                        <v-icon
+                            class="pl-12"
+                            size="x-large"
+                            color="white"
+                            @click="emit('iconClick')"
+                        >
+                            mdi-gift-open-outline
+                        </v-icon>
                     </div>
                 </v-col>
                 <v-col class="d-flex justify-space-around">
@@ -20,6 +23,7 @@
                     </router-link>
                 </v-col>
                 <v-col cols="1" class="d-flex justify-end">
+                    <BottomLegend/>
                     <div style="flex-wrap: nowrap">
                         <v-menu
                             transition="slide-y-transition"
@@ -30,14 +34,12 @@
                         >
                             <template #activator="{ props }">
                                 <v-btn icon v-bind="props">
-                                    <v-icon color="appbar_primary_text">
-                                        mdi-dots-vertical
-                                    </v-icon>
+                                    <v-icon> mdi-dots-vertical </v-icon>
                                 </v-btn>
                             </template>
                             <div>
                                 <v-card>
-                                    <v-list color="appbar_primary">
+                                    <v-list>
                                         <v-list-item
                                             v-if="status === 'authenticated'"
                                             to="/user/profile"
@@ -50,13 +52,8 @@
                                     </v-list>
                                     <v-divider
                                         v-if="status === 'authenticated'"
-                                        style="
-                                            border-color: var(
-                                                --v-appbar_primary_text
-                                            );
-                                        "
                                     />
-                                    <v-list color="appbar_primary">
+                                    <v-list>
                                         <v-list-item>
                                             <v-list-item-action class="mx-1">
                                                 <v-switch
@@ -76,9 +73,7 @@
                                             to="/login"
                                             @click="logout"
                                         >
-                                            <v-list-item-title
-                                                class="appbar_primary_text--text"
-                                            >
+                                            <v-list-item-title>
                                                 Logout
                                             </v-list-item-title>
                                         </v-list-item>
@@ -94,6 +89,7 @@
 </template>
 
 <script setup lang="ts">
+const emit = defineEmits(["iconClick"]);
 import { useTheme } from "vuetify";
 const { signOut, status, data } = useAuth();
 async function logout() {

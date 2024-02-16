@@ -9,6 +9,8 @@ export type Gift = {
     link: string;
     picture: Blob | string;
     availableActions: string[];
+    freeForReservationRequest?: User[];
+    isSecretGift?: boolean;
 };
 export type DatabaseGift = Gift & {
     giftGroup_id: number;
@@ -141,6 +143,7 @@ export const useGiftStore = defineStore("gift", {
                 reserve?: boolean;
                 freeReserve?: boolean;
                 requestFreeReserve?: boolean;
+                denyFreeReserve?: boolean;
             },
         ) {
             let queryString = "";
@@ -154,6 +157,11 @@ export const useGiftStore = defineStore("gift", {
                 queryString += queryString !== "" ? "?" : "";
                 queryString +=
                     "request_free_reserve=" + queryParams.requestFreeReserve;
+            }
+            if (queryParams.denyFreeReserve !== undefined) {
+                queryString += queryString !== "" ? "?" : "";
+                queryString +=
+                    "deny_free_reserve=" + queryParams.denyFreeReserve;
             }
             try {
                 const _ = await api.patch(

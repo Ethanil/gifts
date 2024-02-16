@@ -1,8 +1,7 @@
 from flask import render_template
 import config
-# User, Gift, IsBeingGifted, GiftGroup, Comment,
-from models import Event
-
+from dotenv import load_dotenv
+from os import getenv
 
 app = config.connex_app
 app.add_api(config.basedir / "openapi.yaml")
@@ -15,4 +14,5 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+    load_dotenv()
+    app.run(host=getenv('BACKEND_HOST'), port=int(getenv('BACKEND_PORT')))

@@ -5,7 +5,6 @@ from starlette.middleware.cors import CORSMiddleware
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
-
 basedir = pathlib.Path(__file__).parent.resolve()
 connex_app = connexion.FlaskApp(__name__, specification_dir=basedir)
 connex_app.add_middleware(

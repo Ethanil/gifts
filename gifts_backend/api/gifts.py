@@ -1,8 +1,9 @@
 import os.path
+from os import getenv
 
 from flask import make_response, abort
 from models import Gift, gift_schema, gifts_schema, GiftGroup, IsBeingGifted, HasReserved, \
-    HasRequestedReservationFreeing, hasReserved_schema
+    HasRequestedReservationFreeing, users_schema_without_password
 from config import db
 from werkzeug.datastructures import FileStorage
 import base64
@@ -18,6 +19,7 @@ class Actions(str, Enum):
     STOP_RESERVE = "stop reserve"
     FREE_RESERVE = "free reserve"
     STOP_FREE_RESERVE = "stop free reserve"
+    DENY_FREE_RESERVE = "deny free reserve"
     REQUEST_FREE_RESERVE = "request free reserve"
     STOP_REQUEST_FREE_RESERVE = "stop request free reserve"
 
@@ -28,9 +30,7 @@ def create(giftgroup_id, gift, user, token_info, picture=""):
         # filename = werkzeug.utils.secure_filename(picture.filename)
         filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"
 
-        # Specify the path to your pictures folder
-        folder_path = "pictures"
-
+        folder_path = getenv("PICTURE_STORAGE")
         # Create the folder if it doesn't exist
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -86,7 +86,20 @@ def filter_dump_and_add_fields_to_gifts(gifts: List[Gift], user: str) -> List[di
 
 def add_fields_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
     gift_dict = add_actions_to_gift(gift_dict, gift, user)
+    gift_dict = add_calls_to_action_to_gift(gift_dict, gift, user)
+    gift_dict = add_is_secret_gift(gift_dict, gift, user)
     gift_dict = add_image_to_gift(gift_dict)
+    return gift_dict
+
+
+def add_is_secret_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
+    gift_dict["isSecretGift"] = user in [usr.user_email for usr in gift.giftGroup.isBeingGifted]
+    return gift_dict
+
+
+def add_calls_to_action_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
+    if Actions.FREE_RESERVE in gift_dict['availableActions']:
+        gift_dict['freeForReservationRequest'] = users_schema_without_password.dump([reservationRequest.user for reservationRequest in gift.hasRequestedReservationFreeing])
     return gift_dict
 
 
@@ -104,7 +117,6 @@ def getActions(gift: Gift, user: str) -> List[Actions]:
     if user in users_that_are_being_gifted or user == gift.user_email:
         actions.append(Actions.EDIT)
         actions.append(Actions.DELETE)
-        pass
     if user not in users_that_are_being_gifted:
         users_that_have_gift_reserved = [hasReserved.user_email for hasReserved in
                                          HasReserved.query.filter(HasReserved.gift_id == gift.id).all()]
@@ -158,25 +170,25 @@ def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
-            404,
+            403,
             f"Giftgroup with id {giftgroup_id} does not exist"
         )
-    existing_gift_set = existing_giftGroup.gift
-    existing_gift = None
-    for _gift in existing_gift_set:
-        if _gift.id == gift_id and _gift.user_email == user:
-            existing_gift = _gift
-            break
+    existing_gift = Gift.query.filter(Gift.id == gift_id).one_or_none()
     if existing_gift is None:
         abort(
-            401,
-            f"Gift with id {gift_id} can't be updated"
+            403,
+            f"Gift with id {gift_id} does not exist"
+        )
+    availableActions = getActions(existing_gift, user)
+    if Actions.EDIT not in availableActions:
+        abort(
+            404,
+            f"Not allowed to edit gift with id {gift_id}"
         )
     if isinstance(picture, FileStorage):
         if existing_gift.picture == "":
             filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"
-            # Specify the path to your pictures folder
-            folder_path = "pictures"
+            folder_path = getenv("PICTURE_STORAGE")
 
             # Create the folder if it doesn't exist
             if not os.path.exists(folder_path):
@@ -203,19 +215,20 @@ def delete(gift_id, giftgroup_id, user, token_info):
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
-            404,
+            403,
             f"Giftgroup with id {giftgroup_id} does not exist"
         )
-    existing_gift_set = existing_giftGroup.gift
-    existing_gift = None
-    for _gift in existing_gift_set:
-        if _gift.id == gift_id and _gift.user_email == user:
-            existing_gift = _gift
-            break
+    existing_gift = Gift.query.filter(Gift.id == gift_id).one_or_none()
     if existing_gift is None:
         abort(
-            401,
-            f"Gift with id {gift_id} can't be deleted"
+            403,
+            f"Gift with id {gift_id} does not exist"
+        )
+    availableActions = getActions(existing_gift, user)
+    if Actions.DELETE not in availableActions:
+        abort(
+            404,
+            f"Not allowed to delete gift with id {gift_id}"
         )
     db.session.delete(existing_gift)
     db.session.commit()
@@ -224,7 +237,7 @@ def delete(gift_id, giftgroup_id, user, token_info):
     return make_response(f"Gift with id {gift_id} succesfully deleted from Giftgroup {existing_giftGroup.name}", 204)
 
 
-def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=None, request_free_reserve=None):
+def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=None, request_free_reserve=None, deny_free_reserve=None):
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -256,7 +269,15 @@ def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=No
             reservation = HasReserved.query.filter(HasReserved.gift_id == gift_id,
                                                    HasReserved.user_email == user).one_or_none()
             db.session.delete(reservation)
-    if free_reserve is not None:
+    if deny_free_reserve is not None and deny_free_reserve:
+        if Actions.FREE_RESERVE not in availableActions:
+            abort(
+                403,
+                "Not Allowed to denyfree reservation"
+            )
+        for hasRequestedReservationFreeing in existing_gift.hasRequestedReservationFreeing:
+            db.session.delete(hasRequestedReservationFreeing)
+    elif free_reserve is not None:
         if free_reserve:
             if Actions.FREE_RESERVE not in availableActions:
                 abort(
@@ -264,6 +285,9 @@ def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=No
                     "Not Allowed to free reservation"
                 )
             existing_gift.freeForReservation = True
+            for hasRequestedReservationFreeing in existing_gift.hasRequestedReservationFreeing:
+                existing_gift.hasReserved.add(HasReserved(user_email=hasRequestedReservationFreeing.user_email))
+                db.session.delete(hasRequestedReservationFreeing)
             db.session.merge(existing_gift)
 
         else:
@@ -290,8 +314,8 @@ def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=No
                     403,
                     "Not Allowed to stop requesting free reservation"
                 )
-            reservation = HasRequestedReservationFreeing.query.filter(HasReserved.gift_id == gift_id,
-                                                                      HasReserved.user_email == user).one_or_none()
+            reservation = HasRequestedReservationFreeing.query.filter(HasRequestedReservationFreeing.gift_id == gift_id,
+                                                                      HasRequestedReservationFreeing.user_email == user).one_or_none()
             db.session.delete(reservation)
     db.session.commit()
     return 200

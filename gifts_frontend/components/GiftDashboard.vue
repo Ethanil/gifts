@@ -1,7 +1,7 @@
 <template>
     <v-card>
         <div class="d-flex flex-row">
-            <v-navigation-drawer>
+            <v-navigation-drawer v-model="navBarToggle">
                 <v-tabs v-model="currentTab" direction="vertical">
                     <template v-for="(group, key) in giftgroups" :key="key">
                         <v-tab :value="key">
@@ -22,8 +22,7 @@
                     @submit-form="addGroup"
                 >
                     <template #activator="{ props }">
-                        <v-btn v-bind="props" color="primary">
-                            Weitere Liste hinzufügen
+                        <v-btn v-bind="props" color="primary" icon="mdi-plus" size="45">
                         </v-btn>
                     </template>
                 </group-form>
@@ -34,54 +33,96 @@
                 style="width: 100%"
             >
                 <div style="width: 100%">
-                    <v-banner
+                    <GiftDashboardBanner
                         v-if="currentGroup!.isInvited"
-                        width="75%"
-                        icon="mdi-account-multiple-plus"
-                        lines="one"
-                        color="primary"
-                        class="mx-auto my-4"
-                        sticky
-                        :elevation="12"
+                        :banner-text="'Du wurdest eingeladen in dieser Gruppe beschenkt zu werden!'"
                     >
-                        <v-banner-text>
-                            Du wurdest eingeladen in dieser Gruppe beschenkt zu
-                            werden!
-                        </v-banner-text>
-
                         <template #actions>
-                            <v-btn @click.stop="joinGroup">
-                                Einladung annehmen
-                            </v-btn>
+                            <v-btn
+                                text="Einladung annehmen"
+                                @click.stop="joinGroup"
+                            />
                         </template>
-                    </v-banner>
+                    </GiftDashboardBanner>
+                    <GiftDashboardBanner
+                        v-for="(gift, key) in giftsWithFreeReserveRequest"
+                        :key="key"
+                        :banner-text="generateFreeReserveText(gift)"
+                    >
+                        <template #actions>
+                            <v-btn
+                                text="Annehmen"
+                                @click.stop="
+                                    do_Action(gift, {
+                                        freeReserve: true,
+                                    })
+                                "
+                            />
+                            <v-btn
+                                text="Ablehnen"
+                                @click.stop="
+                                    do_Action(gift, {
+                                        denyFreeReserve: true,
+                                    })
+                                "
+                            />
+                        </template>
+                    </GiftDashboardBanner>
                     <v-card class="ma-auto py-7" min-width="90%" width="90%">
                         <v-card-title v-if="giftgroups[currentTab]">
-                            <span
-                                class="cursor-pointer"
-                                @click.stop="editGroup(giftgroups[currentTab])"
-                            >
-                                {{ giftgroups[currentTab].name }}
-                                <v-icon
-                                    v-if="
-                                        giftgroups[currentTab].editable &&
-                                        giftgroups[currentTab].isBeingGifted
-                                    "
-                                    icon="mdi-pencil"
-                                    size="small"
-                                    @click.stop="
-                                        editGroup(giftgroups[currentTab])
-                                    "
-                                />
-                                <v-icon
-                                    v-else
-                                    icon="mdi-information"
-                                    size="small"
-                                    @click.stop="
-                                        editGroup(giftgroups[currentTab])
-                                    "
-                                />
-                            </span>
+                            <v-row>
+                                <v-col>
+                                    <span
+                                        class="cursor-pointer"
+                                        @click.stop="
+                                            editGroup(giftgroups[currentTab])
+                                        "
+                                    >
+                                        {{ giftgroups[currentTab].name }}
+                                        <v-icon
+                                            v-if="
+                                                giftgroups[currentTab]
+                                                    .editable &&
+                                                giftgroups[currentTab]
+                                                    .isBeingGifted
+                                            "
+                                            icon="mdi-pencil"
+                                            size="small"
+                                            @click.stop="
+                                                editGroup(
+                                                    giftgroups[currentTab],
+                                                )
+                                            "
+                                        />
+                                        <v-icon
+                                            v-else
+                                            icon="mdi-information"
+                                            size="small"
+                                            @click.stop="
+                                                editGroup(
+                                                    giftgroups[currentTab],
+                                                )
+                                            "
+                                        />
+                                    </span>
+                                </v-col>
+                                <v-col>
+                                    <gift-form
+                                        v-model:gift-dialog="addGiftDialog"
+                                        :prop-gift-data="giftDataToAdd"
+                                        @submit-form="addGift"
+                                    >
+                                        <template #activator="{ props }">
+                                            <v-btn
+                                                color="primary"
+                                                v-bind="props"
+                                            >
+                                                {{ giftAddButtonText }}
+                                            </v-btn>
+                                        </template>
+                                    </gift-form>
+                                </v-col>
+                            </v-row>
                         </v-card-title>
                         <v-data-table
                             :class="{ 'ma-4': true }"
@@ -90,244 +131,20 @@
                             :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
                             items-per-page="-1"
                         >
-                            <template #[`item.picture`]="{ item }">
-                                <v-avatar
-                                    :image="item.picture as string"
-                                    :size="60"
-                                    @click="
-                                        openPictureDialog(
-                                            item.picture as string,
-                                        )
-                                    "
+                            <template v-if="!lgAndUp" #headers></template>
+                            <template #item="{ index, internalItem, item }">
+                                <GiftDashboardTableRow
+                                    :item="item"
+                                    :internal-item="internalItem"
+                                    :headers="tableHeaders"
+                                    @delete-gift="deleteGift"
+                                    @edit-gift="editGift"
+                                    @do-action="do_Action"
+                                    @open-picture-dialog="openPictureDialog"
                                 />
-                            </template>
-                            <template #[`item.giftStrength`]="{ item }">
-                                <v-rating
-                                    v-model="item.giftStrength"
-                                    color="primary"
-                                    :disabled="true"
-                                    density="compact"
-                                    size="small"
-                                />
-                            </template>
-                            <template #[`item.price`]="{ item }">
-                                {{ item.price }} €
-                            </template>
-                            <template #[`item.availableActions`]="{ item }">
-                                <v-container>
-                                    <v-row no-gutters>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'edit',
-                                                )
-                                            "
-                                            text="Geschenk bearbeiten"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="editGift(item)"
-                                                    >
-                                                        mdi-pencil
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'delete',
-                                                )
-                                            "
-                                            text="Geschenk löschen"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            openDeleteConfirmationDialog(
-                                                                item,
-                                                            )
-                                                        "
-                                                    >
-                                                        mdi-delete
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'reserve',
-                                                )
-                                            "
-                                            text="Geschenk reservieren"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            do_Action(item, {
-                                                                reserve: true,
-                                                            })
-                                                        "
-                                                    >
-                                                        mdi-lock
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'stop reserve',
-                                                )
-                                            "
-                                            text="Reservierung löschen"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            do_Action(item, {
-                                                                reserve: false,
-                                                            })
-                                                        "
-                                                    >
-                                                        mdi-lock-off
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'free reserve',
-                                                )
-                                            "
-                                            text="Zur Reservierung freigeben"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            do_Action(item, {
-                                                                freeReserve: true,
-                                                            })
-                                                        "
-                                                    >
-                                                        mdi-share
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'stop free reserve',
-                                                )
-                                            "
-                                            text="Nicht mehr zur Reservierung freigeben"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            do_Action(item, {
-                                                                freeReserve: false,
-                                                            })
-                                                        "
-                                                    >
-                                                        mdi-share-off
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'request free reserve',
-                                                )
-                                            "
-                                            text="Reservierungs freigabe erbitten"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            do_Action(item, {
-                                                                requestFreeReserve: true,
-                                                            })
-                                                        "
-                                                    >
-                                                        mdi-back-right
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip
-                                            v-if="
-                                                item.availableActions.includes(
-                                                    'stop request free reserve',
-                                                )
-                                            "
-                                            text="Nicht mehr Reservierungs freigabe erbitten"
-                                            location="bottom"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-col>
-                                                    <v-icon
-                                                        v-bind="props"
-                                                        size="large"
-                                                        @click="
-                                                            do_Action(item, {
-                                                                requestFreeReserve: false,
-                                                            })
-                                                        "
-                                                    >
-                                                        mdi-back-right-off
-                                                    </v-icon>
-                                                </v-col>
-                                            </template>
-                                        </v-tooltip>
-                                    </v-row>
-                                </v-container>
                             </template>
                             <template #bottom />
                         </v-data-table>
-                        <gift-form
-                            v-model:gift-dialog="addGiftDialog"
-                            :prop-gift-data="giftDataToAdd"
-                            @submit-form="addGift"
-                        >
-                            <template #activator="{ props }">
-                                <v-btn color="primary" v-bind="props">
-                                    {{ giftAddButtonText }}
-                                </v-btn>
-                            </template>
-                        </gift-form>
                     </v-card>
                 </div>
             </v-skeleton-loader>
@@ -346,32 +163,17 @@
             @submit-form="updateGroup"
             @join-group="joinGroup"
         />
-        <v-dialog v-model="deleteConfirmationDialog" max-width="450px">
-            <v-card>
-                <v-card-title>Löschen bestätigen</v-card-title>
-                <v-card-text>
-                    Sicher, dass du das Geschenk
-                    <v-chip>{{ giftToDelete?.name }}</v-chip> löschen möchtest?
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="primary" @click="deleteGift">
-                        Löschen bestätigen
-                    </v-btn>
-                    <v-btn
-                        color="primary"
-                        @click="deleteConfirmationDialog = false"
-                    >
-                        Abbrechen
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
         <v-dialog v-model="pictureDialog" width="50%" height="75%">
             <v-img :src="curPicture" @click="pictureDialog = false" />
         </v-dialog>
     </v-card>
 </template>
 <script setup lang="ts">
+import { useDisplay } from "vuetify";
+const { lgAndUp } = useDisplay();
+const outerProps = defineProps({ navBar: { type: Boolean, default: true } });
+const navBarToggle = ref(outerProps.navBar);
+watch(outerProps, (newValue) => (navBarToggle.value = newValue.navBar));
 //---------------- Table ----------------//
 const giftgroupStore = useGiftGroupStore();
 const giftStore = useGiftStore();
@@ -396,11 +198,16 @@ const giftgroups = computed(() => {
 
 const tableHeaders = [
     { title: "Bild", value: "picture", width: "10%" },
-    { title: "Name", key: "name" },
+    { title: "Name", key: "name", value: "name" },
     { title: "Beschreibung", value: "description" },
     { title: "Link", value: "link" },
-    { title: "Preis", key: "price" },
-    { title: "Wunschstärke", key: "giftStrength", width: "10%" },
+    { title: "Preis", key: "price", value: "price" },
+    {
+        title: "Wunschstärke",
+        key: "giftStrength",
+        value: "giftStrength",
+        width: "10%",
+    },
     { title: "Aktionen", value: "availableActions", width: "165px" },
 ];
 
@@ -454,29 +261,47 @@ function editGift(gift: Gift) {
 }
 
 //---------------- Delete Gift ----------------//
-const deleteConfirmationDialog = ref(false);
-const giftToDelete = ref<Gift>({} as Gift);
-function openDeleteConfirmationDialog(gift: Gift) {
-    giftToDelete.value = gift;
-    deleteConfirmationDialog.value = true;
-}
-async function deleteGift() {
-    giftStore.deleteGift(giftToDelete.value);
-    deleteConfirmationDialog.value = false;
+async function deleteGift(gift: Gift) {
+    await giftStore.deleteGift(gift);
 }
 
 //---------------- Reserve, Free Reserve, Request Free Reserve Gift ----------------//
+function generateFreeReserveText(gift: Gift) {
+    if (!gift.freeForReservationRequest) return "";
+    let result = gift.freeForReservationRequest.reduce(
+        (previousValue, currentValue, currentIndex) =>
+            `${previousValue}${currentValue.firstName} ${currentValue.lastName}
+            ${
+                currentIndex + 1 < gift.freeForReservationRequest!.length
+                    ? currentIndex + 2 ===
+                      gift.freeForReservationRequest!.length
+                        ? " und "
+                        : ", "
+                    : " "
+            }`,
+        "",
+    );
+    result += `hat angefragt, ob du das Geschenk ${gift.name} zusammen schenken willst!`;
+    return result;
+}
 function do_Action(
     gift: Gift,
     queryParams: {
         reserve?: boolean;
         freeReserve?: boolean;
         requestFreeReserve?: boolean;
+        denyFreeReserve?: boolean;
     },
 ) {
     giftStore.doAction(gift, queryParams);
 }
-
+const giftsWithFreeReserveRequest = computed(() =>
+    giftStore.getGiftsOfCurrentGroup.filter(
+        (gift) =>
+            gift.freeForReservationRequest &&
+            gift.freeForReservationRequest.length > 0,
+    ),
+);
 //***********************************************************************//
 //-------------------------------- Group --------------------------------//
 //***********************************************************************//

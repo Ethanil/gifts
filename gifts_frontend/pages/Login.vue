@@ -1,4 +1,5 @@
 <template>
+    <TopToolbar />
     <div>
         <DashboardCardLogin
             @update:registration-dialog="(val) => (registrationDialog = val)"

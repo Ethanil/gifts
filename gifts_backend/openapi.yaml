@@ -86,11 +86,17 @@ components:
           type: string
           format: binary
           nullable: true
+        freeForReservationRequest:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserWithoutPassword'
         availableActions:
           type: array
           items:
             type: string
             enum: [ EDIT, DELETE, RESERVE, STOP_RESERVE, FREE_RESERVE, STOP_FREE_RESERVE, REQUEST_FREE_RESERVE, STOP_REQUEST_FREE_RESERVE ]
+        isSecretGift:
+          type: boolean
     GiftGroup:
       type: object
       required:
@@ -513,6 +519,11 @@ paths:
           schema:
             type: boolean
           description: Whether the user requests to have free reservation or stop this behaviour
+        - in: query
+          name: deny_free_reserve
+          schema:
+            type: boolean
+          description: Whether the user requests to deny the free reservation request
       responses:
         200:
           description: Successfully updated gift

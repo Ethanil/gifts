@@ -2,7 +2,6 @@
     <NuxtLayout>
         <v-app>
             <v-system-bar v-if="false" />
-            <TopToolbar />
             <v-main>
                 <NuxtPage />
             </v-main>
