@@ -22,7 +22,12 @@
                     @submit-form="addGroup"
                 >
                     <template #activator="{ props }">
-                        <v-btn v-bind="props" color="primary" icon="mdi-plus" size="45">
+                        <v-btn
+                            v-bind="props"
+                            color="primary"
+                            icon="mdi-plus"
+                            size="45"
+                        >
                         </v-btn>
                     </template>
                 </group-form>
@@ -132,7 +137,7 @@
                             items-per-page="-1"
                         >
                             <template v-if="!lgAndUp" #headers></template>
-                            <template #item="{ index, internalItem, item }">
+                            <template #item="{ internalItem, item }">
                                 <GiftDashboardTableRow
                                     :item="item"
                                     :internal-item="internalItem"

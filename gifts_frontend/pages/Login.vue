@@ -1,10 +1,14 @@
 <template>
-    <TopToolbar />
     <div>
-        <DashboardCardLogin
-            @update:registration-dialog="(val) => (registrationDialog = val)"
-        />
-        <DashboardCardRegister v-model="registrationDialog" />
+        <TopToolbar />
+        <div>
+            <DashboardCardLogin
+                @update:registration-dialog="
+                    (val) => (registrationDialog = val)
+                "
+            />
+            <DashboardCardRegister v-model="registrationDialog" />
+        </div>
     </div>
 </template>
 <script setup lang="ts">

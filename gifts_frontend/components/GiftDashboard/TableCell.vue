@@ -11,7 +11,7 @@
     </template>
     <template v-else-if="itemKey == 'giftStrength'">
         <v-rating
-            v-model="item.giftStrength"
+            v-model="rating"
             color="primary"
             :disabled="true"
             density="compact"
@@ -22,9 +22,7 @@
     <template v-else-if="itemKey == 'availableActions'">
         <GiftDashboardActions
             :item="item"
-            @do-action="
-                (gift, queryParams) => emit('doAction', gift, queryParams)
-            "
+            @do-action="(gift, queryParams) => emit('doAction', queryParams)"
             @edit="emit('editGift')"
             @delete="emit('deleteGift')"
         />
@@ -38,10 +36,10 @@
                     color="primary"
                     v-bind="props"
                 >
-                {{ itemVal }}
+                    {{ itemVal }}
                 </v-badge>
             </template>
-                Dies ist ein geheimes Geschenk
+            Dies ist ein geheimes Geschenk
         </v-tooltip>
         <span v-else>{{ itemVal }}</span>
     </template>
@@ -55,6 +53,7 @@ const outerProps = defineProps({
     item: { type: Object as PropType<Gift>, required: true },
     mobile: { type: Boolean, default: false },
 });
+const rating = outerProps.item.giftStrength;
 const emit = defineEmits([
     "openPictureDialog",
     "doAction",

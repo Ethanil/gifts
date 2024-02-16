@@ -8,8 +8,8 @@
                             <v-icon
                                 v-bind="props"
                                 size="large"
-                                @click="action.signal()"
                                 :icon="action.icon"
+                                @click="action.signal()"
                             >
                             </v-icon>
                         </v-col>

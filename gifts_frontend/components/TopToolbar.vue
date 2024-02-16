@@ -23,7 +23,7 @@
                     </router-link>
                 </v-col>
                 <v-col cols="1" class="d-flex justify-end">
-                    <BottomLegend/>
+                    <BottomLegend />
                     <div style="flex-wrap: nowrap">
                         <v-menu
                             transition="slide-y-transition"

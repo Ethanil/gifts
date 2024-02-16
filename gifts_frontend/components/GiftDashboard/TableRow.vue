@@ -70,13 +70,13 @@ const emit = defineEmits([
     "deleteGift",
     "openPictureDialog",
 ]);
-function doAction(gift: Gift, queryParams: any) {
+function doAction(queryParams: any) {
     emit("doAction", outerProps.item, queryParams);
 }
-function editGift(gift: Gift) {
+function editGift() {
     emit("editGift", outerProps.item);
 }
-function deleteGift(gift: Gift) {
+function deleteGift() {
     emit("deleteGift", outerProps.item);
 }
 </script>
