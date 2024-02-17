@@ -107,7 +107,7 @@ def update(giftgroup_id, giftgroup, user, token_info):
     return giftGroup_schema.dump(existing_giftGroup), 201
 
 
-def addUserToGroup(giftgroup_id, user, token_info):
+def addUserToGroup(giftgroup_id, user, token_info, decline=None):
     existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == giftgroup_id,
                                                    IsBeingGifted.user_email == user).one_or_none()
     if existing_relation is not None:
@@ -126,8 +126,10 @@ def addUserToGroup(giftgroup_id, user, token_info):
     if existing_user is None:
         abort(404,
               f"User with email {user} does not exist")
-    existing_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
-    existing_giftGroup.isInvited = set(filter(lambda invitation:invitation.user_email!=user,GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none().isInvited))
+    if decline is None:
+        existing_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
+    if decline is None or decline:
+        existing_giftGroup.isInvited = set(filter(lambda invitation:invitation.user_email!=user,GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none().isInvited))
     db.session.merge(existing_giftGroup)
     db.session.commit()
     return make_response(f"Giftgroup {giftgroup_id} linked with user_email {user}", 201)

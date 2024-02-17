@@ -309,6 +309,11 @@ paths:
           required: true
           description: the id of the group the user should be added to
           example: 4
+        - in: query
+          name: decline
+          schema:
+            type: boolean
+          description: Used to decline the Invitation
       responses:
         201:
           description: Succesfully created Giftgroup-user relation

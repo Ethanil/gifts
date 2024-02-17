@@ -69,9 +69,16 @@
                     </v-row>
                     <v-row>
                         <v-col cols="2">
-                            <v-btn icon="mdi-plus" color="primary" size="45" />
+                            <v-avatar
+                                color="primary"
+                                icon="mdi-eye-off-outline"
+                                size="35"
+                            />
                         </v-col>
-                        <v-col> Eine neue Geschenkliste erstellen </v-col>
+                        <v-col>
+                            Dieses Geschenk ist geheim, das heißt nur nicht
+                            Beschenkte können es sehen
+                        </v-col>
                         <v-divider />
                     </v-row>
                     <v-row>

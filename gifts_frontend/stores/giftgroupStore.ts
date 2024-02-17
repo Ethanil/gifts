@@ -33,7 +33,6 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 ) {
                     this.giftgroups[0].name = "Meine Liste";
                 }
-                console.log(this.giftgroups);
             } catch (error) {
                 console.log(error);
                 return error;
@@ -62,6 +61,19 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         async joinGroup(giftgroup: Giftgroup) {
             try {
                 const _ = await api.post(`/${giftgroup.id}`, giftgroup);
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                await this.loadFromAPI();
+            }
+        },
+        async declineInvitation(giftgroup: Giftgroup) {
+            try {
+                const _ = await api.post(
+                    `/${giftgroup.id}?decline=true`,
+                    giftgroup,
+                );
             } catch (error) {
                 console.log(error);
                 return error;

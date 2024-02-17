@@ -93,7 +93,7 @@ def add_fields_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
 
 
 def add_is_secret_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
-    gift_dict["isSecretGift"] = user in [usr.user_email for usr in gift.giftGroup.isBeingGifted]
+    gift_dict["isSecretGift"] = gift.user_email not in [usr.user_email for usr in gift.giftGroup.isBeingGifted]
     return gift_dict
 
 

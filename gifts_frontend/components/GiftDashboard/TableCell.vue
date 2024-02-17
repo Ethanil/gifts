@@ -43,13 +43,19 @@
         </v-tooltip>
         <span v-else>{{ itemVal }}</span>
     </template>
+    <template v-else-if="itemKey == 'link'"
+        ><a :href="itemVal" target="_blank">{{ itemVal }}</a></template
+    >
     <template v-else>{{ itemVal }}</template>
 </template>
 <script setup lang="ts">
 import type { PropType } from "vue";
 const outerProps = defineProps({
     itemKey: { type: String, required: true },
-    itemVal: { type: Object as PropType<any>, required: true },
+    itemVal: {
+        type: [Object, String, Number] as PropType<any>,
+        required: true,
+    },
     item: { type: Object as PropType<Gift>, required: true },
     mobile: { type: Boolean, default: false },
 });
