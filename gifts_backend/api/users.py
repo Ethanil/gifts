@@ -1,9 +1,14 @@
+import os
+import random
+import string
+import smtplib
 from flask import make_response, abort
 from config import db
 import time
 import jwt
 from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, IsBeingGifted, GiftGroup
 from os import getenv
+
 
 def create(user):
     email = user.get("email")
@@ -133,3 +138,64 @@ def login(authentication):
 
 def decode_token(token):
     return jwt.decode(token, key, issuer=issuer, algorithms=algorithm)
+
+
+def sendPasswordResetEmail(email):
+    existing_user = User.query.filter(User.email == email).one_or_none()
+    if existing_user is None:
+        abort(
+            401,
+            f"User with email {email} does not exist"
+        )
+    resetCode = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    existing_user.resetCode = resetCode
+    sendResetEmail(resetCode, email)
+    db.session.merge(existing_user)
+    db.session.commit()
+
+
+def sendResetEmail(resetCode,email):
+    smtp_server = os.getenv('SMTP_SERVER')
+    port = 587
+    if os.getenv("USE_SSL") == "True":
+        port = 465
+    server = smtplib.SMTP(smtp_server, port)
+    server.starttls()
+
+    sender_email = os.getenv("SENDER_EMAIL")
+    password = os.getenv("EMAIL_PASSWORD")
+    server.login(sender_email, password)
+    subject = f"Passwort zurücksetzungscode für {os.getenv('JWT_TOKEN_ISSUER')}"
+    body = f"Hallo,\n" \
+           f"dein Passwort-Reset-Code lautet:\n" \
+           f"{resetCode}\n" \
+           f"Mithilfe dieses codes kannst du dein Passwort neu setzen!"
+    message = f"Subject: {subject}\n\n{body}"
+    server.sendmail(sender_email, email, message)
+    server.quit()
+    # print(message)
+
+
+def resetPassword(email, password_and_code):
+    existing_user = User.query.filter(User.email == email).one_or_none()
+    if existing_user is None:
+        abort(
+            401,
+            f"User with email {email} does not exist"
+        )
+    if existing_user.resetCode is None:
+        abort(
+            403,
+            f"Wrong code"
+        )
+    try:
+        existing_user.ph.verify(existing_user.resetCode, password_and_code["code"])
+    except:
+        abort(
+            403,
+            f"Wrong code"
+        )
+    existing_user.password = password_and_code["password"]
+    db.session.merge(existing_user)
+    db.session.commit()
+    return "Password set", 200

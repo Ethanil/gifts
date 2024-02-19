@@ -28,6 +28,7 @@ class User(db.Model):
     lastName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     password: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     avatar: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
+    resetCode: db.Mapped[Optional[str]] = db.mapped_column(db.VARCHAR(256))
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")
     isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="user",
@@ -44,6 +45,9 @@ class User(db.Model):
     @db.validates('password')
     def _validate_password(self, key, password):
         return self.ph.hash(password)
+    @db.validates('resetCode')
+    def _validate_resetCode(self, key, resetCode):
+        return self.ph.hash(resetCode)
 
 
 class GiftGroup(db.Model):

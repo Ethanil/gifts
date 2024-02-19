@@ -151,6 +151,18 @@ components:
         public:
           type: boolean
           example: false
+    PasswordWithAuthCode:
+      type: object
+      required:
+        - password
+        - code
+      properties:
+        password:
+          type: string
+          format: password
+        code:
+          type: string
+
   parameters:
     email:
       in: path
@@ -210,6 +222,40 @@ paths:
         401:
           description: User is not authorized to read User list
   /users/{email}:
+    post:
+      operationId: api.users.sendPasswordResetEmail
+      summary: Sends an Email to the User with a Reset-Code
+      tags:
+        - User
+        - Authentication
+      parameters:
+        - $ref: "#/components/parameters/email"
+      responses:
+        200:
+          description: Succesfully send email
+      security:
+        [ ]
+    patch:
+      operationId: api.users.resetPassword
+      summary: Resets the password, if the given Code is correct
+      tags:
+        - User
+        - Authentication
+      parameters:
+        - $ref: "#/components/parameters/email"
+      requestBody:
+        x-body-name: password_and_code
+        description: The new password and the code to check authentication
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordWithAuthCode"
+      responses:
+        200:
+          description: Succesfully set Password
+      security:
+        [ ]
     delete:
       operationId: api.users.delete
       summary: Delete an User

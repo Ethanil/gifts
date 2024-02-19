@@ -49,11 +49,20 @@
                     Jetzt Registrieren <v-icon icon="mdi-chevron-right" />
                 </span>
             </v-card-text>
+            <v-card-text class="text-center">
+                <span
+                    color="primary"
+                    class="cursor-pointer text-primary"
+                    @click="emit('update:passwordResetDialog', true)"
+                >
+                    Passwort zurücksetzen <v-icon icon="mdi-chevron-right" />
+                </span>
+            </v-card-text>
         </v-form>
     </v-card>
 </template>
 <script setup lang="ts">
-const emit = defineEmits(["update:registrationDialog"]);
+const emit = defineEmits(["update:registrationDialog","update:passwordResetDialog"]);
 const loading = ref(false);
 const { signIn } = useAuth();
 
