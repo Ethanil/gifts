@@ -25,11 +25,17 @@ install the packages with
 pip install -r requirements.txt
 ```
 
+rename the .envExample into .env:
+```bash
+mv .envExample .env
+```
+and edit it with your credentials
+
 
 ## Test the backend installation
 To test that everything worked start the backend-server
 ```bash
-uvicorn main:app --host 127.0.0.1 --port 5000
+uvicorn main:app --host 0.0.0.0 --port 5000
 ```
 
 if you want to test some more start another console and use
@@ -38,6 +44,11 @@ curl 127.0.0.1:5000/api/items
 ```
 
 then stop the uvicorn-process with `ctrl+c`
+
+deactivate the python-virtual-environment before proceding with
+```bash
+deactivate
+```
 
 ## Setup supervisord daemon
 ### Create daemon.ini
@@ -61,6 +72,11 @@ stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
 
+### Uberspace-config
+expose the service to the outside(make sure to use the correct port and route):
+```bash
+uberspace web backend set /api --http --port 5000
+```
 # Frontend
 ## Setup
 ### Node
@@ -68,10 +84,22 @@ Navigate to the frontend and install the packages with
 ```bash
 npm install
 ```
+if this is not working for you try yarn instead:
+```bash
+yarn install
+```
+
+rename the .envExample:
+```bash
+mv .envExample .env
+```
+and edit your credentials
+
 Build the frontend
 ```bash
 npm run build
 ```
+you can replace here `npm` with `yarn` aswell
 you know should have an `.output/server/index.mjs` file. This is the entry-point of the node server.
 ### supervisord
 Navigate into your service.d directory with
@@ -94,6 +122,11 @@ stdout_logfile=%(ENV_HOME)s/logs/gifts_frontend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
 
+### Uberspace-config
+expose the service to the outside(make sure to use the correct port and route):
+```bash
+uberspace web backend set / --http --port 8000
+```
 
 # Start supervisord
 reread the config
@@ -108,3 +141,10 @@ after a few seconds you should see the process running with
 ```bash
 supervisorctl status
 ```
+
+## check if everything works
+check the backend port-routing with
+```bash
+uberspace web backend list
+```
+both ports should have an OK-status
