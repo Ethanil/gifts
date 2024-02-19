@@ -90,7 +90,7 @@ command=node .output/server/index.mjs
 autostart=true
 autorestart=true
 environment=NITRO_PORT=8000
-stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
+stdout_logfile=%(ENV_HOME)s/logs/gifts_frontend.log
 ```
 save and close with `ctrl+o` followed by `enter` and then `ctrl+x`
 
