@@ -1,6 +1,6 @@
 import { mande, defaults } from "mande";
 import type { User } from "./userStore";
-const api = mande("http://127.0.0.1:5000/api/giftgroups");
+const api = mande(`${useRuntimeConfig().public.auth.baseURL}/giftgroups`);
 export type Giftgroup = {
     id: number;
     editable: boolean;

@@ -1,5 +1,5 @@
 import { mande, defaults } from "mande";
-const api = mande("http://127.0.0.1:5000/api/gifts");
+const api = mande(`${useRuntimeConfig().public.auth.baseURL}/gifts`);
 export type Gift = {
     id: number;
     name: string;
@@ -73,7 +73,7 @@ export const useGiftStore = defineStore("gift", {
                 const { token } = useAuth();
                 defaults.headers.Authorization = String(token.value);
                 const _ = await fetch(
-                    "http://127.0.0.1:5000/api/gifts/" + this.groupId,
+                    `${useRuntimeConfig().public.auth.baseURL}/gifts` + this.groupId,
                     {
                         method: "POST",
                         body: formData,
@@ -111,7 +111,7 @@ export const useGiftStore = defineStore("gift", {
                 const { token } = useAuth();
                 defaults.headers.Authorization = String(token.value);
                 const _ = await fetch(
-                    `http://127.0.0.1:5000/api/gifts/${this.groupId}/${gift.id}`,
+                    `${useRuntimeConfig().public.auth.baseURL}/gifts/${this.groupId}/${gift.id}`,
                     {
                         method: "PUT",
                         body: formData,

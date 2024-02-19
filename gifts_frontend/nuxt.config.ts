@@ -29,7 +29,7 @@ export default defineNuxtConfig({
         },
     },
     auth: {
-        baseURL: "http://127.00.0.1:5000/api",
+        baseURL: process.env.NODE_ENV !== 'production' ? "http://127.0.0.1:5000/api" : `https://${process.env.EXPOSED_BACKEND_URL}`,
         provider: {
             type: "local",
             endpoints: {

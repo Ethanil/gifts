@@ -1,5 +1,5 @@
 import { mande, defaults } from "mande";
-const api = mande("http://127.0.0.1:5000/api/users");
+const api = mande(`${useRuntimeConfig().public.auth.baseURL}/users`);
 export type User = {
     email: string;
     firstName: string;
