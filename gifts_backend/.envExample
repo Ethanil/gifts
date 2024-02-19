@@ -1,0 +1,14 @@
+BACKEND_PORT=5000
+BACKEND_HOST=127.0.0.1
+DATABASE_SCHEMA_NAME="ethanil"
+DATABASE_PASSWORD="123"
+# Authentication
+JWT_SECRET_KEY = "CrazySecretString"
+HASHING_ALGORITHM = "HS256"
+TOKEN_LIFE_IN_SECONDS = 259200
+JWT_TOKEN_ISSUER = "theIssuerOfTheToken"
+PICTURE_STORAGE = "pictures"
+SMTP_SERVER = "smtp.example.com"
+USE_SSL = "FALSE"
+SENDER_EMAIL = "your_email@example.com"
+EMAIL_PASSWORD = "your_email_password"
