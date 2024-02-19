@@ -73,7 +73,7 @@ export const useGiftStore = defineStore("gift", {
                 const { token } = useAuth();
                 defaults.headers.Authorization = String(token.value);
                 const _ = await fetch(
-                    `${useRuntimeConfig().public.auth.baseURL}/gifts` + this.groupId,
+                    `${useRuntimeConfig().public.auth.baseURL}/gifts/${this.groupId}`,
                     {
                         method: "POST",
                         body: formData,
