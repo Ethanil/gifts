@@ -21,7 +21,7 @@ connex_app.add_middleware(
 app = connex_app.app
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mariadb+mariadbconnector://root:{os.getenv('DATABASE_PASSWORD')}@localhost/{os.getenv('DATABASE_SCHEMA_NAME')}"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"mariadb+mariadbconnector://{os.getenv('DATABASE_USERNAME')}:{os.getenv('DATABASE_PASSWORD')}@localhost/{os.getenv('DATABASE_SCHEMA_NAME')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['CORS_HEADERS'] = 'Content-Type'
 db = SQLAlchemy(app)
