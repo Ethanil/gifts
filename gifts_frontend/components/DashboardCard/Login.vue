@@ -62,7 +62,10 @@
     </v-card>
 </template>
 <script setup lang="ts">
-const emit = defineEmits(["update:registrationDialog","update:passwordResetDialog"]);
+const emit = defineEmits([
+    "update:registrationDialog",
+    "update:passwordResetDialog",
+]);
 const loading = ref(false);
 const { signIn } = useAuth();
 

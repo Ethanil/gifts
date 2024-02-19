@@ -24,22 +24,24 @@ export const useUserStore = defineStore("user", {
                 return error;
             }
         },
-        async requestPasswordReset(email:string){
-            try{
-                const response = await api.post(`/${email}`)
+        async requestPasswordReset(email: string) {
+            try {
+                const _ = await api.post(`/${email}`);
             } catch (error) {
                 console.log(error);
                 return error;
             }
         },
-        async resetPassword(email:string, password:string, code:string){
-            try{
-                const response = await api.patch(`/${email}`,{password:password, code:code})
+        async resetPassword(email: string, password: string, code: string) {
+            try {
+                const _ = await api.patch(`/${email}`, {
+                    password: password,
+                    code: code,
+                });
             } catch (error) {
                 console.log(error);
                 return error;
             }
-
-        }
+        },
     },
 });

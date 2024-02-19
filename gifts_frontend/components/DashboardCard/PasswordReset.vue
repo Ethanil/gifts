@@ -198,7 +198,6 @@ async function resetPassword(event: any) {
                         { external: true },
                     );
                 });
-
         } catch (e: any) {
             console.log(e);
         } finally {
