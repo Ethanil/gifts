@@ -165,7 +165,7 @@ def sendResetEmail(resetCode,email):
     sender_email = os.getenv("SENDER_EMAIL")
     password = os.getenv("EMAIL_PASSWORD")
     server.login(sender_email, password)
-    subject = f"Passwort zurücksetzungscode für {os.getenv('JWT_TOKEN_ISSUER')}"
+    subject = f"Passwort zuruecksetzungscode fuer {os.getenv('JWT_TOKEN_ISSUER')}"
     body = f"Hallo,\n" \
            f"dein Passwort-Reset-Code lautet:\n" \
            f"{resetCode}\n" \
