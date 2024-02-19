@@ -54,7 +54,7 @@ paste the following code into it
 ```
 [program:gifts_backend]
 directory=%(ENV_HOME)s/gifts/gifts_backend
-command=%(ENV_HOME)s/gifts/gifts_backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 5000
+command=%(ENV_HOME)s/gifts/gifts_backend/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 5000
 autostart=true
 autorestart=true
 stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
