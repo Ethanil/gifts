@@ -11,6 +11,7 @@ from models import User, user_schema, user_schema_without_password, users_schema
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from flask_sqlalchemy import func
 
 
 def create(user):
@@ -104,7 +105,7 @@ issuer = getenv('JWT_TOKEN_ISSUER')
 
 
 def login(authentication):
-    email = authentication["email"]
+    email = func.lower(authentication["email"])
     password = authentication["password"]
     # check if credentials are correct
     existing_user = User.query.filter(User.email == email).one_or_none()
