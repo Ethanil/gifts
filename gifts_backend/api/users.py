@@ -11,7 +11,7 @@ from models import User, user_schema, user_schema_without_password, users_schema
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask_sqlalchemy import func
+from sqlalchemy import func
 
 
 def create(user):
