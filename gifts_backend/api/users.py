@@ -11,11 +11,10 @@ from models import User, user_schema, user_schema_without_password, users_schema
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from sqlalchemy import func
 
 
 def create(user):
-    email = user.get("email")
+    email = user.get("email").lower()
     existing_user = User.query.filter(User.email == email).one_or_none()
     if existing_user is None:
         user.pop("avatar", None)
@@ -105,7 +104,7 @@ issuer = getenv('JWT_TOKEN_ISSUER')
 
 
 def login(authentication):
-    email = func.lower(authentication["email"])
+    email = authentication["email"].lower()
     password = authentication["password"]
     # check if credentials are correct
     existing_user = User.query.filter(User.email == email).one_or_none()

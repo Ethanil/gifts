@@ -3,7 +3,7 @@ from typing import Set, Optional
 from datetime import datetime
 from enum import Enum
 from argon2 import PasswordHasher
-from sqlalchemy import event, func
+from sqlalchemy import event
 import os
 
 
@@ -53,7 +53,7 @@ class User(db.Model):
 
     @db.validates('email')
     def validate_email(self, key, email):
-        return func.lower(email)
+        return email.lower()
 
 
 
