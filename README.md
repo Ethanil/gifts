@@ -30,7 +30,13 @@ rename the .envExample into .env:
 mv .envExample .env
 ```
 and edit it with your credentials
-
+### Generate secure secret key
+To use JWT we need a proper secret key. Make sure to use a apropriate key-length for the chosen Hashing-Algorithm.
+#### Generate Token for SH256 via Python interpreter
+1. open the python interpreter by typing `py`
+2. Import secrets module with `import secrets`
+3. generate the token and print it with `print(secrets.token_urlsafe(32))` [you can change the length here]
+4. copy and paste it to your .env-file
 
 ## Test the backend installation
 To test that everything worked start the backend-server
