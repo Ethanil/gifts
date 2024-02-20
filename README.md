@@ -148,3 +148,34 @@ check the backend port-routing with
 uberspace web backend list
 ```
 both ports should have an OK-status
+
+
+# Port Database from php-giftreg to this app
+## Users
+```sql
+INSERT into ethanil.user (email, firstName, lastName, password)
+SELECT LOWER(u.email) as email, u.fullname as firstName, '' as lastName, u.password as password
+FROM oldSchema.users u;
+```
+Add any kind of Lastname to users to not have ugly gaps in listnames
+## Giftgroups/Lists
+```sql
+INSERT INTO ethanil.giftgroup (id, editable, name)
+SELECT u.userid as id, false as editable, CONCAT(eu.firstName, ' ', eu.lastName, '''s Liste') as name
+FROM oldSchema.users u join newSchema.user eu on u.fullname = eu.firstName;
+```
+
+## Beinggifted - Relation
+```sql
+INSERT INTO ethanil.isbeinggifted (giftGroup_id, user_email)
+SELECT userid as id, LOWER(u.email) as user_email
+FROM oldSchema.users u;
+```
+
+## Gifts
+```sql
+INSERT INTO ethanil.gift (name, price, giftStrength, link, description, picture, giftGroup_id, user_email, freeForReservation)
+SELECT description AS name, price, ranking AS giftStrength, url AS link, test.items.comment AS description,  COALESCE(image_filename,'') AS picture, items.userid as giftGroup_id, LOWER(email) as user_email, false as freeForReservation
+FROM oldSchema.items join oldSchema.users u on items.userid = u.userid;
+```
+make sure to copy the pictures of the gifts from the old directory into the one you chose in the `.env` of the backend!

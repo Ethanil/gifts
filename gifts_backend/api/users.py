@@ -6,8 +6,11 @@ from flask import make_response, abort
 from config import db
 import time
 import jwt
-from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, IsBeingGifted, GiftGroup
+from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, \
+    IsBeingGifted, GiftGroup
 from os import getenv
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 
 def create(user):
@@ -44,6 +47,8 @@ def read_all(user, token_info, giftgroup_id=-1):
     users_that_are_being_gifted = [isBeingGifted.user for isBeingGifted in existing_giftGroup.isBeingGifted]
     users = [user for user in users if user not in users_that_are_being_gifted]
     return users_schema_without_password.dump(users), 200
+
+
 def get_session(user, token_info):
     exisiting_user = User.query.filter(User.email == user).one_or_none()
     if exisiting_user is None:
@@ -135,7 +140,6 @@ def login(authentication):
     }), 200
 
 
-
 def decode_token(token):
     return jwt.decode(token, key, issuer=issuer, algorithms=algorithm)
 
@@ -154,7 +158,7 @@ def sendPasswordResetEmail(email):
     db.session.commit()
 
 
-def sendResetEmail(resetCode,email):
+def sendResetEmail(resetCode, email):
     smtp_server = os.getenv('SMTP_SERVER')
     port = 587
     if os.getenv("USE_SSL") == "True":
@@ -165,15 +169,27 @@ def sendResetEmail(resetCode,email):
     sender_email = os.getenv("SENDER_EMAIL")
     password = os.getenv("EMAIL_PASSWORD")
     server.login(sender_email, password)
-    subject = f"Passwort zuruecksetzungscode fuer {os.getenv('JWT_TOKEN_ISSUER')}"
-    body = f"Hallo,\n" \
-           f"dein Passwort-Reset-Code lautet:\n" \
-           f"{resetCode}\n" \
-           f"Mithilfe dieses codes kannst du dein Passwort neu setzen!"
-    message = f"Subject: {subject}\n\n{body}"
-    server.sendmail(sender_email, email, message)
+    subject = f"Passwort Rücksetzungscode für {os.getenv('JWT_TOKEN_ISSUER')}"
+    body = f"""
+        <html>
+            <body>
+                <h1 style="margin-bottom: 10px;">Hallo,</h1>
+                dein Passwort-Reset-Code lautet:
+                <div style="font-size: 40px; margin: 20px;">{resetCode}</div> 
+                Mithilfe dieses codes kannst du dein Passwort neu setzen!<br><br>
+                Viel Spaß beim Schenken und beschenkt werden!
+            </body>
+        </html>
+    """
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = email
+    message["Subject"] = subject
+    message.attach(MIMEText(body, "html"))
+    text = message.as_string()
+    server.sendmail(sender_email, email, text)
     server.quit()
-    # print(message)
+    print(message)
 
 
 def resetPassword(email, password_and_code):

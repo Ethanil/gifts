@@ -26,10 +26,14 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 // change name of own giftgroup
                 if (
                     this.giftgroups.length > 0 &&
-                    this.giftgroups[0].name ==
+                    (this.giftgroups[0].name ==
                         `${(data.value as any).firstName} ${
                             (data.value as any).lastName
-                        }'s Liste`
+                        }'s Liste` ||
+                        this.giftgroups[0].name ==
+                            `${(data.value as any).firstName} ${
+                                (data.value as any).lastName
+                            }'s Liste`)
                 ) {
                     this.giftgroups[0].name = "Meine Liste";
                 }

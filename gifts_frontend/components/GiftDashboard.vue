@@ -245,11 +245,7 @@ function openPictureDialog(picture: string) {
 //**********************************************************************//
 //---------------- Add Gift ----------------//
 const giftAddButtonText = computed(() => {
-    if (
-        !giftgroups.value ||
-        giftgroups.value.length === 0 ||
-        giftgroups.value[currentTab.value].isBeingGifted
-    )
+    if (!giftgroups.value || giftgroups.value[currentTab.value].isBeingGifted)
         return "Geschenk Hinzufügen";
     else return "Geschenk geheim vorschlagen";
 });

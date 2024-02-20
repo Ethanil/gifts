@@ -3,8 +3,9 @@ from typing import Set, Optional
 from datetime import datetime
 from enum import Enum
 from argon2 import PasswordHasher
-from sqlalchemy import event
+from sqlalchemy import event, func
 import os
+
 
 class GiftStrength(str, Enum):
     OKAY = 1  # Okay
@@ -45,9 +46,15 @@ class User(db.Model):
     @db.validates('password')
     def _validate_password(self, key, password):
         return self.ph.hash(password)
+
     @db.validates('resetCode')
     def _validate_resetCode(self, key, resetCode):
-        return self.ph.hash(resetCode)
+        return self.ph.hash(resetCode)\
+
+    @db.validates('email')
+    def validate_email(self, key, email):
+        return func.lower(email)
+
 
 
 class GiftGroup(db.Model):
@@ -127,9 +134,11 @@ class Gift(db.Model):
     hasRequestedReservationFreeing: db.Mapped[Set["HasRequestedReservationFreeing"]] = db.relationship(
         back_populates="gift", cascade="all, delete-orphan", passive_deletes=True)
 
+
 @event.listens_for(Gift, 'after_delete')
 def delete_picture(mapper, connection, target):
     os.remove(target.picture)
+
 
 class Comment(db.Model):
     __tablename__ = "comment"
