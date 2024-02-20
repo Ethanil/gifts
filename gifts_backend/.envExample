@@ -4,8 +4,8 @@ DATABASE_SCHEMA_NAME="ethanil"
 DATABASE_PASSWORD="123"
 DATABASE_USERNAME="root"
 # Authentication
-JWT_SECRET_KEY = "CrazySecretString"
-HASHING_ALGORITHM = "HS256"
+JWT_SECRET_KEY = "CrazySecretString" # See Step generate Secret key in the readme
+HASHING_ALGORITHM = "HS256" # see https://pyjwt.readthedocs.io/en/latest/algorithms.html#digital-signature-algorithms
 TOKEN_LIFE_IN_SECONDS = 259200
 JWT_TOKEN_ISSUER = "theIssuerOfTheToken"
 PICTURE_STORAGE = "pictures"
