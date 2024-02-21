@@ -43,5 +43,34 @@ export const useUserStore = defineStore("user", {
                 return error;
             }
         },
+        async updateUser(
+            oldPassword: string,
+            newFirstName: string,
+            newLastName: string,
+            newPassword: string,
+        ) {
+            try {
+                const { data } = useAuth();
+                let body = {
+                    firstName: newFirstName,
+                    lastName: newLastName,
+                    oldPassword: oldPassword,
+                } as any;
+                if (newPassword !== "") {
+                    body["newPassword"] = newPassword;
+                }
+                console.log(body);
+                const _ = await api.put(`/${(data.value as any).email}`, body);
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                const { data, signIn } = useAuth();
+                signIn({
+                    email: (data.value as any).email,
+                    password: newPassword !== "" ? newPassword : oldPassword,
+                });
+            }
+        },
     },
 });

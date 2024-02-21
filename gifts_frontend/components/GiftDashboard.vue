@@ -1,7 +1,7 @@
 <template>
     <v-card>
         <div class="d-flex flex-row">
-            <v-navigation-drawer v-model="navBarToggle">
+            <v-navigation-drawer v-model="navBarToggle" @update:model-value="emits('navBarToggle')">
                 <v-tabs v-model="currentTab" direction="vertical">
                     <template v-for="(group, key) in giftgroups" :key="key">
                         <v-tab :value="key">
@@ -188,14 +188,17 @@
         <v-dialog v-model="pictureDialog" width="50%" height="75%">
             <v-img :src="curPicture" @click="pictureDialog = false" />
         </v-dialog>
+        
     </v-card>
 </template>
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
 const { lgAndUp } = useDisplay();
-const outerProps = defineProps({ navBar: { type: Boolean, default: true } });
-const navBarToggle = ref(outerProps.navBar);
-watch(outerProps, (newValue) => (navBarToggle.value = newValue.navBar));
+const navBarToggle = defineModel<boolean>("navBarToggle", {
+    type: Boolean,
+    required: true,
+});
+const emits = defineEmits(["navBarToggle"])
 //---------------- Table ----------------//
 const giftgroupStore = useGiftGroupStore();
 const giftStore = useGiftStore();

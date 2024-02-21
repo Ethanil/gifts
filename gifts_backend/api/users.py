@@ -14,6 +14,7 @@ from email.mime.text import MIMEText
 
 
 def create(user):
+    # TODO add avatar
     email = user.get("email").lower()
     existing_user = User.query.filter(User.email == email).one_or_none()
     if existing_user is None:
@@ -76,25 +77,38 @@ def update(email, new_user_data, user, token_info):
             403,
             "Not allowed to update another user"
         )
-    exisiting_user = User.query.filter(User.email == email).one_or_none()
-    if exisiting_user is None:
+    existing_user = User.query.filter(User.email == email).one_or_none()
+    if existing_user is None:
         abort(
             404,
             f"User with email {email} not found"
         )
-    another_user = User.query.filter(User.email == new_user_data.get("email")).one_or_none()
-    if another_user:
+    try:
+        existing_user.ph.verify(existing_user.password, new_user_data.get("oldPassword"))
+    except:
         abort(
-            406,
-            f"User with email {new_user_data.get('email')} already exists"
+            403,
+            f"Password is not correct"
         )
-    updated_user = user_schema.load(new_user_data, session=db.session)
-    exisiting_user.email = updated_user.email
-    exisiting_user.password = updated_user.password
-    # exisiting_user.avatar = updated_user.avatar
-    db.session.merge(exisiting_user)
+    new_user_data["email"] = new_user_data.get("email").lower()
+    if new_user_data["email"] != email:
+        another_user = User.query.filter(User.email == new_user_data.get("email")).one_or_none()
+        if another_user:
+            abort(
+                406,
+                f"User with email {new_user_data.get('email')} already exists"
+            )
+    password = ""
+    if new_user_data.get("newPassword") is not None:
+        existing_user.password = new_user_data.get("newPassword")
+    else:
+        pass
+    # TODO add avatar
+    existing_user.firstName = new_user_data.get("firstName")
+    existing_user.lastName = new_user_data.get("lastName")
+    db.session.merge(existing_user)
     db.session.commit()
-    return user_schema.dump(exisiting_user), 201
+    return user_schema.dump(existing_user), 201
 
 
 key = getenv('JWT_SECRET_KEY')

@@ -11,9 +11,7 @@
                     <v-menu
                         transition="slide-y-transition"
                         location="bottom"
-                        open-on-hover
                         open-on-click
-                        close-delay="140"
                         :close-on-content-click="false"
                     >
                         <template #activator="{ props }">
@@ -24,15 +22,19 @@
                         <div>
                             <v-card>
                                 <v-list>
+                                    <ProfileForm v-if="status === 'authenticated'">
+                                        <template #activator="{props}">
                                     <v-list-item
-                                        v-if="status === 'authenticated'"
-                                        to="/user/profile"
+                                        
                                         class="px-4"
                                         prepend-icon="mdi-account"
+                                        v-bind="props"
                                     >
                                         {{ (data as any).firstName }}
                                         {{ (data as any).lastName }}
                                     </v-list-item>
+                                </template>
+                                </ProfileForm>
                                 </v-list>
                                 <v-divider v-if="status === 'authenticated'" />
                                 <v-list>
@@ -45,7 +47,7 @@
                                                 "
                                                 append-icon="mdi-weather-night"
                                                 prepend-icon="mdi-white-balance-sunny"
-                                                @click.prevent="toggleTheme"
+                                                @click.stop="toggleTheme"
                                             />
                                         </v-list-item-action>
                                     </v-list-item>
@@ -73,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits(["iconClick"]);
+const emit = defineEmits(["iconClick", "openProfile"]);
 import { useTheme } from "vuetify";
 const { signOut, status, data } = useAuth();
 async function logout() {
@@ -85,6 +87,7 @@ function toggleTheme() {
     localStorage.setItem("selectedTheme", selectedTheme);
     theme.global.name.value = selectedTheme;
 }
+
 </script>
 
 <style></style>

@@ -26,7 +26,7 @@
                 <v-text-field
                     v-model="registrationFormRef.email"
                     label="Email"
-                    :rules="emailRules"
+                    :rules="[emailRule()]"
                 />
                 <v-text-field
                     v-model="registrationFormRef.password"
@@ -95,19 +95,7 @@
 <script setup lang="ts">
 const loading = ref(false);
 const { signUp } = useAuth();
-const emailRules = [
-    (email: string): boolean | string => {
-        if (
-            String(email)
-                .toLowerCase()
-                .match(
-                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                ) !== null
-        )
-            return true;
-        return "Gültige Email eingeben";
-    },
-];
+
 const reenteredPasswordRules = [
     (password: string): boolean | string => {
         if (password === registrationFormRef.value.password) return true;

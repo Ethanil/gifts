@@ -41,6 +41,19 @@ components:
               type: string
               format: password
               example: very1Secure$Password2With&Special3Characters_
+    UserSetNewPassword:
+      allOf:
+        - $ref: '#/components/schemas/UserWithoutPassword'
+        - type: object
+          properties:
+            oldPassword:
+              type: string
+              format: password
+              example: very1Secure$Password2With&Special3Characters_
+            newPassword:
+              type: string
+              format: password
+              example: very1Secure$Password2With&Special3Characters_
     Login:
       type: object
       required:
@@ -280,7 +293,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserWithoutPassword"
+              $ref: "#/components/schemas/UserSetNewPassword"
       responses:
         200:
           description: Succesfully updated user

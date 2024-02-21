@@ -1,5 +1,5 @@
 <template>
-    <v-bottom-sheet inset>
+    <v-bottom-sheet inset max-height="90%">
         <template #activator="{ props }">
             <v-btn icon="mdi-help" v-bind="props" />
         </template>
