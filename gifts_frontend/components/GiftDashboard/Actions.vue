@@ -1,10 +1,10 @@
 <template>
     <v-container class="mb-3">
-        <v-row no-gutters>
+        <v-row>
             <template v-for="(action, key) in filteredActions" :key="key">
                 <v-tooltip :text="action.tooltipText" location="bottom">
                     <template #activator="{ props }">
-                        <v-col>
+                        <v-col :cols="lgAndUp ? 'auto' : '4'">
                             <v-icon
                                 v-bind="props"
                                 size="large"
@@ -40,6 +40,8 @@
     </v-container>
 </template>
 <script setup lang="ts">
+import { useDisplay } from "vuetify";
+const { lgAndUp } = useDisplay();
 import type { PropType } from "vue";
 
 const outerProps = defineProps({

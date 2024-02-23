@@ -186,7 +186,7 @@ def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
             f"Not allowed to edit gift with id {gift_id}"
         )
     if isinstance(picture, FileStorage):
-        if existing_gift.picture == "":
+        if existing_gift.picture is None or existing_gift.picture == "":
             filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"
             folder_path = getenv("PICTURE_STORAGE")
 
@@ -200,12 +200,12 @@ def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
             image_filename = existing_gift.picture
         picture.save(image_filename)
         gift['picture'] = image_filename
+        existing_gift.picture = gift.get("picture")
     existing_gift.name = gift.get("name")
     existing_gift.description = gift.get("description")
     existing_gift.price = gift.get("price")
     existing_gift.link = gift.get("link")
     existing_gift.giftStrength = gift.get("giftStrength")
-    existing_gift.picture = gift.get("picture")
     db.session.merge(existing_gift)
     db.session.commit()
     return gift_schema.dump(existing_gift), 200

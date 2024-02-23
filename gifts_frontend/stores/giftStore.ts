@@ -64,7 +64,7 @@ export const useGiftStore = defineStore("gift", {
                         formData.append(key, value);
                         break;
                     default:
-                        if (key !== "availableActions")
+                        if (key !== "availableActions" && value !== undefined)
                             formData.append(key, value as Blob);
                         break;
                 }
@@ -102,7 +102,7 @@ export const useGiftStore = defineStore("gift", {
                         formData.append(key, value);
                         break;
                     default:
-                        if (key !== "availableActions")
+                        if (key !== "availableActions" && value !== undefined)
                             formData.append(key, value as Blob);
                         break;
                 }

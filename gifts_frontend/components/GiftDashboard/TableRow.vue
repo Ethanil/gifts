@@ -4,51 +4,32 @@
             v-for="([key, val], index) in Object.entries(internalItem.columns)"
             :key="index"
         >
-            <td class="v-data-table__td v-data-table-column--align-start">
-                <GiftDashboardTableCell
-                    :item="item"
-                    :item-key="key"
-                    :item-val="val"
-                    @delete-gift="deleteGift"
-                    @do-action="doAction"
-                    @edit-gift="editGift"
-                    @open-picture-dialog="
-                        emit('openPictureDialog', item.picture as string)
-                    "
-                />
-            </td>
+            <GiftDashboardTableCell
+                :item="item"
+                :item-key="key"
+                :item-val="val"
+                @delete-gift="deleteGift"
+                @do-action="doAction"
+                @edit-gift="editGift"
+                @open-picture-dialog="
+                    emit('openPictureDialog', item.picture as string)
+                "
+            />
         </template>
     </tr>
     <template v-else>
-        <v-container>
-            <v-row
-                v-for="([key, val], index) in Object.entries(
-                    internalItem.columns,
-                )"
-                :key="index"
-                density="compact"
-                slim
-            >
-                <v-col>
-                    {{ headers[index].title }}
-                </v-col>
-                <v-col>
-                    <GiftDashboardTableCell
-                        :item="item"
-                        :item-key="key"
-                        :item-val="val"
-                        mobile
-                        @delete-gift="deleteGift"
-                        @do-action="doAction"
-                        @edit-gift="editGift"
-                        @open-picture-dialog="
-                            emit('openPictureDialog', item.picture as string)
-                        "
-                    />
-                </v-col>
-            </v-row>
-            <v-divider />
-        </v-container>
+        <GiftDashboardTableCell
+            :item="item"
+            item-key=""
+            item-val=""
+            mobile
+            @delete-gift="deleteGift"
+            @do-action="doAction"
+            @edit-gift="editGift"
+            @open-picture-dialog="
+                emit('openPictureDialog', item.picture as string)
+            "
+        />
     </template>
 </template>
 <script setup lang="ts">

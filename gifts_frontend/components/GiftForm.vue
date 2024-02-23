@@ -15,11 +15,14 @@
                 <v-text-field
                     v-model="giftData.name"
                     label="Name des Geschenks"
-                    :rules="[nonEmptyRule('Name des Geschenks')]"
+                    counter="60"
+                    :rules="[nonEmptyRule('Name des Geschenks'), maxCharRule(60)]"
                 />
                 <v-text-field
                     v-model="giftData.description"
+                    counter="255"
                     label="Beschreibung des Geschenks"
+                    :rules="[maxCharRule(255)]"
                 />
                 <v-text-field
                     v-model="giftData.link"
@@ -70,6 +73,7 @@
 </template>
 <script setup lang="ts">
 import type { PropType } from "vue";
+import maxCharRule from "~/utils/maxCharRule";
 const emit = defineEmits(["submitForm"]);
 const giftDialog = defineModel<boolean>("giftDialog", {
     type: Boolean,
