@@ -76,6 +76,7 @@
                             </template>
                             Dies ist ein geheimes Geschenk
                         </v-tooltip>
+                        <div v-else>{{ item.name }}</div>
                     </div>
                 </v-col>
             </v-row>
