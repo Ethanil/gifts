@@ -10,13 +10,10 @@
             <v-icon :icon="outerProps.titleIcon" />
             {{ outerProps.title }}
         </v-list-subheader>
-        <template v-for="(user, key) in outerProps.users" :key="key">
+        <template v-for="([user, avt], key) in userWithAvatar" :key="key">
             <v-list-item>
                 <template #prepend>
-                    <v-avatar
-                        :icon="outerProps.avatar ? '' : 'mdi-account-outline'"
-                        :image="outerProps.avatar"
-                    />
+                    <span class="mr-1" v-html="avt"></span>
                 </template>
                 {{ user.firstName }} {{ user.lastName }}
                 <template v-if="outerProps.actionEnabled" #append>
@@ -57,6 +54,7 @@
 <script setup lang="ts">
 import type { PropType } from "vue";
 const { data } = useAuth();
+import avatar from "animal-avatar-generator";
 const outerProps = defineProps({
     users: { type: Array<User>, required: true },
     avatar: { type: String, default: undefined },
@@ -73,5 +71,17 @@ const outerProps = defineProps({
         default: "do nothing",
     },
 });
+const userWithAvatar = computed(() =>
+    outerProps.users.map(
+        (user) =>
+            [
+                user,
+                avatar(user.avatar, {
+                    size: 30,
+                    blackout: false,
+                }).replaceAll("\n", ""),
+            ] as [User, string],
+    ),
+);
 const emit = defineEmits(["action"]);
 </script>

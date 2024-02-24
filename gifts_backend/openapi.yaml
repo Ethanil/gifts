@@ -28,8 +28,6 @@ components:
           example: Mustermann
         avatar:
           type: string
-          format: byte
-          nullable: true
     User:
       allOf:
         - $ref: '#/components/schemas/UserWithoutPassword'
@@ -110,6 +108,10 @@ components:
             enum: [ EDIT, DELETE, RESERVE, STOP_RESERVE, FREE_RESERVE, STOP_FREE_RESERVE, REQUEST_FREE_RESERVE, STOP_REQUEST_FREE_RESERVE ]
         isSecretGift:
           type: boolean
+        reservingUsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserWithoutPassword'
     GiftGroup:
       type: object
       required:

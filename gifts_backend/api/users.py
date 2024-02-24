@@ -18,7 +18,8 @@ def create(user):
     email = user.get("email").lower()
     existing_user = User.query.filter(User.email == email).one_or_none()
     if existing_user is None:
-        user.pop("avatar", None)
+        if user.get("avatar") is None or user.get("avatar") == "":
+            user["avatar"] = email
         new_user = user_schema.load(user, session=db.session)
         db.session.add(new_user)
         # TODO internationalisation?
@@ -103,9 +104,9 @@ def update(email, new_user_data, user, token_info):
         existing_user.password = new_user_data.get("newPassword")
     else:
         pass
-    # TODO add avatar
     existing_user.firstName = new_user_data.get("firstName")
     existing_user.lastName = new_user_data.get("lastName")
+    existing_user.avatar = new_user_data.get("avatar")
     db.session.merge(existing_user)
     db.session.commit()
     return user_schema.dump(existing_user), 201

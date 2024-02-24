@@ -21,7 +21,7 @@
             <v-rating
                 v-model="rating"
                 color="primary"
-                :disabled="true"
+                readonly
                 density="compact"
                 size="small"
             />
@@ -54,7 +54,52 @@
             <span v-else>{{ itemVal }}</span>
         </template>
         <template v-else-if="itemKey === 'link' && itemVal !== ''">
-            <a :href="itemVal" target="_blank"> Link </a>
+            <a :href="itemVal" target="_blank">
+                <v-icon icon="mdi-open-in-new" />
+            </a>
+        </template>
+        <template v-else-if="itemKey === 'reservingUsers'">
+            <template
+                v-if="item.reservingUsers && item.reservingUsers.length > 0"
+            >
+                <v-dialog
+                    v-if="item.reservingUsers && item.reservingUsers.length > 0"
+                    max-width="600px"
+                >
+                    <template #activator="{ props }">
+                        <v-container>
+                            <v-row
+                                class="cursor-pointer"
+                                v-bind="props"
+                                justify="space-around"
+                                no-gutters
+                            >
+                                <v-col
+                                    v-for="(user, key) of item.reservingUsers"
+                                    :key="key"
+                                >
+                                    <v-tooltip location="bottom">
+                                        <template #activator="{ props }">
+                                            <span
+                                                v-bind="props"
+                                                v-html="
+                                                    reservingUserAvatars![key]
+                                                "
+                                            ></span>
+                                        </template>
+                                        {{ user.firstName }} {{ user.lastName }}
+                                    </v-tooltip>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </template>
+                    <GroupFormList
+                        :users="item.reservingUsers"
+                        :action-enabled="false"
+                        title="Reserviert von"
+                    />
+                </v-dialog>
+            </template>
         </template>
         <template v-else>{{ itemVal }}</template>
     </td>
@@ -116,30 +161,88 @@
                     </div>
                     <div class="d-flex justify-center">
                         <v-rating
-                            v-model="item.giftStrength"
+                            v-model="giftStrength"
                             color="primary"
-                            :disabled="true"
+                            readonly
                             density="compact"
                             size="small"
                         />
                     </div>
                 </v-col>
             </v-row>
-
             <v-row>
                 <v-col v-if="item.link !== ''">
                     <div class="d-flex justify-center">
-                        <a :href="item.link" target="_blank"> Link </a>
+                        <a :href="item.link" target="_blank">
+                            <v-icon size="30" icon="mdi-open-in-new" />
+                        </a>
                     </div>
                 </v-col>
                 <v-col>
                     <div class="d-flex justify-center">{{ item.price }} €</div>
                 </v-col>
             </v-row>
+            <v-dialog
+                v-if="item.reservingUsers && item.reservingUsers.length > 0"
+                max-width="600px"
+            >
+                <template #activator="{ props }">
+                    <v-container>
+                        <v-row v-bind="props" align="center">
+                            <v-col>Reserviert von:</v-col>
+                            <v-col>
+                                <v-container>
+                                    <v-row justify="space-around" align="center">
+                                        <v-col
+                                            v-for="(
+                                                user, key
+                                            ) of item.reservingUsers"
+                                            :key="key"
+                                        >
+                                            <v-tooltip location="bottom">
+                                                <template
+                                                    #activator="{ props }"
+                                                >
+                                                    <span
+                                                        v-bind="props"
+                                                        v-html="
+                                                            reservingUserAvatars![
+                                                                key
+                                                            ]
+                                                        "
+                                                    ></span>
+                                                </template>
+                                                {{ user.firstName }}
+                                                {{ user.lastName }}
+                                            </v-tooltip>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </template>
+                <GroupFormList
+                    :users="item.reservingUsers"
+                    :action-enabled="false"
+                    title="Reserviert von"
+                />
+            </v-dialog>
         </v-container>
     </v-card>
 </template>
 <script setup lang="ts">
+import { useDisplay } from "vuetify";
+const { lgAndUp } = useDisplay();
+import avatar from "animal-avatar-generator";
+const reservingUserAvatars = computed(() =>
+    outerProps.item.reservingUsers?.map((user) =>
+        avatar(user.avatar, {
+            size: lgAndUp.value ? 40 : 40,
+            blackout: false,
+        }).replaceAll("\n", ""),
+    ),
+);
 import type { PropType } from "vue";
 const outerProps = defineProps({
     itemKey: { type: String, required: true },
@@ -150,6 +253,7 @@ const outerProps = defineProps({
     item: { type: Object as PropType<Gift>, required: true },
     mobile: { type: Boolean, default: false },
 });
+const giftStrength = computed(() => outerProps.item.giftStrength);
 const rating = outerProps.item.giftStrength;
 const emit = defineEmits([
     "openPictureDialog",

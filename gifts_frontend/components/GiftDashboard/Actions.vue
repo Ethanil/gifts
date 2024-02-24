@@ -1,6 +1,6 @@
 <template>
     <v-container class="mb-3">
-        <v-row>
+        <v-row justify="space-around">
             <template v-for="(action, key) in filteredActions" :key="key">
                 <v-tooltip :text="action.tooltipText" location="bottom">
                     <template #activator="{ props }">
@@ -75,27 +75,28 @@ const actions = [
     },
     {
         actionType: "free reserve",
-        tooltipText: "Zur Reservierung freigeben",
+        tooltipText:
+            "Das Geschenk freigeben, sodass es gemeinsam verschenkt werden kann",
         signal: () => emits("doAction", outerProps.item, { freeReserve: true }),
         icon: "mdi-share",
     },
     {
         actionType: "stop free reserve",
-        tooltipText: "Nicht mehr zur Reservierung freigeben",
+        tooltipText: "Nicht mehr zum gemeinsamen Schenken freigeben",
         signal: () =>
             emits("doAction", outerProps.item, { freeReserve: false }),
         icon: "mdi-share-off",
     },
     {
         actionType: "request free reserve",
-        tooltipText: "Reservierungs freigabe erbitten",
+        tooltipText: "Anfragen, das Geschenk gemeinsam zu verschenken",
         signal: () =>
             emits("doAction", outerProps.item, { requestFreeReserve: true }),
         icon: "custom:MessageLockOutline",
     },
     {
         actionType: "stop request free reserve",
-        tooltipText: "Nicht mehr Reservierungs freigabe erbitten",
+        tooltipText: "Gemeinsam-verschenken-anfrage zurückziehen",
         signal: () =>
             emits("doAction", outerProps.item, { requestFreeReserve: false }),
         icon: "custom:MessageLockOffOutline",

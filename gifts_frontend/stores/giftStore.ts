@@ -11,6 +11,7 @@ export type Gift = {
     availableActions: string[];
     freeForReservationRequest?: User[];
     isSecretGift?: boolean;
+    reservingUsers?: User[];
 };
 export type DatabaseGift = Gift & {
     giftGroup_id: number;

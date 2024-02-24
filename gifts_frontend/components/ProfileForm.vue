@@ -4,28 +4,56 @@
             <slot name="activator" :props="props"></slot>
         </template>
         <v-card width="100%" class="mx-auto pa-7">
-            <v-card-title
-                >Profil von {{ (data as any)!.email }}</v-card-title
-            >
+            <v-card-title>
+                <v-container>
+                    <v-row>
+                        <v-col>Profil von {{ (data as any)!.email }}</v-col>
+                        <v-spacer></v-spacer>
+                        <v-col>
+                            <v-container>
+                                <v-row justify="center">
+                                    <span
+                                        class="mr-1"
+                                        v-html="generatedAvatar"
+                                    ></span>
+                                </v-row>
+                                <v-row justify="center"
+                                    >
+                                    <v-btn
+                                        color="primary"
+                                        icon="mdi-dice-6-outline"
+                                        @click="
+                                            formData.avatar = (
+                                                Math.random() + 1
+                                            )
+                                                .toString(36)
+                                        "
+                                    />
+                                </v-row>
+                            </v-container>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card-title>
             <v-form validate-on="blur lazy" @submit.prevent="saveProfile">
                 <v-text-field
+                    v-model="formData.oldPassword"
                     label="Aktuelles Passwort"
                     :type="showPasswords.oldPassword ? 'text' : 'password'"
-                    v-model="formData.oldPassword"
                     :rules="[nonEmptyRule('Passwort')]"
                 >
                     <template #append-inner>
                         <v-icon
-                            @mousedown="showPasswords.oldPassword = true"
-                            @mouseup="showPasswords.oldPassword = false"
-                            @touchstart="showPasswords.oldPassword = true"
-                            @touchend="showPasswords.oldPassword = false"
                             :icon="
                                 showPasswords.oldPassword
                                     ? 'mdi-eye'
                                     : 'mdi-eye-off'
                             "
                             class="cursor-pointer"
+                            @mousedown="showPasswords.oldPassword = true"
+                            @mouseup="showPasswords.oldPassword = false"
+                            @touchstart="showPasswords.oldPassword = true"
+                            @touchend="showPasswords.oldPassword = false"
                         />
                         <!-- <v-icon
                             @click="
@@ -42,14 +70,14 @@
                     </template>
                 </v-text-field>
                 <v-text-field
-                    label="Vorname"
                     v-model="formData.firstName"
+                    label="Vorname"
                     :disabled="formData.oldPassword === ''"
                     :rules="[nonEmptyRule('Vorname')]"
                 />
                 <v-text-field
-                    label="Nachname"
                     v-model="formData.lastName"
+                    label="Nachname"
                     :disabled="formData.oldPassword === ''"
                     :rules="[nonEmptyRule('Nachname')]"
                 />
@@ -70,7 +98,7 @@
                     max-errors="10"
                     validate-on="input"
                 >
-                    <template #loader="{ isActive }">
+                    <template #loader>
                         <div
                             :style="
                                 'background-color: ' +
@@ -84,16 +112,16 @@
                     </template>
                     <template #append-inner>
                         <v-icon
-                            @mousedown="showPasswords.newPassword = true"
-                            @mouseup="showPasswords.newPassword = false"
-                            @touchstart="showPasswords.newPassword = true"
-                            @touchend="showPasswords.newPassword = false"
                             :icon="
                                 showPasswords.newPassword
                                     ? 'mdi-eye'
                                     : 'mdi-eye-off'
                             "
                             class="cursor-pointer"
+                            @mousedown="showPasswords.newPassword = true"
+                            @mouseup="showPasswords.newPassword = false"
+                            @touchstart="showPasswords.newPassword = true"
+                            @touchend="showPasswords.newPassword = false"
                         />
                         <!-- <v-icon
                             v-else
@@ -111,6 +139,7 @@
                     </template>
                 </v-text-field>
                 <v-text-field
+                    v-model="formData.reentered_newPassword"
                     label="Neues Passwort bestätigen"
                     :type="
                         showPasswords.reentered_newPassword
@@ -118,8 +147,10 @@
                             : 'password'
                     "
                     class="mt-5"
-                    v-model="formData.reentered_newPassword"
-                    :disabled="formData.oldPassword === '' || formData.newPassword === ''"
+                    :disabled="
+                        formData.oldPassword === '' ||
+                        formData.newPassword === ''
+                    "
                     :rules="
                         formData.newPassword !== '' ||
                         formData.reentered_newPassword !== ''
@@ -129,6 +160,12 @@
                 >
                     <template #append-inner>
                         <v-icon
+                            :icon="
+                                showPasswords.reentered_newPassword
+                                    ? 'mdi-eye'
+                                    : 'mdi-eye-off'
+                            "
+                            class="cursor-pointer"
                             @mousedown="
                                 showPasswords.reentered_newPassword = true
                             "
@@ -141,12 +178,6 @@
                             @touchend="
                                 showPasswords.reentered_newPassword = false
                             "
-                            :icon="
-                                showPasswords.reentered_newPassword
-                                    ? 'mdi-eye'
-                                    : 'mdi-eye-off'
-                            "
-                            class="cursor-pointer"
                         />
                         <!-- <v-icon
                             v-else
@@ -171,14 +202,15 @@
     </v-dialog>
 </template>
 <script setup lang="ts">
-import { useDisplay } from "vuetify";
-const { mobile } = useDisplay();
+import avatar from "animal-avatar-generator";
 const { data } = useAuth();
 
-function test(a: any) {
-    console.log(a);
-    showPasswords.value.oldPassword = true;
-}
+const generatedAvatar = computed(() =>
+    avatar(formData.value.avatar, {
+        size: 100,
+        blackout: false,
+    }).replaceAll("\n", ""),
+);
 
 const formData = ref({
     firstName: (data.value as any)!.firstName,
@@ -186,15 +218,20 @@ const formData = ref({
     oldPassword: "",
     newPassword: "",
     reentered_newPassword: "",
+    avatar: (data.value as any)!.avatar,
 });
 const userStore = useUserStore();
-function saveProfile() {
-    userStore.updateUser(
-        formData.value.oldPassword,
-        formData.value.firstName,
-        formData.value.lastName,
-        formData.value.newPassword,
-    );
+async function saveProfile(event: any) {
+    const results = await event;
+    if (results.valid) {
+        userStore.updateUser(
+            formData.value.oldPassword,
+            formData.value.firstName,
+            formData.value.lastName,
+            formData.value.newPassword,
+            formData.value.avatar
+        );
+    }
 }
 const reenteredPasswordRule = (password: string): boolean | string => {
     if (password === formData.value.newPassword) return true;

@@ -89,6 +89,13 @@ def add_fields_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
     gift_dict = add_calls_to_action_to_gift(gift_dict, gift, user)
     gift_dict = add_is_secret_gift(gift_dict, gift, user)
     gift_dict = add_image_to_gift(gift_dict)
+    gift_dict = add_reserving_users_to_gift(gift_dict, gift, user)
+    return gift_dict
+
+
+def add_reserving_users_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
+    if user not in [user.user_email for user in gift.giftGroup.isBeingGifted]:
+        gift_dict["reservingUsers"] = users_schema_without_password.dump([hasReserverd.user for hasReserverd in gift.hasReserved])
     return gift_dict
 
 

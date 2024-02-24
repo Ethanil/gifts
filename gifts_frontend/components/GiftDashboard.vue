@@ -1,195 +1,161 @@
 <template>
-    <v-card>
-        <div class="d-flex flex-row">
-            <v-navigation-drawer v-model="navBarToggle" @update:model-value="emits('navBarToggle')">
-                <v-tabs v-model="currentTab" direction="vertical">
-                    <template v-for="(group, key) in giftgroups" :key="key">
-                        <v-tab :value="key">
-                            <v-badge
-                                v-model="group.isInvited"
-                                offset-x="-10"
-                                color="primary"
-                                icon="mdi-account-multiple-plus"
-                            >
-                                {{ group.name }}
-                            </v-badge>
-                        </v-tab>
-                    </template>
-                </v-tabs>
-                <v-tabs hide-slider direction="vertical">
-                    <v-tab disabled height="20px" />
-                    <v-tab
-                        color="primary"
-                        elevation="10"
-                        append-icon="mdi-plus"
-                        variant="outlined"
-                        @click="addGroupDialog = true"
-                    >
-                        Liste erstellen
-                    </v-tab>
-                </v-tabs>
-            </v-navigation-drawer>
-            <v-skeleton-loader
-                :loading="!currentGroup"
-                type="heading, table"
-                style="width: 100%"
-            >
-                <GiftDashboardBanner
-                    v-if="currentGroup!.isInvited"
-                    :banner-text="'Du wurdest eingeladen in dieser Gruppe beschenkt zu werden!'"
-                >
-                    <template #actions>
-                        <v-btn text="Annehmen" @click.stop="joinGroup" />
-                        <v-btn
-                            text="Ablehnen"
-                            @click.stop="declineInvitation"
-                        />
-                    </template>
-                </GiftDashboardBanner>
-                <GiftDashboardBanner
-                    v-for="(gift, key) in giftsWithFreeReserveRequest"
-                    :key="key"
-                    :banner-text="generateFreeReserveText(gift)"
-                >
-                    <template #actions>
-                        <v-btn
-                            text="Annehmen"
-                            @click.stop="
-                                do_Action(gift, {
-                                    freeReserve: true,
-                                })
-                            "
-                        />
-                        <v-btn
-                            text="Ablehnen"
-                            @click.stop="
-                                do_Action(gift, {
-                                    denyFreeReserve: true,
-                                })
-                            "
-                        />
-                    </template>
-                </GiftDashboardBanner>
-                <v-skeleton-loader
-                    :loading="currentGroup!.isInvited"
-                    type="heading, table"
-                    style="width: 100%"
-                >
-                    <div style="width: 100%">
-                        <v-card
-                            class="ma-auto py-7"
-                            min-width="90%"
-                            width="90%"
+    <div class="d-flex flex-row">
+        <v-navigation-drawer
+            v-model="navBarToggle"
+            @update:model-value="emits('navBarToggle')"
+        >
+            <v-tabs v-model="currentTab" direction="vertical">
+                <template v-for="(group, key) in giftgroups" :key="key">
+                    <v-tab :value="key">
+                        <v-badge
+                            v-model="group.isInvited"
+                            offset-x="-10"
+                            color="primary"
+                            icon="mdi-account-multiple-plus"
                         >
-                            <v-card-title v-if="giftgroups[currentTab]">
-                                <v-row>
-                                    <v-col>
-                                        <span
-                                            class="cursor-pointer"
-                                            @click.stop="
-                                                editGroup(
-                                                    giftgroups[currentTab],
-                                                )
-                                            "
-                                        >
-                                            {{ giftgroups[currentTab].name }}
-                                            <v-icon
-                                                v-if="
-                                                    giftgroups[currentTab]
-                                                        .editable &&
-                                                    giftgroups[currentTab]
-                                                        .isBeingGifted
-                                                "
-                                                icon="mdi-pencil"
-                                                size="small"
-                                                @click.stop="
-                                                    editGroup(
-                                                        giftgroups[currentTab],
-                                                    )
-                                                "
-                                            />
-                                            <v-icon
-                                                v-else
-                                                icon="mdi-information"
-                                                size="small"
-                                                @click.stop="
-                                                    editGroup(
-                                                        giftgroups[currentTab],
-                                                    )
-                                                "
-                                            />
-                                        </span>
-                                    </v-col>
-                                    <v-col>
-                                        <gift-form
-                                            v-model:gift-dialog="addGiftDialog"
-                                            :prop-gift-data="giftDataToAdd"
-                                            @submit-form="addGift"
-                                        >
-                                            <template #activator="{ props }">
-                                                <v-btn
-                                                    color="primary"
-                                                    v-bind="props"
-                                                >
-                                                    {{ giftAddButtonText }}
-                                                </v-btn>
-                                            </template>
-                                        </gift-form>
-                                    </v-col>
-                                </v-row>
-                            </v-card-title>
-                            <v-data-table
-                                :class="{ 'ma-4': true }"
-                                :headers="tableHeaders"
-                                :items="giftStore?.getGiftsOfCurrentGroup"
-                                :sort-by="[
-                                    { key: 'giftStrength', order: 'desc' },
-                                ]"
-                                items-per-page="-1"
+                            {{ group.name }}
+                        </v-badge>
+                    </v-tab>
+                </template>
+            </v-tabs>
+            <v-tabs hide-slider direction="vertical">
+                <v-tab disabled height="20px" />
+                <v-tab
+                    color="primary"
+                    elevation="10"
+                    append-icon="mdi-plus"
+                    variant="outlined"
+                    @click="addGroupDialog = true"
+                >
+                    Liste erstellen
+                </v-tab>
+            </v-tabs>
+        </v-navigation-drawer>
+        <v-skeleton-loader
+            :loading="!currentGroup"
+            type="heading, table"
+            style="width: 100%"
+        >
+            <GiftDashboardBanner
+                v-if="currentGroup!.isInvited"
+                :banner-text="'Du wurdest eingeladen in dieser Gruppe beschenkt zu werden!'"
+            >
+                <template #actions>
+                    <v-btn text="Annehmen" @click.stop="joinGroup" />
+                    <v-btn text="Ablehnen" @click.stop="declineInvitation" />
+                </template>
+            </GiftDashboardBanner>
+            <GiftDashboardBanner
+                v-for="(gift, key) in giftsWithFreeReserveRequest"
+                :key="key"
+                :banner-text="generateFreeReserveText(gift)"
+            >
+                <template #actions>
+                    <v-btn
+                        text="Annehmen"
+                        @click.stop="
+                            do_Action(gift, {
+                                freeReserve: true,
+                            })
+                        "
+                    />
+                    <v-btn
+                        text="Ablehnen"
+                        @click.stop="
+                            do_Action(gift, {
+                                denyFreeReserve: true,
+                            })
+                        "
+                    />
+                </template>
+            </GiftDashboardBanner>
+            <div
+                v-if="giftgroups[currentTab] && !currentGroup!.isInvited"
+                class="ma-auto pa-7"
+                style="width: 100%; height: 100%"
+            >
+                <v-container>
+                    <v-row>
+                        <v-col>
+                            <span
+                                class="text-h5 cursor-pointer"
+                                @click.stop="editGroup(giftgroups[currentTab])"
                             >
-                                <template v-if="!lgAndUp" #headers></template>
-                                <template #item="{ internalItem, item }">
-                                    <GiftDashboardTableRow
-                                        :item="item"
-                                        :internal-item="internalItem"
-                                        :headers="tableHeaders"
-                                        @delete-gift="deleteGift"
-                                        @edit-gift="editGift"
-                                        @do-action="do_Action"
-                                        @open-picture-dialog="openPictureDialog"
-                                    />
+                                {{ giftgroups[currentTab].name }}
+                                <v-icon
+                                    :icon="
+                                        giftgroups[currentTab].editable &&
+                                        giftgroups[currentTab].isBeingGifted
+                                            ? 'mdi-pencil'
+                                            : 'mdi-information'
+                                    "
+                                    size="small"
+                                    @click.stop="
+                                        editGroup(giftgroups[currentTab])
+                                    "
+                                />
+                            </span>
+                        </v-col>
+                        <v-col>
+                            <gift-form
+                                v-model:gift-dialog="addGiftDialog"
+                                :prop-gift-data="giftDataToAdd"
+                                @submit-form="addGift"
+                            >
+                                <template #activator="{ props }">
+                                    <v-btn color="primary" v-bind="props">
+                                        {{ giftAddButtonText }}
+                                    </v-btn>
                                 </template>
-                                <template #bottom />
-                            </v-data-table>
-                        </v-card>
-                    </div>
-                </v-skeleton-loader>
-            </v-skeleton-loader>
-        </div>
-        <gift-form
-            v-model:gift-dialog="editGiftDialog"
-            v-model:gift-data="giftDataToEdit"
-            :prop-gift-data="giftDataToEdit"
-            submit-text="Bearbeitung speichern"
-            @submit-form="updateGift"
-        />
-        <group-form
-            v-model:group-dialog="editGroupDialog"
-            :prop-group-data="groupDataToEdit"
-            :new-group="false"
-            @submit-form="updateGroup"
-            @join-group="joinGroup"
-        />
-        <group-form
-            v-model:group-dialog="addGroupDialog"
-            :prop-group-data="groupDataToAdd"
-            @submit-form="addGroup"
-        />
-        <v-dialog v-model="pictureDialog" width="50%" height="75%">
-            <v-img :src="curPicture" @click="pictureDialog = false" />
-        </v-dialog>
-        
-    </v-card>
+                            </gift-form>
+                        </v-col>
+                    </v-row>
+                </v-container>
+                <v-data-table
+                    :headers="tableHeaders"
+                    :items="giftStore?.getGiftsOfCurrentGroup"
+                    :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
+                    items-per-page="-1"
+                >
+                    <template v-if="!lgAndUp" #headers></template>
+                    <template #item="{ internalItem, item }">
+                        <GiftDashboardTableRow
+                            :item="item"
+                            :internal-item="internalItem"
+                            :headers="tableHeaders"
+                            @delete-gift="deleteGift"
+                            @edit-gift="editGift"
+                            @do-action="do_Action"
+                            @open-picture-dialog="openPictureDialog"
+                        />
+                    </template>
+                    <template #bottom />
+                </v-data-table>
+            </div>
+        </v-skeleton-loader>
+    </div>
+    <gift-form
+        v-model:gift-dialog="editGiftDialog"
+        v-model:gift-data="giftDataToEdit"
+        :prop-gift-data="giftDataToEdit"
+        submit-text="Bearbeitung speichern"
+        @submit-form="updateGift"
+    />
+    <group-form
+        v-model:group-dialog="editGroupDialog"
+        :prop-group-data="groupDataToEdit"
+        :new-group="false"
+        @submit-form="updateGroup"
+        @join-group="joinGroup"
+    />
+    <group-form
+        v-model:group-dialog="addGroupDialog"
+        :prop-group-data="groupDataToAdd"
+        @submit-form="addGroup"
+    />
+    <v-dialog v-model="pictureDialog" width="50%" height="75%">
+        <v-img :src="curPicture" @click="pictureDialog = false" />
+    </v-dialog>
 </template>
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
@@ -198,7 +164,7 @@ const navBarToggle = defineModel<boolean>("navBarToggle", {
     type: Boolean,
     required: true,
 });
-const emits = defineEmits(["navBarToggle"])
+const emits = defineEmits(["navBarToggle"]);
 //---------------- Table ----------------//
 const giftgroupStore = useGiftGroupStore();
 const giftStore = useGiftStore();
@@ -221,20 +187,25 @@ const giftgroups = computed(() => {
     return giftgroupStore.$state.giftgroups;
 });
 
-const tableHeaders = [
-    { title: "Bild", value: "picture", width: "10%" },
-    { title: "Name", key: "name", value: "name" },
-    { title: "Beschreibung", value: "description" },
-    { title: "Link", value: "link" },
-    { title: "Preis", key: "price", value: "price" },
-    {
-        title: "Wunschstärke",
-        key: "giftStrength",
-        value: "giftStrength",
-        width: "10%",
-    },
-    { title: "Aktionen", value: "availableActions", width: "165px" },
-];
+const tableHeaders = computed(() => {
+    const res = [
+        { title: "Bild", value: "picture", width: "100px", align:"center" },
+        { title: "Name", key: "name", value: "name", width:"15%" },
+        { title: "Beschreibung", value: "description" },
+        { title: "Link", value: "link", width:"45px" },
+        { title: "Preis", key: "price", value: "price", width:"100px" },
+        {
+            title: "Wunschstärke",
+            key: "giftStrength",
+            value: "giftStrength",
+            width: "143px",
+        },
+        { title: "Aktionen", value: "availableActions", width: "165px", align:"center" },
+    ] as any[];
+    if (!currentGroup.value?.isBeingGifted)
+        res.push({ title: "Reserviert", key:"reservingUsers", value: "reservingUsers", width: "150px", align:"center" });
+    return res;
+});
 
 const pictureDialog = ref(false);
 const curPicture = ref("");

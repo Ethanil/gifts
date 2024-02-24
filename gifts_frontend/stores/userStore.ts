@@ -4,7 +4,7 @@ export type User = {
     email: string;
     firstName: string;
     lastName: string;
-    avatar: File | string;
+    avatar: string;
 };
 export const useUserStore = defineStore("user", {
     state: () => ({
@@ -48,13 +48,16 @@ export const useUserStore = defineStore("user", {
             newFirstName: string,
             newLastName: string,
             newPassword: string,
+            avatar: string,
         ) {
             try {
                 const { data } = useAuth();
-                let body = {
+                const body = {
+                    email: (data.value as any).email,
                     firstName: newFirstName,
                     lastName: newLastName,
                     oldPassword: oldPassword,
+                    avatar: avatar
                 } as any;
                 if (newPassword !== "") {
                     body["newPassword"] = newPassword;
@@ -70,6 +73,8 @@ export const useUserStore = defineStore("user", {
                     email: (data.value as any).email,
                     password: newPassword !== "" ? newPassword : oldPassword,
                 });
+                const giftgroupStore = useGiftGroupStore();
+                giftgroupStore.loadFromAPI();
             }
         },
     },
