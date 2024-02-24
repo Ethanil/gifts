@@ -57,7 +57,7 @@ export const useUserStore = defineStore("user", {
                     firstName: newFirstName,
                     lastName: newLastName,
                     oldPassword: oldPassword,
-                    avatar: avatar
+                    avatar: avatar,
                 } as any;
                 if (newPassword !== "") {
                     body["newPassword"] = newPassword;
@@ -75,6 +75,8 @@ export const useUserStore = defineStore("user", {
                 });
                 const giftgroupStore = useGiftGroupStore();
                 giftgroupStore.loadFromAPI();
+                const giftStore = useGiftStore();
+                giftStore.loadFromAPI();
             }
         },
     },

@@ -40,7 +40,9 @@
                             <v-icon icon="mdi-share" />
                         </v-col>
                         <v-col>
-                            Geschenk zum gemeinsamen Verschenken freigeben, dadurch können mehrere Personen das selbe Geschenk reservieren
+                            Geschenk zum gemeinsamen Verschenken freigeben,
+                            dadurch können mehrere Personen das selbe Geschenk
+                            reservieren
                         </v-col>
                         <v-divider />
                     </v-row>
@@ -48,14 +50,19 @@
                         <v-col cols="2">
                             <v-icon icon="mdi-share-off" />
                         </v-col>
-                        <v-col> Das Gemeinsam-Verschenken wieder einschränken </v-col>
+                        <v-col>
+                            Das Gemeinsam-Verschenken wieder einschränken
+                        </v-col>
                         <v-divider />
                     </v-row>
                     <v-row>
                         <v-col cols="2">
                             <v-icon icon="custom:MessageLockOutline" />
                         </v-col>
-                        <v-col> Anfrage stellen, ob das Geschenk gemeinsam verschenkt werden soll </v-col>
+                        <v-col>
+                            Anfrage stellen, ob das Geschenk gemeinsam
+                            verschenkt werden soll
+                        </v-col>
                         <v-divider />
                     </v-row>
                     <v-row>

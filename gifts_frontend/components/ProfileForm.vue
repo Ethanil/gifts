@@ -17,16 +17,14 @@
                                         v-html="generatedAvatar"
                                     ></span>
                                 </v-row>
-                                <v-row justify="center"
-                                    >
+                                <v-row justify="center">
                                     <v-btn
                                         color="primary"
                                         icon="mdi-dice-6-outline"
                                         @click="
                                             formData.avatar = (
                                                 Math.random() + 1
-                                            )
-                                                .toString(36)
+                                            ).toString(36)
                                         "
                                     />
                                 </v-row>
@@ -229,7 +227,7 @@ async function saveProfile(event: any) {
             formData.value.firstName,
             formData.value.lastName,
             formData.value.newPassword,
-            formData.value.avatar
+            formData.value.avatar,
         );
     }
 }

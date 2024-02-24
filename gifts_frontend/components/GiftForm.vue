@@ -16,7 +16,10 @@
                     v-model="giftData.name"
                     label="Name des Geschenks"
                     counter="60"
-                    :rules="[nonEmptyRule('Name des Geschenks'), maxCharRule(60)]"
+                    :rules="[
+                        nonEmptyRule('Name des Geschenks'),
+                        maxCharRule(60),
+                    ]"
                 />
                 <v-text-field
                     v-model="giftData.description"

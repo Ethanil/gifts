@@ -192,7 +192,10 @@
                             <v-col>Reserviert von:</v-col>
                             <v-col>
                                 <v-container>
-                                    <v-row justify="space-around" align="center">
+                                    <v-row
+                                        justify="space-around"
+                                        align="center"
+                                    >
                                         <v-col
                                             v-for="(
                                                 user, key

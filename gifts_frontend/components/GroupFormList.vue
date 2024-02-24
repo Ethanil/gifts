@@ -57,7 +57,6 @@ const { data } = useAuth();
 import avatar from "animal-avatar-generator";
 const outerProps = defineProps({
     users: { type: Array<User>, required: true },
-    avatar: { type: String, default: undefined },
     actionEnabled: { type: Boolean, default: true },
     actionIcon: { type: String, default: undefined },
     actionTooltip: { type: Function, default: undefined },

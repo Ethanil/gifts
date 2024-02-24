@@ -22,19 +22,20 @@
                         <div>
                             <v-card>
                                 <v-list>
-                                    <ProfileForm v-if="status === 'authenticated'">
-                                        <template #activator="{props}">
-                                    <v-list-item
-                                        
-                                        class="px-4"
-                                        prepend-icon="mdi-account"
-                                        v-bind="props"
+                                    <ProfileForm
+                                        v-if="status === 'authenticated'"
                                     >
-                                        {{ (data as any).firstName }}
-                                        {{ (data as any).lastName }}
-                                    </v-list-item>
-                                </template>
-                                </ProfileForm>
+                                        <template #activator="{ props }">
+                                            <v-list-item
+                                                class="px-4"
+                                                prepend-icon="mdi-account"
+                                                v-bind="props"
+                                            >
+                                                {{ (data as any).firstName }}
+                                                {{ (data as any).lastName }}
+                                            </v-list-item>
+                                        </template>
+                                    </ProfileForm>
                                 </v-list>
                                 <v-divider v-if="status === 'authenticated'" />
                                 <v-list>
@@ -87,7 +88,6 @@ function toggleTheme() {
     localStorage.setItem("selectedTheme", selectedTheme);
     theme.global.name.value = selectedTheme;
 }
-
 </script>
 
 <style></style>

@@ -189,21 +189,32 @@ const giftgroups = computed(() => {
 
 const tableHeaders = computed(() => {
     const res = [
-        { title: "Bild", value: "picture", width: "100px", align:"center" },
-        { title: "Name", key: "name", value: "name", width:"15%" },
+        { title: "Bild", value: "picture", width: "100px", align: "center" },
+        { title: "Name", key: "name", value: "name", width: "15%" },
         { title: "Beschreibung", value: "description" },
-        { title: "Link", value: "link", width:"45px" },
-        { title: "Preis", key: "price", value: "price", width:"100px" },
+        { title: "Link", value: "link", width: "45px" },
+        { title: "Preis", key: "price", value: "price", width: "100px" },
         {
             title: "Wunschstärke",
             key: "giftStrength",
             value: "giftStrength",
             width: "143px",
         },
-        { title: "Aktionen", value: "availableActions", width: "165px", align:"center" },
+        {
+            title: "Aktionen",
+            value: "availableActions",
+            width: "165px",
+            align: "center",
+        },
     ] as any[];
     if (!currentGroup.value?.isBeingGifted)
-        res.push({ title: "Reserviert", key:"reservingUsers", value: "reservingUsers", width: "150px", align:"center" });
+        res.push({
+            title: "Reserviert",
+            key: "reservingUsers",
+            value: "reservingUsers",
+            width: "150px",
+            align: "center",
+        });
     return res;
 });
 
