@@ -159,8 +159,8 @@ both ports should have an OK-status
 # Port Database from php-giftreg to this app
 ## Users
 ```sql
-INSERT into newSchema.user (email, firstName, lastName, password)
-SELECT LOWER(u.email) as email, u.fullname as firstName, '' as lastName, u.password as password
+INSERT into newSchema.user (avatar, email, firstName, lastName, password)
+SELECT LOWER(u.email) as avatar, LOWER(u.email) as email, u.fullname as firstName, '' as lastName, u.password as password
 FROM oldSchema.users u;
 ```
 Add any kind of Lastname to users to not have ugly gaps in listnames
