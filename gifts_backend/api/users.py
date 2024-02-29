@@ -104,6 +104,9 @@ def update(email, new_user_data, user, token_info):
         existing_user.password = new_user_data.get("newPassword")
     else:
         pass
+    if existing_user.firstName != new_user_data.get("firstName") or existing_user.lastName != new_user_data.get("lastName"):
+        ownGiftgroup = [isBeingGifted.giftGroup for isBeingGifted in existing_user.isBeingGifted if not isBeingGifted.giftGroup.editable][0]
+        ownGiftgroup.name=f"{new_user_data.get('firstName')} {new_user_data.get('lastName')}'s Liste"
     existing_user.firstName = new_user_data.get("firstName")
     existing_user.lastName = new_user_data.get("lastName")
     existing_user.avatar = new_user_data.get("avatar")

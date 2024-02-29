@@ -8,71 +8,68 @@
                 <v-row justify="center"
                     ><span class="text-h5">Profil</span></v-row
                 >
-                <v-row>
-                    <v-col
-                        ><span class="text-h5 d-flex justify-center">{{
-                            (data as any)!.email
-                        }}</span></v-col
-                    >
-                    <!-- <v-spacer></v-spacer> -->
+                <v-row justify="center">
                     <v-col>
-                        <v-container>
-                            <v-row justify="center">
-                                <v-avatar
-                                    v-if="avatarIsBase64"
-                                    size="106.5"
-                                    :image="formData.avatar"
-                                />
-                                <span
-                                    v-else
-                                    class="mr-1"
-                                    v-html="generatedAvatar"
-                                ></span>
-                            </v-row>
-                            <v-row justify="center">
-                                <v-col>
-                                    <div
-                                        style="
-                                            padding-top: var(
-                                                --v-input-padding-top,
-                                                8px
-                                            );
-                                        "
-                                    >
-                                        <v-btn
-                                            color="primary"
-                                            icon="mdi-dice-6-outline"
-                                            @click="
-                                                formData.avatar = (
-                                                    Math.random() + 1
-                                                ).toString(36)
-                                            "
-                                        />
-                                    </div>
-                                </v-col>
-                                <v-col>
-                                    <v-file-input
-                                        hide-details
-                                        variant="plain"
-                                        prepend-icon=""
-                                        density="compact"
-                                        v-model="avatarUpload"
-                                        @update:model-value="
-                                            handleImageInput(avatarUpload)
-                                        "
-                                    >
-                                        <template #prepend-inner>
-                                            <v-btn
-                                                color="primary"
-                                                icon="mdi-upload"
-                                            />
-                                        </template>
-                                        <template #selection />
-                                    </v-file-input>
-                                </v-col>
-                            </v-row>
-                        </v-container>
+                        <span
+                            style="overflow-wrap: anywhere !important"
+                            class="text-h5 d-flex justify-center"
+                            >{{ (data as any)!.email }}
+                        </span>
                     </v-col>
+                </v-row>
+                <v-row justify="center">
+                    <v-avatar
+                        v-if="avatarIsBase64"
+                        size="106.5"
+                        :image="formData.avatar"
+                    />
+                    <span v-else class="mr-1" v-html="generatedAvatar"></span>
+                </v-row>
+                <v-row>
+                    <v-spacer />
+                    <v-col>
+                        <div class="d-flex justify-end">
+                            <v-btn
+                                color="primary"
+                                icon="mdi-dice-6-outline"
+                                @click="
+                                    formData.avatar = (
+                                        Math.random() + 1
+                                    ).toString(36)
+                                "
+                            />
+                        </div>
+                    </v-col>
+                    <v-col>
+                        <div class="d-flex justify-start">
+                            <v-btn
+                                color="primary"
+                                icon="mdi-upload"
+                                @click="onButtonClick"
+                            />
+                            <input
+                                ref="uploader"
+                                class="d-none"
+                                type="file"
+                                accept="image/*"
+                                @change="onFileChanged"
+                            />
+                        </div>
+                    </v-col>
+                    <v-spacer />
+                    <!-- <v-file-input
+                            hide-details
+                            variant="plain"
+                            prepend-icon=""
+                            density="compact"
+                            v-model="avatarUpload"
+                            @update:model-value="handleImageInput(avatarUpload)"
+                        >
+                            <template #prepend-inner>
+                                <v-btn color="primary" icon="mdi-upload" />
+                            </template>
+                            <template #selection />
+                        </v-file-input> -->
                 </v-row>
             </v-container>
 
@@ -245,6 +242,16 @@
 <script setup lang="ts">
 import avatar from "animal-avatar-generator";
 const { data } = useAuth();
+const uploader = ref(null);
+function onButtonClick() {
+    window.addEventListener("focus", () => {}, { once: true });
+    if (uploader.value) (uploader.value as any).click();
+}
+function onFileChanged(e: any) {
+    handleImageInput(e.target.files);
+
+    // do something
+}
 const avatarIsBase64 = computed(
     () => formData.value.avatar.split(";").length === 2,
 );
