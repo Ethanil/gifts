@@ -5,7 +5,7 @@ from enum import Enum
 from argon2 import PasswordHasher
 from sqlalchemy import event
 import os
-
+from sqlalchemy.dialects.mysql import LONGTEXT
 
 class GiftStrength(str, Enum):
     OKAY = 1  # Okay
@@ -28,7 +28,7 @@ class User(db.Model):
     firstName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     lastName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     password: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
-    avatar: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
+    avatar: db.Mapped[Optional[str]] = db.mapped_column(LONGTEXT)
     resetCode: db.Mapped[Optional[str]] = db.mapped_column(db.VARCHAR(256))
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")

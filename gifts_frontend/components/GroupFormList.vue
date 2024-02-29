@@ -10,12 +10,20 @@
             <v-icon :icon="outerProps.titleIcon" />
             {{ outerProps.title }}
         </v-list-subheader>
-        <template v-for="([user, avt], key) in userWithAvatar" :key="key">
+        <template
+            v-for="([user, avt, isBase64], key) in userWithAvatar"
+            :key="key"
+        >
             <v-list-item>
                 <template #prepend>
-                    <span class="mr-1" v-html="avt"></span>
+                    <div v-if="isBase64" class="mr-1 d-flex justify-center align-center">
+                        <v-avatar size="32" :image="user.avatar" />
+                    </div>
+                    <div v-else class="mr-1 d-flex justify-center align-center">
+                        <span style="height: 32px;" v-html="avt"></span>
+                    </div>
                 </template>
-                {{ user.firstName }} {{ user.lastName }}
+                <span class="text-h6">{{ user.firstName }} {{ user.lastName }}</span>
                 <template v-if="outerProps.actionEnabled" #append>
                     <v-tooltip v-if="outerProps.actionTooltip">
                         <template #activator="{ props }">
@@ -76,10 +84,11 @@ const userWithAvatar = computed(() =>
             [
                 user,
                 avatar(user.avatar, {
-                    size: 30,
+                    size: 32,
                     blackout: false,
                 }).replaceAll("\n", ""),
-            ] as [User, string],
+                user.avatar.split(";").length === 2,
+            ] as [User, string, boolean],
     ),
 );
 const emit = defineEmits(["action"]);

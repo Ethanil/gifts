@@ -85,7 +85,18 @@
                                 >
                                     <v-tooltip location="bottom">
                                         <template #activator="{ props }">
+                                            <v-avatar
+                                                v-if="
+                                                    avatarIsBase64 &&
+                                                    avatarIsBase64[key]
+                                                "
+                                                v-bind="props"
+                                                width="40"
+                                                height="45.5"
+                                                :image="user.avatar"
+                                            />
                                             <span
+                                                v-else
                                                 v-bind="props"
                                                 v-html="
                                                     reservingUserAvatars![key]
@@ -209,10 +220,22 @@
                                             :key="key"
                                         >
                                             <v-tooltip location="bottom">
-                                                <template
-                                                    #activator="{ props }"
-                                                >
+                                                <template #activator="{ props }"
+                                                    ><v-avatar
+                                                        v-if="
+                                                            avatarIsBase64 &&
+                                                            avatarIsBase64[key]
+                                                        "
+                                                        width="40"
+                                                        height="45.5"
+                                                        :image="
+                                                            reservingUserAvatars![
+                                                                key
+                                                            ]
+                                                        "
+                                                    />
                                                     <span
+                                                        v-else
                                                         v-bind="props"
                                                         v-html="
                                                             reservingUserAvatars![
@@ -244,6 +267,11 @@
 import { useDisplay } from "vuetify";
 const { lgAndUp } = useDisplay();
 import avatar from "animal-avatar-generator";
+const avatarIsBase64 = computed(() =>
+    outerProps.item.reservingUsers?.map(
+        (user) => user.avatar.split(";").length === 2,
+    ),
+);
 const reservingUserAvatars = computed(() =>
     outerProps.item.reservingUsers?.map((user) =>
         avatar(user.avatar, {

@@ -4,35 +4,78 @@
             <slot name="activator" :props="props"></slot>
         </template>
         <v-card width="100%" class="mx-auto pa-7">
-            <v-card-title>
-                <v-container>
-                    <v-row>
-                        <v-col>Profil von {{ (data as any)!.email }}</v-col>
-                        <v-spacer></v-spacer>
-                        <v-col>
-                            <v-container>
-                                <v-row justify="center">
-                                    <span
-                                        class="mr-1"
-                                        v-html="generatedAvatar"
-                                    ></span>
-                                </v-row>
-                                <v-row justify="center">
-                                    <v-btn
-                                        color="primary"
-                                        icon="mdi-dice-6-outline"
-                                        @click="
-                                            formData.avatar = (
-                                                Math.random() + 1
-                                            ).toString(36)
+            <v-container>
+                <v-row justify="center"
+                    ><span class="text-h5">Profil</span></v-row
+                >
+                <v-row>
+                    <v-col
+                        ><span class="text-h5 d-flex justify-center">{{
+                            (data as any)!.email
+                        }}</span></v-col
+                    >
+                    <!-- <v-spacer></v-spacer> -->
+                    <v-col>
+                        <v-container>
+                            <v-row justify="center">
+                                <v-avatar
+                                    v-if="avatarIsBase64"
+                                    size="106.5"
+                                    :image="formData.avatar"
+                                />
+                                <span
+                                    v-else
+                                    class="mr-1"
+                                    v-html="generatedAvatar"
+                                ></span>
+                            </v-row>
+                            <v-row justify="center">
+                                <v-col>
+                                    <div
+                                        style="
+                                            padding-top: var(
+                                                --v-input-padding-top,
+                                                8px
+                                            );
                                         "
-                                    />
-                                </v-row>
-                            </v-container>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-card-title>
+                                    >
+                                        <v-btn
+                                            color="primary"
+                                            icon="mdi-dice-6-outline"
+                                            @click="
+                                                formData.avatar = (
+                                                    Math.random() + 1
+                                                ).toString(36)
+                                            "
+                                        />
+                                    </div>
+                                </v-col>
+                                <v-col>
+                                    <v-file-input
+                                        hide-details
+                                        variant="plain"
+                                        prepend-icon=""
+                                        density="compact"
+                                        v-model="avatarUpload"
+                                        @update:model-value="
+                                            handleImageInput(avatarUpload)
+                                        "
+                                    >
+                                        <template #prepend-inner>
+                                            <v-btn
+                                                color="primary"
+                                                icon="mdi-upload"
+                                            />
+                                        </template>
+                                        <template #selection />
+                                    </v-file-input>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-col>
+                </v-row>
+            </v-container>
+
             <v-form validate-on="blur lazy" @submit.prevent="saveProfile">
                 <v-text-field
                     v-model="formData.oldPassword"
@@ -202,13 +245,33 @@
 <script setup lang="ts">
 import avatar from "animal-avatar-generator";
 const { data } = useAuth();
-
+const avatarIsBase64 = computed(
+    () => formData.value.avatar.split(";").length === 2,
+);
 const generatedAvatar = computed(() =>
     avatar(formData.value.avatar, {
         size: 100,
         blackout: false,
     }).replaceAll("\n", ""),
 );
+const avatarUpload = ref<File[] | undefined>(undefined);
+async function handleImageInput(files: File[] | undefined) {
+    if (!files || files.length != 1) {
+        formData.value.avatar = (data.value as any)!.avatar;
+        return;
+    }
+    const image = files[0];
+    const type = image.type.split("/");
+    if (type[0] !== "image" || (type[1] !== "jpeg" && type[1] !== "png")) {
+        formData.value.avatar = (data.value as any)!.avatar;
+        return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = () => {
+        formData.value.avatar = reader.result as string;
+    };
+}
 
 const formData = ref({
     firstName: (data.value as any)!.firstName,
