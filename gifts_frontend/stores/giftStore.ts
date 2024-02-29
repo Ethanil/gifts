@@ -10,6 +10,7 @@ export type Gift = {
     picture: Blob | string;
     availableActions: string[];
     freeForReservationRequest?: User[];
+    freeForReservation?: boolean;
     isSecretGift?: boolean;
     reservingUsers?: User[];
 };

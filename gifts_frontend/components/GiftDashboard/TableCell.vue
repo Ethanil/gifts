@@ -14,7 +14,12 @@
                     class="cursor-pointer"
                     @click="emit('openPictureDialog')"
                 />
-                <v-icon v-else :size="30" icon="mdi-image-remove-outline" />
+                <v-img
+                    v-else
+                    width="30"
+                    height="30"
+                    src="\assets\icons\normal_gift.png"
+                />
             </div>
         </template>
         <template v-else-if="itemKey == 'giftStrength'">
@@ -43,7 +48,7 @@
                     <v-badge
                         icon="mdi-eye-off-outline"
                         offset-x="-12"
-                        color="primary"
+                        color="warning"
                         v-bind="props"
                     >
                         {{ itemVal }}
@@ -153,10 +158,11 @@
                             size="60"
                             :image="item.picture"
                         />
-                        <v-icon
+                        <v-img
                             v-else
-                            size="40"
-                            icon="mdi-image-remove-outline"
+                            width="40"
+                            height="40"
+                            src="\assets\icons\normal_gift.png"
                         />
                     </div>
                     <div class="d-flex justify-center">

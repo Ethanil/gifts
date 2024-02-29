@@ -63,7 +63,12 @@ const actions = [
     },
     {
         actionType: "reserve",
-        tooltipText: "Geschenk reservieren",
+        tooltipText:
+            outerProps.item.freeForReservation &&
+            outerProps.item.reservingUsers &&
+            outerProps.item.reservingUsers.length > 0
+                ? "Am Geschenk beteiligen"
+                : "Geschenk reservieren",
         signal: () => emits("doAction", outerProps.item, { reserve: true }),
         icon: "mdi-lock",
     },

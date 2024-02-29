@@ -4,7 +4,12 @@
             v-model="navBarToggle"
             @update:model-value="emits('navBarToggle')"
         >
-            <v-tabs v-model="currentTab" direction="vertical">
+            <v-checkbox v-model="groupAsUser" label="Group"></v-checkbox>
+            <v-tabs
+                v-if="!groupAsUser"
+                v-model="currentTab"
+                direction="vertical"
+            >
                 <template v-for="(group, key) in giftgroups" :key="key">
                     <v-tab :value="key">
                         <v-badge
@@ -18,6 +23,50 @@
                     </v-tab>
                 </template>
             </v-tabs>
+            <template v-else>
+                <v-tabs v-model="currentTab" direction="vertical" :max="1">
+                    <template
+                        v-for="([outerKey, groupObject], i) in Object.entries(
+                            giftgroupsPerUser,
+                        )"
+                        :key="i"
+                    >
+                        <v-tab
+                            slim
+                            hide-slider
+                            :value="-1"
+                            disabled
+                            density="compact"
+                            >{{ outerKey }}</v-tab
+                        >
+                        <template
+                            v-for="([key, group], j) in Object.entries(
+                                groupObject,
+                            )"
+                            :key="j"
+                        >
+                            <v-tab
+                                :class="
+                                    currentTab.toString() === key
+                                        ? 'v-slide-group-item--active v-tab--selected'
+                                        : ''
+                                "
+                                :value="key"
+                                density="compact"
+                            >
+                                <v-badge
+                                    v-model="group.isInvited"
+                                    offset-x="-10"
+                                    color="primary"
+                                    icon="mdi-account-multiple-plus"
+                                >
+                                    {{ group.name }}
+                                </v-badge>
+                            </v-tab>
+                        </template>
+                    </template>
+                </v-tabs>
+            </template>
             <v-tabs hide-slider direction="vertical">
                 <v-tab disabled height="20px" />
                 <v-tab
@@ -103,8 +152,30 @@
                                 @submit-form="addGift"
                             >
                                 <template #activator="{ props }">
-                                    <v-btn color="primary" v-bind="props">
-                                        {{ giftAddButtonText }}
+                                    <v-btn
+                                        class="pa-4"
+                                        height="min-content"
+                                        width="min-content"
+                                        color="primary"
+                                        v-bind="props"
+                                    >
+                                        <template v-if="isOwnGroup" #prepend>
+                                            <v-img
+                                                width="80px"
+                                                height="80px"
+                                                :rounded="0"
+                                                src="\assets\icons\normal_gift.png"
+                                            ></v-img>
+                                        </template>
+                                        <template v-else #prepend>
+                                            <v-img
+                                                width="80px"
+                                                height="80px"
+                                                :rounded="0"
+                                                src="\assets\icons\secret_gift.png"
+                                            ></v-img>
+                                        </template>
+                                        <span>{{ giftAddButtonText }}</span>
                                     </v-btn>
                                 </template>
                             </gift-form>
@@ -187,6 +258,21 @@ const giftgroups = computed(() => {
     return giftgroupStore.$state.giftgroups;
 });
 
+const groupAsUser = ref(false);
+const giftgroupsPerUser = computed(() => {
+    const result = {} as { [key: string]: { [key: number]: Giftgroup } };
+    for (const [index, group] of giftgroups.value.entries()) {
+        if (!group.usersBeingGifted) continue;
+        for (const user of group.usersBeingGifted) {
+            const fullname = `${user.firstName} ${user.lastName}`;
+            if (!Object.hasOwn(result, fullname))
+                result[fullname] = {} as { [key: number]: Giftgroup };
+            result[fullname][index] = group;
+        }
+    }
+    return result;
+});
+
 const tableHeaders = computed(() => {
     const res = [
         { title: "Bild", value: "picture", width: "100px", align: "center" },
@@ -229,9 +315,11 @@ function openPictureDialog(picture: string) {
 //-------------------------------- Gift --------------------------------//
 //**********************************************************************//
 //---------------- Add Gift ----------------//
+const isOwnGroup = computed(
+    () => !giftgroups.value || giftgroups.value[currentTab.value].isBeingGifted,
+);
 const giftAddButtonText = computed(() => {
-    if (!giftgroups.value || giftgroups.value[currentTab.value].isBeingGifted)
-        return "Geschenk Hinzufügen";
+    if (isOwnGroup.value) return "Geschenk Hinzufügen";
     else return "Geschenk geheim vorschlagen";
 });
 const addGiftDialog = ref(false);
