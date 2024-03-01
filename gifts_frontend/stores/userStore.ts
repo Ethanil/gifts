@@ -18,7 +18,6 @@ export const useUserStore = defineStore("user", {
                 defaults.headers.Authorization = String(token.value);
                 const response = await api.get();
                 this.users = response as User[];
-                // change name of own giftgroup
             } catch (error) {
                 console.log(error);
                 return error;

@@ -5,7 +5,8 @@ from enum import Enum
 from argon2 import PasswordHasher
 from sqlalchemy import event
 import os
-from sqlalchemy.dialects.mysql import LONGTEXT
+from marshmallow import post_dump
+import base64
 
 class GiftStrength(str, Enum):
     OKAY = 1  # Okay
@@ -28,7 +29,7 @@ class User(db.Model):
     firstName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     lastName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     password: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
-    avatar: db.Mapped[Optional[str]] = db.mapped_column(LONGTEXT)
+    avatar: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
     resetCode: db.Mapped[Optional[str]] = db.mapped_column(db.VARCHAR(256))
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")
@@ -169,6 +170,11 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta(BaseSchema.Meta):
         model = User
 
+    @post_dump
+    def process_picture(self, in_data, **kwargs):
+        in_data = set_avatar_of_user(in_data)
+        return in_data
+
 
 class UserSchemaWithoutPassword(ma.SQLAlchemySchema):
     class Meta(BaseSchema.Meta):
@@ -178,6 +184,21 @@ class UserSchemaWithoutPassword(ma.SQLAlchemySchema):
     firstName = ma.auto_field()
     lastName = ma.auto_field()
     avatar = ma.auto_field()
+    @post_dump
+    def process_picture(self, in_data, **kwargs):
+        in_data = set_avatar_of_user(in_data)
+        return in_data
+
+
+def set_avatar_of_user(user):
+    if os.path.isfile(user.get("avatar")):
+        with open(user.get("avatar"), "rb") as img_file:
+            image_data = img_file.read()
+        base64_image = base64.b64encode(image_data).decode("utf-8")
+        image_format = user.get("avatar").split('.')[1]
+        base64_string = f"data:image/{image_format};base64,{base64_image}"
+        user["avatar"] = base64_string
+    return user
 
 
 class GiftGroupSchema(ma.SQLAlchemyAutoSchema):

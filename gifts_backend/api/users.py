@@ -11,6 +11,8 @@ from models import User, user_schema, user_schema_without_password, users_schema
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from uuid import uuid4
+import base64
 
 
 def create(user):
@@ -109,10 +111,26 @@ def update(email, new_user_data, user, token_info):
         ownGiftgroup.name=f"{new_user_data.get('firstName')} {new_user_data.get('lastName')}'s Liste"
     existing_user.firstName = new_user_data.get("firstName")
     existing_user.lastName = new_user_data.get("lastName")
-    existing_user.avatar = new_user_data.get("avatar")
+    existing_user.avatar = saveAvatar(new_user_data.get("avatar"), existing_user.avatar)
     db.session.merge(existing_user)
     db.session.commit()
     return user_schema.dump(existing_user), 201
+
+
+def saveAvatar(newAvatar, oldAvatar):
+    splitted_new_avatar = newAvatar.split(";")
+    if len(splitted_new_avatar) and splitted_new_avatar[0].startswith("data:image/"):
+        folder_path = getenv("PICTURE_STORAGE")
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        filePath = oldAvatar
+        if not os.path.isfile(oldAvatar):
+            filename = f"{uuid4()}.{splitted_new_avatar[0].split('/')[1]}"
+            filePath = os.path.join(folder_path, filename)
+        with open(filePath, "wb") as fh:
+            fh.write(base64.decodebytes(bytes(splitted_new_avatar[1].split(",")[1], "utf-8")))
+        return filePath
+    return newAvatar
 
 
 key = getenv('JWT_SECRET_KEY')
