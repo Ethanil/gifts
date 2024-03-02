@@ -116,10 +116,14 @@ components:
       type: object
       required:
         - name
+        - isSecretGroup
       properties:
         name:
           type: string
           example: A group for my dog
+        isSecretGroup:
+          type: boolean
+          example: true
         editable:
           type: boolean
           example: true

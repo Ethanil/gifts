@@ -166,8 +166,8 @@ FROM oldSchema.users u;
 Add any kind of Lastname to users to not have ugly gaps in listnames
 ## Giftgroups/Lists
 ```sql
-INSERT INTO newSchema.giftgroup (id, editable, name)
-SELECT u.userid as id, false as editable, CONCAT(eu.firstName, ' ', eu.lastName, '''s Liste') as name
+INSERT INTO newSchema.giftgroup (id, editable, isSecretGroup, name)
+SELECT u.userid as id, false as editable, false as isSecretGroup, CONCAT(eu.firstName, ' ', eu.lastName, '''s Liste') as name
 FROM oldSchema.users u join newSchema.user eu on u.fullname = eu.firstName;
 ```
 

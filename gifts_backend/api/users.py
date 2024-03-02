@@ -225,7 +225,6 @@ def sendResetEmail(resetCode, email):
     text = message.as_string()
     server.sendmail(sender_email, email, text)
     server.quit()
-    print(message)
 
 
 def resetPassword(email, password_and_code):

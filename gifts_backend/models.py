@@ -70,6 +70,7 @@ class GiftGroup(db.Model):
     isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="giftGroup",
                                                              cascade="all, delete-orphan", passive_deletes=True)
     name: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
+    isSecretGroup: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
 
 
 class IsBeingGifted(db.Model):

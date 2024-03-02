@@ -18,7 +18,7 @@
                             color="primary"
                             icon="mdi-account-multiple-plus"
                         >
-                            {{ group.name }}
+                            <span class="tabtext">{{ group.name }}</span>
                         </v-badge>
                     </v-tab>
                 </template>
@@ -60,7 +60,9 @@
                                     color="primary"
                                     icon="mdi-account-multiple-plus"
                                 >
-                                    {{ group.name }}
+                                    <span class="tabtext">{{
+                                        group.name
+                                    }}</span>
                                 </v-badge>
                             </v-tab>
                         </template>
@@ -134,7 +136,9 @@
                                 <v-icon
                                     :icon="
                                         giftgroups[currentTab].editable &&
-                                        giftgroups[currentTab].isBeingGifted
+                                        (giftgroups[currentTab].isBeingGifted ||
+                                            giftgroups[currentTab]
+                                                .isSecretGroup)
                                             ? 'mdi-pencil'
                                             : 'mdi-information'
                                     "
@@ -403,6 +407,7 @@ const groupDataToAdd = ref<Giftgroup>({
     id: -1,
     editable: false,
     isBeingGifted: false,
+    isSecretGroup: false,
     name: "",
     invitations: [],
 });
@@ -417,6 +422,7 @@ const groupDataToEdit = ref<Giftgroup>({
     id: -1,
     editable: false,
     isBeingGifted: false,
+    isSecretGroup: false,
     name: "",
     invitations: [],
     invitableUser: [],
@@ -457,3 +463,9 @@ function declineInvitation() {
     });
 }
 </script>
+<style lang="scss">
+.tabtext {
+    text-transform: none;
+    letter-spacing: normal;
+}
+</style>

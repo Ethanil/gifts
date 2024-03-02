@@ -57,19 +57,6 @@
                         </div>
                     </v-col>
                     <v-spacer />
-                    <!-- <v-file-input
-                            hide-details
-                            variant="plain"
-                            prepend-icon=""
-                            density="compact"
-                            v-model="avatarUpload"
-                            @update:model-value="handleImageInput(avatarUpload)"
-                        >
-                            <template #prepend-inner>
-                                <v-btn color="primary" icon="mdi-upload" />
-                            </template>
-                            <template #selection />
-                        </v-file-input> -->
                 </v-row>
             </v-container>
 
@@ -93,18 +80,6 @@
                             @touchstart="showPasswords.oldPassword = true"
                             @touchend="showPasswords.oldPassword = false"
                         />
-                        <!-- <v-icon
-                            @click="
-                                showPasswords.oldPassword =
-                                    !showPasswords.oldPassword
-                            "
-                            :icon="
-                                showPasswords.oldPassword
-                                    ? 'mdi-eye'
-                                    : 'mdi-eye-off'
-                            "
-                            class="cursor-pointer"
-                        /> -->
                     </template>
                 </v-text-field>
                 <v-text-field
@@ -161,19 +136,6 @@
                             @touchstart="showPasswords.newPassword = true"
                             @touchend="showPasswords.newPassword = false"
                         />
-                        <!-- <v-icon
-                            v-else
-                            @click="
-                                showPasswords.newPassword =
-                                    !showPasswords.newPassword
-                            "
-                            :icon="
-                                showPasswords.newPassword
-                                    ? 'mdi-eye'
-                                    : 'mdi-eye-off'
-                            "
-                            class="cursor-pointer"
-                        /> -->
                     </template>
                 </v-text-field>
                 <v-text-field
@@ -217,19 +179,6 @@
                                 showPasswords.reentered_newPassword = false
                             "
                         />
-                        <!-- <v-icon
-                            v-else
-                            @click="
-                                showPasswords.reentered_newPassword =
-                                    !showPasswords.reentered_newPassword
-                            "
-                            :icon="
-                                showPasswords.reentered_newPassword
-                                    ? 'mdi-eye'
-                                    : 'mdi-eye-off'
-                            "
-                            class="cursor-pointer"
-                        /> -->
                     </template>
                 </v-text-field>
                 <v-btn type="submit" color="primary" class="mt-2">
@@ -261,7 +210,6 @@ const generatedAvatar = computed(() =>
         blackout: false,
     }).replaceAll("\n", ""),
 );
-const avatarUpload = ref<File[] | undefined>(undefined);
 async function handleImageInput(files: File[] | undefined) {
     if (!files || files.length != 1) {
         formData.value.avatar = (data.value as any)!.avatar;

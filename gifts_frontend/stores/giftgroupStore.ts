@@ -6,6 +6,7 @@ export type Giftgroup = {
     editable: boolean;
     isBeingGifted: boolean;
     name: string;
+    isSecretGroup: boolean;
     invitations?: User[];
     isInvited?: boolean;
     usersBeingGifted?: User[];

@@ -16,15 +16,28 @@
         >
             <v-list-item>
                 <template #prepend>
-                    <div v-if="isBase64" class="mr-1 d-flex justify-center align-center">
+                    <div
+                        v-if="isBase64"
+                        class="mr-1 d-flex justify-center align-center"
+                    >
                         <v-avatar size="32" :image="user.avatar" />
                     </div>
                     <div v-else class="mr-1 d-flex justify-center align-center">
-                        <span style="height: 32px;" v-html="avt"></span>
+                        <span style="height: 32px" v-html="avt"></span>
                     </div>
                 </template>
-                <span class="text-h6">{{ user.firstName }} {{ user.lastName }}</span>
-                <template v-if="outerProps.actionEnabled" #append>
+                <span class="text-h6"
+                    >{{ user.firstName }} {{ user.lastName }}</span
+                >
+                <template
+                    v-if="
+                        outerProps.actionEnabled &&
+                        (!data ||
+                            outerProps.ownActionEnabled ||
+                            (data as any).email !== user.email)
+                    "
+                    #append
+                >
                     <v-tooltip v-if="outerProps.actionTooltip">
                         <template #activator="{ props }">
                             <v-icon

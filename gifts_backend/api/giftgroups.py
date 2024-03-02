@@ -9,6 +9,8 @@ def read_all(user, token_info):
     # decorate giftGroups with Ownership-value
     decorated_gift_groups: list[tuple[GiftGroup, int | float]] = []
     for giftGroup in giftGroups:
+        if giftGroup.isSecretGroup and user in [isBeingGifted.user.email for isBeingGifted in giftGroup.isBeingGifted]:
+            continue
         emails_of_usersBeinggifted = [isBeinggifted.user_email for isBeinggifted in giftGroup.isBeingGifted]
         if user in emails_of_usersBeinggifted:
             if not giftGroup.editable:
@@ -46,10 +48,10 @@ def create(giftgroup, user, token_info):
     existing_user = User.query.filter(User.email == user).one_or_none()
     sanitized_giftgroup = {}
     sanitized_giftgroup['name'] = giftgroup['name']
+    sanitized_giftgroup['isSecretGroup'] = giftgroup['isSecretGroup']
     sanitized_giftgroup['editable'] = True
     new_giftGroup = giftGroup_schema.load(sanitized_giftgroup, session=db.session)
     db.session.add(new_giftGroup)
-    new_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
     if giftgroup.get('invitations') is not None:
         for user in giftgroup.get('invitations'):
             existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
@@ -59,6 +61,15 @@ def create(giftgroup, user, token_info):
                     f"User with email {user.email} not found"
                 )
             new_giftGroup.isInvited.add(IsInvited(user=existing_user))
+    if giftgroup.get('usersBeingGifted') is not None:
+        for user in giftgroup.get('usersBeingGifted'):
+            existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
+            if existing_user is None:
+                abort(
+                    404,
+                    f"User with email {user.email} not found"
+                )
+            new_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
     db.session.commit()
     return giftGroup_schema.dump(new_giftGroup), 201
 
@@ -71,7 +82,7 @@ def update(giftgroup_id, giftgroup, user, token_info):
             f"Giftgroup with id {giftgroup_id} not found"
         )
     existing_relations = existing_giftGroup.isBeingGifted
-    if not any(isBeingGifted.user_email == user for isBeingGifted in existing_relations):
+    if not any(isBeingGifted.user_email == user for isBeingGifted in existing_relations) and not existing_giftGroup.isSecretGroup:
         abort(
             403,
             f"User {user} is not allowed to update Giftgroup with id {giftgroup_id}"
