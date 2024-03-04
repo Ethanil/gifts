@@ -72,10 +72,7 @@ export const useUserStore = defineStore("user", {
                     email: (data.value as any).email,
                     password: newPassword !== "" ? newPassword : oldPassword,
                 });
-                const giftgroupStore = useGiftGroupStore();
-                giftgroupStore.loadFromAPI();
-                const giftStore = useGiftStore();
-                giftStore.loadFromAPI();
+                this.loadFromAPI();
             }
         },
     },

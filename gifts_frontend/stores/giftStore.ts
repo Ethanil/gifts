@@ -37,7 +37,7 @@ enum BackendGiftStrength {
     AMAZING = 4,
     AWESOME = 5,
 }
-function transformToDataBaseGift(gift:Gift) : DatabaseGift{
+function transformToDataBaseGift(gift: Gift): DatabaseGift {
     const result = {} as DatabaseGift;
     result.id = gift.id;
     result.name = gift.name;
@@ -49,11 +49,11 @@ function transformToDataBaseGift(gift:Gift) : DatabaseGift{
     result.availableActions = gift.availableActions;
     result.isSecretGift = gift.isSecretGift;
     if (Object.hasOwn(gift, "freeForReservationRequest"))
-        result.freeForReservationRequest =
-        gift.freeForReservationRequest!.map((user) => user.email);
+        result.freeForReservationRequest = gift.freeForReservationRequest!.map(
+            (user) => user.email,
+        );
     if (Object.hasOwn(gift, "reservingUsers"))
-        result.reservingUsers =
-        gift.reservingUsers!.map((user) => user.email);
+        result.reservingUsers = gift.reservingUsers!.map((user) => user.email);
     return result;
 }
 export const useGiftStore = defineStore("gift", {

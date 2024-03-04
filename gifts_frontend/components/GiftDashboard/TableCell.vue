@@ -220,19 +220,24 @@
                                             :key="key"
                                         >
                                             <v-tooltip location="bottom">
-                                                <template #activator="{ props }"
-                                                    ><v-avatar
+                                                <template
+                                                    #activator="{ props }"
+                                                >
+                                                    <span
+                                                        v-if="
+                                                            avatarIsBase64 &&
+                                                            avatarIsBase64[key]
+                                                        "
+                                                    >
+                                                    </span>
+                                                    <v-avatar
                                                         v-if="
                                                             avatarIsBase64 &&
                                                             avatarIsBase64[key]
                                                         "
                                                         width="40"
                                                         height="45.5"
-                                                        :image="
-                                                            reservingUserAvatars![
-                                                                key
-                                                            ]
-                                                        "
+                                                        :image="user.avatar"
                                                     />
                                                     <span
                                                         v-else
