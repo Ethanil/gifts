@@ -1,12 +1,12 @@
 # Clone git repo
-navigate to your root folder and clone this repository with
+navigate to your root directory and clone this repository with
 
 ```bash
 git clone https://github.com/Ethanil/gifts
 ```
 # Backend
 ## Install Python packages
-navigate to the backend-folder and create a virtual environment for python and activate it
+navigate to the backend-directory and create a virtual environment for python and activate it
 ```bash
 cd gifts/gifts_backend
 ```
@@ -133,7 +133,27 @@ expose the service to the outside(make sure to use the correct port and route):
 ```bash
 uberspace web backend set / --http --port 8000
 ```
+# Alternative supervisord setup
+Alternatively you can create one group for both supervisord systems:
+```
+[group:gifts]
+programs=gifts_frontend,gifts_backend
 
+[program:gifts_backend]
+directory=%(ENV_HOME)s/gifts/gifts_backend
+command=%(ENV_HOME)s/gifts/gifts_backend/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 5000
+autostart=true
+autorestart=true
+stdout_logfile=%(ENV_HOME)s/logs/gifts_backend.log
+
+[program:gifts_frontend]
+directory=%(ENV_HOME)s/gifts/gifts_frontend
+command=node .output/server/index.mjs
+autostart=true
+autorestart=true
+environment=NITRO_PORT=8000
+stdout_logfile=%(ENV_HOME)s/logs/gifts_frontend.log
+```
 # Start supervisord
 reread the config
 ```bash
@@ -191,4 +211,46 @@ make sure to copy the pictures of the gifts from the old directory into the one 
 INSERT INTO newSchema.has_reserved(gift_id, user_email)
 SELECT g.id as gift_id, LOWER(u.email) as user_email
 FROM oldSchema.allocs join items i on allocs.itemid = i.itemid join users u on allocs.userid = u.userid join newSchema.gift g on g.name = i.description
+```
+
+# Update Project
+Navigate into your project directory(gifts)
+## Get changes from github
+Check if there are any updates with
+```bash
+git fetch
+git status
+```
+if there are new/changed files this will show it
+
+pull the changes with 
+```
+git pull
+```
+## Rebuild frontend
+navigate into frontend-directory and run the install and build again
+with npm:
+```
+npm install
+npm run build
+```
+or with yarn:
+```
+yarn install
+yarn run build
+```
+## Restart supervisor daemons
+Restart the supervisore daemons with 
+```
+supervisorctl restart gifts_frontend
+supervisorctl restart gifts_backend
+```
+or if those are the only 2 daemons running:
+```
+supervisorctl restart all
+```
+
+or if you used the alternative setup:
+```
+supervisorctl restart gifts:*
 ```
