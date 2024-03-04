@@ -42,7 +42,6 @@ def create(giftgroup, user, token_info):
     if giftgroup.get('name') == "":
         abort(400,
               "empty name is not allowed")
-    existing_user = User.query.filter(User.email == user).one_or_none()
     sanitized_giftgroup = {}
     sanitized_giftgroup['name'] = giftgroup['name']
     sanitized_giftgroup['isSecretGroup'] = giftgroup['isSecretGroup']

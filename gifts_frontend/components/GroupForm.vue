@@ -282,7 +282,6 @@ watch(
             if (outerProps.newGroup) {
                 groupData.value["usersBeingGifted"] = [thisUser];
             }
-            console.log(groupData.value["usersBeingGifted"]);
         }
     },
 );

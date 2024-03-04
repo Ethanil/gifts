@@ -35,13 +35,12 @@ function transformToDataBaseGiftGroup(giftgroup:Giftgroup) : DataBaseGiftGroup{
         res.invitations = []
     }
     if(Object.hasOwn(giftgroup, "usersBeingGifted")){
-        res.invitations = giftgroup.usersBeingGifted!.map((user) => user.email);
-
+        res.usersBeingGifted = giftgroup.usersBeingGifted!.map((user) => user.email);
     }else{
         res.usersBeingGifted = []
     }
     if(Object.hasOwn(giftgroup, "invitableUsers")){
-        res.invitations = giftgroup.usersBeingGifted!.map((user) => user.email);
+        res.invitableUsers = giftgroup.usersBeingGifted!.map((user) => user.email);
     }else{
         res.invitableUsers = []
     }
