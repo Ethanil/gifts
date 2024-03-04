@@ -14,9 +14,14 @@ export type Gift = {
     isSecretGift?: boolean;
     reservingUsers?: User[];
 };
-export type DatabaseGift = Gift & {
+export type DatabaseGift = Omit<
+    Omit<Gift, "freeForReservationRequest">,
+    "reservingUsers"
+> & {
     giftGroup_id: number;
     user_email: string;
+    reservingUsers?: string[];
+    freeForReservationRequest?: string[];
 };
 export enum GiftStrength {
     "Ganz okay" = 1,
@@ -34,7 +39,7 @@ enum BackendGiftStrength {
 }
 export const useGiftStore = defineStore("gift", {
     state: () => ({
-        gifts: {} as { [key: number]: Gift[] },
+        gifts: {} as { [key: number]: DatabaseGift[] },
         groupId: 0 as number,
     }),
 
@@ -44,7 +49,9 @@ export const useGiftStore = defineStore("gift", {
                 const { token } = useAuth();
                 defaults.headers.Authorization = String(token.value);
                 const response = await api.get();
-                this.gifts = response as { [key: number]: Gift[] };
+                this.gifts = response as {
+                    [key: number]: DatabaseGift[];
+                };
             } catch (error) {
                 console.log(error);
                 return error;
@@ -180,7 +187,39 @@ export const useGiftStore = defineStore("gift", {
     getters: {
         getGiftsOfCurrentGroup(state): Gift[] {
             if (!state.gifts || !state.gifts[state.groupId]) return [];
-            return state.gifts[state.groupId];
+            const userStore = useUserStore();
+            const result = Array<Gift>(state.gifts[state.groupId].length);
+            for (const [index, databaseGift] of state.gifts[
+                state.groupId
+            ].entries()) {
+                result[index] = {} as Gift;
+                result[index].id = databaseGift.id;
+                result[index].name = databaseGift.name;
+                result[index].price = databaseGift.price;
+                result[index].giftStrength = databaseGift.giftStrength;
+                result[index].description = databaseGift.description;
+                result[index].link = databaseGift.link;
+                result[index].picture = databaseGift.picture;
+                result[index].availableActions = databaseGift.availableActions;
+                result[index].isSecretGift = databaseGift.isSecretGift;
+                if (Object.hasOwn(databaseGift, "freeForReservationRequest"))
+                    result[index].freeForReservationRequest =
+                        databaseGift.freeForReservationRequest!.map(
+                            (request_email) =>
+                                userStore.users.find(
+                                    (user) => user.email === request_email,
+                                )!,
+                        );
+                if (Object.hasOwn(databaseGift, "reservingUsers"))
+                    result[index].reservingUsers =
+                        databaseGift.reservingUsers!.map(
+                            (reserving_email) =>
+                                userStore.users.find(
+                                    (user) => user.email === reserving_email,
+                                )!,
+                        );
+            }
+            return result;
         },
     },
 });

@@ -100,7 +100,8 @@ components:
         freeForReservationRequest:
           type: array
           items:
-            $ref: '#/components/schemas/UserWithoutPassword'
+            type: string
+            format: email
         availableActions:
           type: array
           items:
@@ -111,7 +112,8 @@ components:
         reservingUsers:
           type: array
           items:
-            $ref: '#/components/schemas/UserWithoutPassword'
+            type: string
+            format: email
     GiftGroup:
       type: object
       required:
@@ -133,18 +135,21 @@ components:
         usersBeingGifted:
           type: array
           items:
-            $ref: "#/components/schemas/UserWithoutPassword"
+            type: string
+            format: email
         isInvited:
           type: boolean
           example: false
         invitations:
           type: array
           items:
-            $ref: "#/components/schemas/UserWithoutPassword"
+            type: string
+            format: email
         invitableUsers:
           type: array
           items:
-            $ref: "#/components/schemas/UserWithoutPassword"
+            type: string
+            format: email
     Event:
       type: object
       required:

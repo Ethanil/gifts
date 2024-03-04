@@ -26,18 +26,15 @@ def read_all(user, token_info):
     res = giftGroups_schema.dump(giftGroups)
     all_users = User.query.all()
     for index, entry in enumerate(res):
-        entry["isBeingGifted"] = user in [isBeingGifted.user.email for isBeingGifted in giftGroups[index].isBeingGifted]
-        entry["usersBeingGifted"] = users_schema_without_password.dump(
-            [isBeingGifted.user for isBeingGifted in giftGroups[index].isBeingGifted])
-        entry["isInvited"] = user in [isInvited.user.email for isInvited in giftGroups[index].isInvited]
-        entry["invitations"] = users_schema_without_password.dump(
-            [isInvited.user for isInvited in giftGroups[index].isInvited])
-        entry["invitableUsers"] = users_schema_without_password.dump(
-            [invitableUser
+        entry["usersBeingGifted"] = [isBeingGifted.user.email for isBeingGifted in giftGroups[index].isBeingGifted]
+        entry["isBeingGifted"] = user in entry["usersBeingGifted"]
+        entry["invitations"] = [isInvited.user.email for isInvited in giftGroups[index].isInvited]
+        entry["isInvited"] = user in entry["invitations"]
+        entry["invitableUsers"] = [invitableUser.email
              for invitableUser in all_users
              if entry["editable"]
              and invitableUser not in [isInvited.user for isInvited in giftGroups[index].isInvited]
-             and invitableUser not in [isBeingGifted.user for isBeingGifted in giftGroups[index].isBeingGifted]])
+             and invitableUser not in [isBeingGifted.user for isBeingGifted in giftGroups[index].isBeingGifted]]
     return res, 200
 
 
@@ -53,21 +50,21 @@ def create(giftgroup, user, token_info):
     new_giftGroup = giftGroup_schema.load(sanitized_giftgroup, session=db.session)
     db.session.add(new_giftGroup)
     if giftgroup.get('invitations') is not None:
-        for user in giftgroup.get('invitations'):
-            existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
+        for invited_user in giftgroup.get('invitations'):
+            existing_user = User.query.filter(User.email == invited_user).one_or_none()
             if existing_user is None:
                 abort(
                     404,
-                    f"User with email {user.email} not found"
+                    f"User with email {invited_user} not found"
                 )
             new_giftGroup.isInvited.add(IsInvited(user=existing_user))
     if giftgroup.get('usersBeingGifted') is not None:
-        for user in giftgroup.get('usersBeingGifted'):
-            existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
+        for gifted_user in giftgroup.get('usersBeingGifted'):
+            existing_user = User.query.filter(User.email == gifted_user).one_or_none()
             if existing_user is None:
                 abort(
                     404,
-                    f"User with email {user.email} not found"
+                    f"User with email {gifted_user} not found"
                 )
             new_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
     db.session.commit()
@@ -93,21 +90,21 @@ def update(giftgroup_id, giftgroup, user, token_info):
             "That giftgroup can't be edited"
         )
     existing_giftGroup.name = giftgroup['name']
-    invitationEmails = [user["email"] for user in giftgroup.get('invitations')]
+    invitationEmails = [usr for usr in giftgroup.get('invitations')]
     existing_giftGroup.isInvited = set(
         filter(lambda isInvited: isInvited.user_email in invitationEmails, existing_giftGroup.isInvited))
     invitedUser = [isInvited.user for isInvited in existing_giftGroup.isInvited]
     if giftgroup.get('invitations') is not None:
-        for user in giftgroup.get('invitations'):
-            existing_user = User.query.filter(User.email == user.get('email')).one_or_none()
+        for invited_user in giftgroup.get('invitations'):
+            existing_user = User.query.filter(User.email == invited_user).one_or_none()
             if existing_user is None:
                 abort(
                     404,
-                    f"User with email {user.email} not found"
+                    f"User with email {invited_user} not found"
                 )
             if existing_user not in invitedUser:
                 existing_giftGroup.isInvited.add(IsInvited(user=existing_user))
-    isBeingGiftedEmails = [user["email"] for user in giftgroup.get('usersBeingGifted')]
+    isBeingGiftedEmails = [usr for usr in giftgroup.get('usersBeingGifted')]
     existing_giftGroup.isBeingGifted = set(
         filter(lambda isBeingGifted: isBeingGifted.user_email in isBeingGiftedEmails, existing_giftGroup.isBeingGifted))
     if len(existing_giftGroup.isBeingGifted) == 0:

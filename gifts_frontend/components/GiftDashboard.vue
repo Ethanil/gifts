@@ -37,8 +37,9 @@
                             :value="-1"
                             disabled
                             density="compact"
-                            >{{ outerKey }}</v-tab
                         >
+                            {{ outerKey }}
+                        </v-tab>
                         <template
                             v-for="([key, group], j) in Object.entries(
                                 groupObject,
@@ -60,9 +61,9 @@
                                     color="primary"
                                     icon="mdi-account-multiple-plus"
                                 >
-                                    <span class="tabtext">{{
-                                        group.name
-                                    }}</span>
+                                    <span class="tabtext">
+                                        {{ group.name }}
+                                    </span>
                                 </v-badge>
                             </v-tab>
                         </template>
@@ -245,7 +246,6 @@
                             @do-action="do_Action"
                             @open-picture-dialog="openPictureDialog"
                         />
-                        {{ buttonCurrentlyIntersecting }}
                     </template>
                     <template #bottom />
                 </v-data-table>
@@ -262,6 +262,7 @@
     <group-form
         v-model:group-dialog="editGroupDialog"
         :prop-group-data="groupDataToEdit"
+        :users-loaded="usersLoaded"
         :new-group="false"
         @submit-form="updateGroup"
         @join-group="joinGroup"
@@ -269,6 +270,7 @@
     <group-form
         v-model:group-dialog="addGroupDialog"
         :prop-group-data="groupDataToAdd"
+        :users-loaded="usersLoaded"
         @submit-form="addGroup"
     />
     <v-dialog v-model="pictureDialog" width="50%" height="75%">
@@ -293,11 +295,14 @@ const currentGroup = computed(() => {
     else return undefined;
 });
 const buttonCurrentlyIntersecting = ref(true);
+const userStore = useUserStore();
+const usersLoaded = ref(false);
 onMounted(() => {
     giftgroupStore.loadFromAPI().then(() => {
         giftStore.loadFromAPI();
         giftStore.setGroup(giftgroupStore.giftgroups[0].id);
     });
+    userStore.loadFromAPI().then(() => (usersLoaded.value = true));
     let observer = new IntersectionObserver((e) => {
         buttonCurrentlyIntersecting.value = e[0].isIntersecting;
     });
@@ -310,7 +315,7 @@ watch(currentTab, async (newValue) => {
     await giftStore.setGroup(giftgroupStore.giftgroups[newValue].id);
 });
 const giftgroups = computed(() => {
-    return giftgroupStore.$state.giftgroups;
+    return giftgroupStore.giftgroups;
 });
 
 const groupAsUser = ref(false);
@@ -524,14 +529,14 @@ function declineInvitation() {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     top: 0px;
     right: 0px;
-    transform:translate(80%);
+    transform: translate(80%);
     position: fixed;
     z-index: 10;
-    &:hover{
-        transform:translate(1%);
+    &:hover {
+        transform: translate(1%);
     }
 }
-.outOfView{
+.outOfView {
     transform: translate(100%);
 }
 </style>

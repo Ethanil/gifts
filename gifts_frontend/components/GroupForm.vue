@@ -7,156 +7,177 @@
             <slot name="activator" :props="props" />
         </template>
         <v-card>
-            <div class="v-system-bar">
-                <v-icon @click="groupDialog = false"> mdi-close </v-icon>
-            </div>
-            <v-alert v-if="willDeleteGroup" type="error">
-                DIE LISTE WIRD GELÖSCHT
-            </v-alert>
-            <v-form ref="form" class="pa-5 pt-3" @submit.prevent="submitForm">
-                <template v-if="isAllowedToEditTitle">
-                    <v-text-field
-                        v-model="groupData.name"
-                        label="Name der Liste"
-                        :counter="20"
-                        :rules="[
-                            nonEmptyRule('Name der Liste'),
-                            maxCharRule(20),
-                        ]"
-                    />
-                    <v-checkbox
-                        v-if="newGroup"
-                        v-model="groupData.isSecretGroup"
-                        label="Geheime Gruppe"
-                        validate-on="input"
-                        :rules="[someoneIsBeingGiftedRule()]"
-                    />
-                </template>
-                <v-card-title v-else class="d-flex justify-center">
-                    {{ outerProps.propGroupData.name }}
-                </v-card-title>
-                <span v-if="groupData.isSecretGroup" class="text-subtitle1"
-                    >Dies ist eine geheime Gruppe, die Beschenkten können diese
-                    Gruppe nicht sehen!</span
+            <v-skeleton-loader :loading="!usersLoaded">
+                <div class="v-system-bar">
+                    <v-icon @click="groupDialog = false"> mdi-close </v-icon>
+                </div>
+                <v-alert v-if="willDeleteGroup" type="error">
+                    DIE LISTE WIRD GELÖSCHT
+                </v-alert>
+                <v-form
+                    ref="form"
+                    class="pa-5 pt-3"
+                    style="width: 100%"
+                    @submit.prevent="submitForm"
                 >
-                <v-container>
-                    <v-row no-gutters>
-                        <v-col class="d-flex justify-center" :cols="cols">
-                            <v-container>
-                                <v-row>
-                                    <group-form-list
-                                        :users="
-                                            groupData.usersBeingGifted ?? []
-                                        "
-                                        :title="
-                                            groupData.isSecretGroup
-                                                ? 'Geheim Beschenkte'
-                                                : 'Beschenkte'
-                                        "
-                                        title-icon="mdi-gift-open-outline"
-                                        action-icon="mdi-delete-outline"
-                                        :action-enabled="
-                                            (isAllowedToEdit && !newGroup) ||
-                                            (newGroup &&
-                                                groupData.isSecretGroup)
-                                        "
-                                        :action-tooltip="
-                                            (user: User) =>
+                    <template v-if="isAllowedToEditTitle">
+                        <v-text-field
+                            v-model="groupData.name"
+                            label="Name der Liste"
+                            :counter="20"
+                            :rules="[
+                                nonEmptyRule('Name der Liste'),
+                                maxCharRule(20),
+                            ]"
+                        />
+                        <v-checkbox
+                            v-if="newGroup"
+                            v-model="groupData.isSecretGroup"
+                            label="Geheime Gruppe"
+                            validate-on="input"
+                            :rules="[someoneIsBeingGiftedRule()]"
+                        />
+                    </template>
+                    <v-card-title v-else class="d-flex justify-center">
+                        {{ outerProps.propGroupData.name }}
+                    </v-card-title>
+                    <span v-if="groupData.isSecretGroup" class="text-subtitle1"
+                        >Dies ist eine geheime Gruppe, die Beschenkten können
+                        diese Gruppe nicht sehen!</span
+                    >
+                    <v-container>
+                        <v-row no-gutters>
+                            <v-col class="d-flex justify-center" :cols="cols">
+                                <v-container>
+                                    <v-row>
+                                        <group-form-list
+                                            :users="
+                                                groupData.usersBeingGifted ?? []
+                                            "
+                                            :title="
                                                 groupData.isSecretGroup
-                                                    ? `${user.firstName} ${user.lastName} nicht geheim Beschenken`
-                                                    : `${user.firstName} ${user.lastName} von der Liste entfernen`
-                                        "
-                                        @action="removeFunction"
-                                    />
-                                </v-row>
-                                <v-row>
-                                    <group-form-list
-                                        :users="usersThatGetRemoved"
-                                        title="Zu entfernde Beschenkte"
-                                        title-icon="mdi-account-off-outline"
-                                        action-icon="mdi-delete-off-outline"
-                                        empty-strategy="hide"
-                                        :action-enabled="isAllowedToEdit"
-                                        :action-tooltip="
-                                            (user: User) =>
-                                                `Löschen von ${user.firstName} ${user.lastName} rückgängig machen`
-                                        "
-                                        @action="undoRemoving"
-                                    />
-                                </v-row>
-                            </v-container>
-                        </v-col>
-                        <v-col
-                            v-if="
-                                !groupData.isSecretGroup &&
-                                (groupData.editable || newGroup)
-                            "
-                            class="d-flex justify-center"
-                            :cols="cols"
-                        >
-                            <group-form-list
-                                :users="
-                                    groupData.invitations.map((inv) => inv.user)
+                                                    ? 'Geheim Beschenkte'
+                                                    : 'Beschenkte'
+                                            "
+                                            title-icon="mdi-gift-open-outline"
+                                            action-icon="mdi-delete-outline"
+                                            :action-enabled="
+                                                (isAllowedToEdit &&
+                                                    !newGroup) ||
+                                                (newGroup &&
+                                                    groupData.isSecretGroup)
+                                            "
+                                            :action-tooltip="
+                                                (user: User) =>
+                                                    groupData.isSecretGroup
+                                                        ? `${user.firstName} ${user.lastName} nicht geheim Beschenken`
+                                                        : `${user.firstName} ${user.lastName} von der Liste entfernen`
+                                            "
+                                            @action="removeFunction"
+                                        />
+                                    </v-row>
+                                    <v-row>
+                                        <group-form-list
+                                            :users="usersThatGetRemoved"
+                                            title="Zu entfernde Beschenkte"
+                                            title-icon="mdi-account-off-outline"
+                                            action-icon="mdi-delete-off-outline"
+                                            empty-strategy="hide"
+                                            :action-enabled="isAllowedToEdit"
+                                            :action-tooltip="
+                                                (user: User) =>
+                                                    `Löschen von ${user.firstName} ${user.lastName} rückgängig machen`
+                                            "
+                                            @action="undoRemoving"
+                                        />
+                                    </v-row>
+                                </v-container>
+                            </v-col>
+                            <v-col
+                                v-if="
+                                    !groupData.isSecretGroup &&
+                                    (groupData.editable || newGroup)
                                 "
-                                :title="'Als Beschenkte eingeladen'"
-                                :title-icon="'mdi-email-fast-outline'"
-                                :action-enabled="isAllowedToEdit"
-                                :action-icon="'mdi-email-off-outline'"
-                                own-action-icon="mdi-email-check-outline"
-                                :own-action-tooltip="
-                                    (user: User) => `Einladung annehmen`
-                                "
-                                :action-tooltip="
-                                    (user: User) =>
-                                        `Einladung von ${user.firstName} ${user.lastName} zurückziehen`
-                                "
-                                @action="removeFromInvitation"
-                            />
-                        </v-col>
-                        <v-col class="d-flex justify-center" :cols="cols">
-                            <group-form-list
-                                :users="giftingUsers"
-                                title="Schenkende"
-                                title-icon="mdi-gift-outline"
-                                :own-action-enabled="!groupData.isSecretGroup"
-                                :action-icon="
-                                    groupData.isSecretGroup
-                                        ? 'mdi-gift-open-outline'
-                                        : 'mdi-email-outline'
-                                "
-                                :action-enabled="isAllowedToEdit"
-                                :action-tooltip="
-                                    (user: User) =>
-                                        groupData.isSecretGroup
-                                            ? `${user.firstName} ${user.lastName} zum geheim Beschenkten machen`
-                                            : `${user.firstName} ${user.lastName} einladen um beschenkt zu werden`
-                                "
-                                @action="putIntoFunction"
-                            />
-                        </v-col>
-                    </v-row>
-                </v-container>
-                <v-container v-if="isAllowedToEditTitle">
-                    <v-row justify="center">
-                        <v-spacer v-if="!isAllowedToEdit" />
-                        <v-btn
-                            :color="willDeleteGroup ? 'error' : 'primary'"
-                            type="submit"
-                        >
-                            {{ buttonText }}
-                        </v-btn>
-                        <v-spacer v-if="!isAllowedToEdit" />
-                        <v-btn
-                            v-if="!isAllowedToEdit"
-                            :color="'error'"
-                            @click="deleteGroup"
-                        >
-                            Liste löschen
-                        </v-btn>
-                        <v-spacer v-if="!isAllowedToEdit" />
-                    </v-row>
-                </v-container>
-            </v-form>
+                                class="d-flex justify-center"
+                                :cols="cols"
+                            >
+                                <v-container>
+                                    <v-row>
+                                        <group-form-list
+                                            :users="
+                                                groupData.invitations.map(
+                                                    (inv) => inv.user,
+                                                )
+                                            "
+                                            :title="'Als Beschenkte eingeladen'"
+                                            :title-icon="'mdi-email-fast-outline'"
+                                            :action-enabled="isAllowedToEdit"
+                                            :action-icon="'mdi-email-off-outline'"
+                                            own-action-icon="mdi-email-check-outline"
+                                            :own-action-tooltip="
+                                                (user: User) =>
+                                                    `Einladung annehmen`
+                                            "
+                                            :action-tooltip="
+                                                (user: User) =>
+                                                    `Einladung von ${user.firstName} ${user.lastName} zurückziehen`
+                                            "
+                                            @action="removeFromInvitation"
+                                        />
+                                    </v-row>
+                                </v-container>
+                            </v-col>
+                            <v-col class="d-flex justify-center" :cols="cols">
+                                <v-container>
+                                    <v-row>
+                                        <group-form-list
+                                            :users="giftingUsers"
+                                            title="Schenkende"
+                                            title-icon="mdi-gift-outline"
+                                            :own-action-enabled="
+                                                !groupData.isSecretGroup
+                                            "
+                                            :action-icon="
+                                                groupData.isSecretGroup
+                                                    ? 'mdi-gift-open-outline'
+                                                    : 'mdi-email-outline'
+                                            "
+                                            :action-enabled="isAllowedToEdit"
+                                            :action-tooltip="
+                                                (user: User) =>
+                                                    groupData.isSecretGroup
+                                                        ? `${user.firstName} ${user.lastName} zum geheim Beschenkten machen`
+                                                        : `${user.firstName} ${user.lastName} einladen um beschenkt zu werden`
+                                            "
+                                            @action="putIntoFunction"
+                                        />
+                                    </v-row>
+                                </v-container>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                    <v-container v-if="isAllowedToEditTitle">
+                        <v-row justify="center">
+                            <v-spacer v-if="!isAllowedToEdit" />
+                            <v-btn
+                                :color="willDeleteGroup ? 'error' : 'primary'"
+                                type="submit"
+                            >
+                                {{ buttonText }}
+                            </v-btn>
+                            <v-spacer v-if="!isAllowedToEdit" />
+                            <v-btn
+                                v-if="!isAllowedToEdit"
+                                :color="'error'"
+                                @click="deleteGroup"
+                            >
+                                Liste löschen
+                            </v-btn>
+                            <v-spacer v-if="!isAllowedToEdit" />
+                        </v-row>
+                    </v-container>
+                </v-form>
+            </v-skeleton-loader>
         </v-card>
     </v-dialog>
 </template>
@@ -194,6 +215,10 @@ const outerProps = defineProps({
     newGroup: {
         type: Boolean,
         default: true,
+    },
+    usersLoaded: {
+        type: Boolean,
+        required: true,
     },
 });
 const groupData = ref<
@@ -247,18 +272,31 @@ watch(outerProps, (newVal) => {
         }
     }
 });
-onMounted(async () => {
-    await userStore.loadFromAPI();
-    const thisUser = userStore.users.find(
-        (user) => user.email === (data.value as any).email,
-    )!;
-    if (outerProps.newGroup) {
-        if (groupData.value.usersBeingGifted) {
-            groupData.value.usersBeingGifted?.push(thisUser);
-        } else {
-            groupData.value["usersBeingGifted"] = [thisUser];
+watch(
+    () => outerProps.usersLoaded,
+    (newVal, oldVal) => {
+        if (newVal === false) {
+            const thisUser = userStore.users.find(
+                (user) => user.email === (data.value as any).email,
+            )!;
+            if (outerProps.newGroup) {
+                groupData.value["usersBeingGifted"] = [thisUser];
+            }
         }
-    }
+    },
+);
+onMounted(async () => {
+    // await userStore.loadFromAPI();
+    // const thisUser = userStore.users.find(
+    //     (user) => user.email === (data.value as any).email,
+    // )!;
+    // if (outerProps.newGroup) {
+    //     if (groupData.value.usersBeingGifted) {
+    //         groupData.value.usersBeingGifted?.push(thisUser);
+    //     } else {
+    //         groupData.value["usersBeingGifted"] = [thisUser];
+    //     }
+    // }
 });
 async function deleteGroup() {
     groupData.value.usersBeingGifted = [];
