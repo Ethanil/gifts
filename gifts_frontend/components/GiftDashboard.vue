@@ -157,7 +157,43 @@
                             >
                                 <template #activator="{ props }">
                                     <v-btn
-                                        class="pa-4"
+                                        :class="'pa-4'"
+                                        height="min-content"
+                                        width="min-content"
+                                        color="primary"
+                                        id="AddButton"
+                                        v-bind="props"
+                                    >
+                                        <template v-if="isOwnGroup" #prepend>
+                                            <v-img
+                                                width="80px"
+                                                height="80px"
+                                                :rounded="0"
+                                                src="\assets\icons\normal_gift.png"
+                                            ></v-img>
+                                        </template>
+                                        <template v-else #prepend>
+                                            <v-img
+                                                width="80px"
+                                                height="80px"
+                                                :rounded="0"
+                                                src="\assets\icons\secret_gift.png"
+                                            ></v-img>
+                                        </template>
+                                        <span
+                                            style="
+                                                white-space: break-spaces;
+                                                font-size: 1.1em;
+                                            "
+                                            >{{ giftAddButtonText }}</span
+                                        >
+                                    </v-btn>
+                                    <v-btn
+                                        :class="
+                                            !buttonCurrentlyIntersecting
+                                                ? 'pa-4 floatingButton'
+                                                : 'pa-4 floatingButton outOfView'
+                                        "
                                         height="min-content"
                                         width="min-content"
                                         color="primary"
@@ -179,7 +215,13 @@
                                                 src="\assets\icons\secret_gift.png"
                                             ></v-img>
                                         </template>
-                                        <span>{{ giftAddButtonText }}</span>
+                                        <span
+                                            style="
+                                                white-space: break-spaces;
+                                                font-size: 1.1em;
+                                            "
+                                            >{{ giftAddButtonText }}</span
+                                        >
                                     </v-btn>
                                 </template>
                             </gift-form>
@@ -203,6 +245,7 @@
                             @do-action="do_Action"
                             @open-picture-dialog="openPictureDialog"
                         />
+                        {{ buttonCurrentlyIntersecting }}
                     </template>
                     <template #bottom />
                 </v-data-table>
@@ -249,11 +292,19 @@ const currentGroup = computed(() => {
         return giftgroups.value[currentTab.value];
     else return undefined;
 });
+const buttonCurrentlyIntersecting = ref(true);
 onMounted(() => {
     giftgroupStore.loadFromAPI().then(() => {
         giftStore.loadFromAPI();
         giftStore.setGroup(giftgroupStore.giftgroups[0].id);
     });
+    let observer = new IntersectionObserver((e) => {
+        buttonCurrentlyIntersecting.value = e[0].isIntersecting;
+    });
+    setTimeout(() => {
+        const target = document.querySelector("#AddButton");
+        if (target) observer.observe(target);
+    }, 50);
 });
 watch(currentTab, async (newValue) => {
     await giftStore.setGroup(giftgroupStore.giftgroups[newValue].id);
@@ -467,5 +518,20 @@ function declineInvitation() {
 .tabtext {
     text-transform: none;
     letter-spacing: normal;
+}
+.floatingButton {
+    transition-duration: 0.7s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    top: 0px;
+    right: 0px;
+    transform:translate(80%);
+    position: fixed;
+    z-index: 10;
+    &:hover{
+        transform:translate(1%);
+    }
+}
+.outOfView{
+    transform: translate(100%);
 }
 </style>
