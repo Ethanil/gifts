@@ -297,6 +297,25 @@ const currentGroup = computed(() => {
 const buttonCurrentlyIntersecting = ref(true);
 const userStore = useUserStore();
 const usersLoaded = ref(false);
+function waitForElm(selector:string):Promise<Element> {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector) as Element);
+        }
+
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector) as Element);
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
 onMounted(() => {
     giftgroupStore.loadFromAPI().then(() => {
         giftStore.loadFromAPI();
@@ -306,10 +325,7 @@ onMounted(() => {
     let observer = new IntersectionObserver((e) => {
         buttonCurrentlyIntersecting.value = e[0].isIntersecting;
     });
-    setTimeout(() => {
-        const target = document.querySelector("#AddButton");
-        if (target) observer.observe(target);
-    }, 50);
+    waitForElm("#AddButton").then((target) => observer.observe(target))
 });
 watch(currentTab, async (newValue) => {
     await giftStore.setGroup(giftgroupStore.giftgroups[newValue].id);
