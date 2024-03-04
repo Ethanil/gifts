@@ -128,7 +128,7 @@
             >
                 <v-container>
                     <v-row>
-                        <v-col>
+                        <v-col :cols="lgAndUp ? 'auto' : '12'">
                             <span
                                 class="text-h5 cursor-pointer"
                                 @click.stop="editGroup(giftgroups[currentTab])"
@@ -158,11 +158,11 @@
                             >
                                 <template #activator="{ props }">
                                     <v-btn
+                                        id="AddButton"
                                         :class="'pa-4'"
                                         height="min-content"
                                         width="min-content"
                                         color="primary"
-                                        id="AddButton"
                                         v-bind="props"
                                     >
                                         <template v-if="isOwnGroup" #prepend>
@@ -297,13 +297,13 @@ const currentGroup = computed(() => {
 const buttonCurrentlyIntersecting = ref(true);
 const userStore = useUserStore();
 const usersLoaded = ref(false);
-function waitForElm(selector:string):Promise<Element> {
-    return new Promise(resolve => {
+function waitForElm(selector: string): Promise<Element> {
+    return new Promise((resolve) => {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector(selector) as Element);
         }
 
-        const observer = new MutationObserver(mutations => {
+        const observer = new MutationObserver((_) => {
             if (document.querySelector(selector)) {
                 observer.disconnect();
                 resolve(document.querySelector(selector) as Element);
@@ -312,7 +312,7 @@ function waitForElm(selector:string):Promise<Element> {
 
         observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
         });
     });
 }
@@ -322,10 +322,10 @@ onMounted(() => {
         giftStore.setGroup(giftgroupStore.giftgroups[0].id);
     });
     userStore.loadFromAPI().then(() => (usersLoaded.value = true));
-    let observer = new IntersectionObserver((e) => {
+    const observer = new IntersectionObserver((e) => {
         buttonCurrentlyIntersecting.value = e[0].isIntersecting;
     });
-    waitForElm("#AddButton").then((target) => observer.observe(target))
+    waitForElm("#AddButton").then((target) => observer.observe(target));
 });
 watch(currentTab, async (newValue) => {
     await giftStore.setGroup(giftgroupStore.giftgroups[newValue].id);

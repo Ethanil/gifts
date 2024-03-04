@@ -274,30 +274,18 @@ watch(outerProps, (newVal) => {
 });
 watch(
     () => outerProps.usersLoaded,
-    (newVal, oldVal) => {
-        if (newVal === false) {
+    (newVal) => {
+        if (newVal === true) {
             const thisUser = userStore.users.find(
                 (user) => user.email === (data.value as any).email,
             )!;
             if (outerProps.newGroup) {
                 groupData.value["usersBeingGifted"] = [thisUser];
             }
+            console.log(groupData.value["usersBeingGifted"]);
         }
     },
 );
-onMounted(async () => {
-    // await userStore.loadFromAPI();
-    // const thisUser = userStore.users.find(
-    //     (user) => user.email === (data.value as any).email,
-    // )!;
-    // if (outerProps.newGroup) {
-    //     if (groupData.value.usersBeingGifted) {
-    //         groupData.value.usersBeingGifted?.push(thisUser);
-    //     } else {
-    //         groupData.value["usersBeingGifted"] = [thisUser];
-    //     }
-    // }
-});
 async function deleteGroup() {
     groupData.value.usersBeingGifted = [];
     emit("submitForm", {

@@ -27,7 +27,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
     actions: {
         async loadFromAPI() {
             try {
-                const { token, data } = useAuth();
+                const { token } = useAuth();
                 defaults.headers.Authorization = String(token.value);
                 const response = await api.get({});
                 this.databaseGiftgroups = response as DataBaseGiftGroup[];
