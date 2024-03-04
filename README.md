@@ -186,14 +186,14 @@ FROM oldSchema.users u;
 Add any kind of Lastname to users to not have ugly gaps in listnames
 ## Giftgroups/Lists
 ```sql
-INSERT INTO newSchema.giftgroup (id, editable, isSecretGroup, name)
+INSERT INTO newSchema.giftGroup (id, editable, isSecretGroup, name)
 SELECT u.userid as id, false as editable, false as isSecretGroup, CONCAT(eu.firstName, ' ', eu.lastName, '''s Liste') as name
 FROM oldSchema.users u join newSchema.user eu on u.fullname = eu.firstName;
 ```
 
 ## Beinggifted - Relation
 ```sql
-INSERT INTO newSchema.isbeinggifted (giftGroup_id, user_email)
+INSERT INTO newSchema.isBeingGifted (giftGroup_id, user_email)
 SELECT userid as id, LOWER(u.email) as user_email
 FROM oldSchema.users u;
 ```
@@ -201,7 +201,7 @@ FROM oldSchema.users u;
 ## Gifts
 ```sql
 INSERT INTO newSchema.gift (name, price, giftStrength, link, description, picture, giftGroup_id, user_email, freeForReservation)
-SELECT description AS name, price, ranking AS giftStrength, url AS link, test.items.comment AS description,  COALESCE(image_filename,'') AS picture, items.userid as giftGroup_id, LOWER(email) as user_email, false as freeForReservation
+SELECT description AS name, price, ranking AS giftStrength, url AS link, oldSchema.items.comment AS description,  COALESCE(image_filename,'') AS picture, items.userid as giftGroup_id, LOWER(email) as user_email, false as freeForReservation
 FROM oldSchema.items join oldSchema.users u on items.userid = u.userid;
 ```
 make sure to copy the pictures of the gifts from the old directory into the one you chose in the `.env` of the backend!
