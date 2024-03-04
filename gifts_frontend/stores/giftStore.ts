@@ -37,6 +37,25 @@ enum BackendGiftStrength {
     AMAZING = 4,
     AWESOME = 5,
 }
+function transformToDataBaseGift(gift:Gift) : DatabaseGift{
+    const result = {} as DatabaseGift;
+    result.id = gift.id;
+    result.name = gift.name;
+    result.price = gift.price;
+    result.giftStrength = gift.giftStrength;
+    result.description = gift.description;
+    result.link = gift.link;
+    result.picture = gift.picture;
+    result.availableActions = gift.availableActions;
+    result.isSecretGift = gift.isSecretGift;
+    if (Object.hasOwn(gift, "freeForReservationRequest"))
+        result.freeForReservationRequest =
+        gift.freeForReservationRequest!.map((user) => user.email);
+    if (Object.hasOwn(gift, "reservingUsers"))
+        result.reservingUsers =
+        gift.reservingUsers!.map((user) => user.email);
+    return result;
+}
 export const useGiftStore = defineStore("gift", {
     state: () => ({
         gifts: {} as { [key: number]: DatabaseGift[] },
@@ -60,8 +79,9 @@ export const useGiftStore = defineStore("gift", {
         setGroup(giftGroup_id: number) {
             this.groupId = giftGroup_id;
         },
-        async addGift(gift: Gift) {
+        async addGift(_gift: Gift) {
             const formData = new FormData();
+            const gift = transformToDataBaseGift(_gift);
             for (const [key, value] of Object.entries(gift)) {
                 switch (typeof value) {
                     case "number":
@@ -98,8 +118,9 @@ export const useGiftStore = defineStore("gift", {
                 this.loadFromAPI();
             }
         },
-        async updateGift(gift: Gift) {
+        async updateGift(_gift: Gift) {
             const formData = new FormData();
+            const gift = transformToDataBaseGift(_gift);
             for (const [key, value] of Object.entries(gift)) {
                 switch (typeof value) {
                     case "number":
@@ -147,7 +168,7 @@ export const useGiftStore = defineStore("gift", {
             }
         },
         async doAction(
-            gift: Gift,
+            _gift: Gift,
             queryParams: {
                 reserve?: boolean;
                 freeReserve?: boolean;
@@ -155,6 +176,7 @@ export const useGiftStore = defineStore("gift", {
                 denyFreeReserve?: boolean;
             },
         ) {
+            const gift = transformToDataBaseGift(_gift);
             let queryString = "";
             if (queryParams.reserve !== undefined)
                 queryString += "reserve=" + queryParams.reserve;

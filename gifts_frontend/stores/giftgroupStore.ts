@@ -20,6 +20,33 @@ type DataBaseGiftGroup = Omit<
     usersBeingGifted: string[];
     invitableUsers: string[];
 };
+function transformToDataBaseGiftGroup(giftgroup:Giftgroup) : DataBaseGiftGroup{
+    const res = {} as DataBaseGiftGroup
+    res.id = giftgroup.id;
+    res.editable = giftgroup.editable;
+    res.isBeingGifted = giftgroup.isBeingGifted;
+    res.name = giftgroup.name;
+    res.isSecretGroup = giftgroup.isSecretGroup;
+    res.id = giftgroup.id;
+    res.isInvited = giftgroup.isInvited;
+    if(Object.hasOwn(giftgroup, "invitations")){
+        res.invitations = giftgroup.invitations!.map((user) => user.email);
+    }else{
+        res.invitations = []
+    }
+    if(Object.hasOwn(giftgroup, "usersBeingGifted")){
+        res.invitations = giftgroup.usersBeingGifted!.map((user) => user.email);
+
+    }else{
+        res.usersBeingGifted = []
+    }
+    if(Object.hasOwn(giftgroup, "invitableUsers")){
+        res.invitations = giftgroup.usersBeingGifted!.map((user) => user.email);
+    }else{
+        res.invitableUsers = []
+    }
+    return res;
+}
 export const useGiftGroupStore = defineStore("giftgroups", {
     state: () => ({
         databaseGiftgroups: [] as DataBaseGiftGroup[],
@@ -38,7 +65,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         },
         async addGroup(giftgroup: Giftgroup) {
             try {
-                const _ = await api.post(giftgroup);
+                const _ = await api.post(transformToDataBaseGiftGroup(giftgroup));
             } catch (error) {
                 console.log(error);
                 return error;
@@ -48,7 +75,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         },
         async updateGroup(giftgroup: Giftgroup) {
             try {
-                const _ = await api.put(`/${giftgroup.id}`, giftgroup);
+                const _ = await api.put(`/${giftgroup.id}`, transformToDataBaseGiftGroup(giftgroup));
             } catch (error) {
                 console.log(error);
                 return error;
@@ -58,7 +85,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
         },
         async joinGroup(giftgroup: Giftgroup) {
             try {
-                const _ = await api.post(`/${giftgroup.id}`, giftgroup);
+                const _ = await api.post(`/${giftgroup.id}`, transformToDataBaseGiftGroup(giftgroup));
             } catch (error) {
                 console.log(error);
                 return error;
@@ -70,7 +97,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
             try {
                 const _ = await api.post(
                     `/${giftgroup.id}?decline=true`,
-                    giftgroup,
+                    transformToDataBaseGiftGroup(giftgroup),
                 );
             } catch (error) {
                 console.log(error);

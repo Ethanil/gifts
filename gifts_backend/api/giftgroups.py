@@ -104,7 +104,10 @@ def update(giftgroup_id, giftgroup, user, token_info):
                 )
             if existing_user not in invitedUser:
                 existing_giftGroup.isInvited.add(IsInvited(user=existing_user))
-    isBeingGiftedEmails = [usr for usr in giftgroup.get('usersBeingGifted')]
+    if giftgroup.get('usersBeingGifted') is not None:
+        isBeingGiftedEmails = [usr for usr in giftgroup.get('usersBeingGifted')]
+    else:
+        isBeingGiftedEmails = []
     existing_giftGroup.isBeingGifted = set(
         filter(lambda isBeingGifted: isBeingGifted.user_email in isBeingGiftedEmails, existing_giftGroup.isBeingGifted))
     if len(existing_giftGroup.isBeingGifted) == 0:
