@@ -225,7 +225,6 @@ def sendResetEmail(resetCode, email):
     message["message-id"] = utils.make_msgid(domain=os.getenv("DOMAIN_FOR_MESSAGEID"))
     message.attach(MIMEText(body, "html"))
     text = message.as_string()
-    print(text)
     server.sendmail(sender_email, email, text)
     server.quit()
 
