@@ -27,7 +27,6 @@ class Actions(str, Enum):
 def create(giftgroup_id, gift, user, token_info, picture=""):
     gift.pop('id', None)
     if isinstance(picture, FileStorage):
-        # filename = werkzeug.utils.secure_filename(picture.filename)
         filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"
 
         folder_path = getenv("PICTURE_STORAGE")
@@ -151,7 +150,7 @@ def getActions(gift: Gift, user: str) -> List[Actions]:
 # get picture from storage and send it parsed as base64, cause i am to dumb to do this as a blob :(
 def add_image_to_gift(gift: dict) -> dict:
     picture = gift.get('picture')
-    if picture is not None and picture != "":
+    if picture is not None and picture != "" and os.path.isfile(picture):
         with open(picture, "rb") as img_file:
             image_data = img_file.read()
         base64_image = base64.b64encode(image_data).decode("utf-8")
@@ -239,8 +238,6 @@ def delete(gift_id, giftgroup_id, user, token_info):
         )
     db.session.delete(existing_gift)
     db.session.commit()
-    if existing_gift.picture != "" and os.path.exists(existing_gift.picture):
-        os.remove(existing_gift.picture)
     return make_response(f"Gift with id {gift_id} succesfully deleted from Giftgroup {existing_giftGroup.name}", 204)
 
 
