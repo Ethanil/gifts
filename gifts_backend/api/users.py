@@ -11,6 +11,7 @@ from models import User, user_schema, user_schema_without_password, users_schema
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import email.utils as utils
 from uuid import uuid4
 import base64
 
@@ -221,8 +222,10 @@ def sendResetEmail(resetCode, email):
     message["From"] = sender_email
     message["To"] = email
     message["Subject"] = subject
+    message["message-id"] = utils.make_msgid(domain=os.getenv("DOMAIN_FOR_MESSAGEID"))
     message.attach(MIMEText(body, "html"))
     text = message.as_string()
+    print(text)
     server.sendmail(sender_email, email, text)
     server.quit()
 
