@@ -61,7 +61,6 @@ export const useUserStore = defineStore("user", {
                 if (newPassword !== "") {
                     body["newPassword"] = newPassword;
                 }
-                console.log(body);
                 const _ = await api.put(`/${(data.value as any).email}`, body);
             } catch (error) {
                 console.log(error);

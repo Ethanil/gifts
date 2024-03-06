@@ -15,7 +15,6 @@ import email.utils as utils
 from uuid import uuid4
 import base64
 
-
 def create(user):
     # TODO add avatar
     email = user.get("email").lower()

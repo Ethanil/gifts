@@ -31,3 +31,4 @@
 **/.venv
 **/to-uninstall.txt
 **/__pycache__
+**/*.pstat

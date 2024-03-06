@@ -11,7 +11,6 @@ from uuid import uuid4
 from typing import List
 from enum import Enum
 
-
 class Actions(str, Enum):
     EDIT = "edit"
     DELETE = "delete"
@@ -38,6 +37,8 @@ def create(giftgroup_id, gift, user, token_info, picture=""):
         image_filename = os.path.join(folder_path, filename)
         picture.save(image_filename)
         gift['picture'] = image_filename
+    else:
+        gift["picture"] = ""
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -118,18 +119,20 @@ def add_actions_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
 def getActions(gift: Gift, user: str) -> List[Actions]:
     actions: List[Actions] = []
     users_that_are_being_gifted = [isBeingGifted.user_email for isBeingGifted in
-                                   IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == gift.giftGroup_id).all()]
+                                   gift.giftGroup.isBeingGifted]
     # User that are beeing gifted should be able to edit gifts of their being-gifted-partners
-    if user in users_that_are_being_gifted or user == gift.user_email:
+    if user in users_that_are_being_gifted:
         actions.append(Actions.EDIT)
         actions.append(Actions.DELETE)
-    if user not in users_that_are_being_gifted:
+    else:
+        if user == gift.user_email:
+            actions.append(Actions.EDIT)
+            actions.append(Actions.DELETE)
         users_that_have_gift_reserved = [hasReserved.user_email for hasReserved in
-                                         HasReserved.query.filter(HasReserved.gift_id == gift.id).all()]
+                                         gift.hasReserved]
         users_that_have_requested_reservation_freeing = [hasRequestedReservationFreeing.user_email for
                                                          hasRequestedReservationFreeing in
-                                                         HasRequestedReservationFreeing.query.filter(
-                                                             HasRequestedReservationFreeing.gift_id == gift.id).all()]
+                                                         gift.hasRequestedReservationFreeing]
         if user not in users_that_have_gift_reserved:
             if len(users_that_have_gift_reserved) == 0 or gift.freeForReservation:
                 actions.append(Actions.RESERVE)
@@ -163,7 +166,7 @@ def add_image_to_gift(gift: dict) -> dict:
 def filter_gifts(gifts: List[Gift], user: str) -> List[Gift]:
     result: List[Gift] = []
     for gift in gifts:
-        isBeingGiftedList = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == gift.giftGroup_id).all()
+        isBeingGiftedList = gift.giftGroup.isBeingGifted
         user_is_part_of_giftgroup = any([user == isBeingGifted.user_email for isBeingGifted in isBeingGiftedList])
         gift_is_created_by_user_of_giftgroup = any(
             [gift.user_email == isBeingGifted.user_email for isBeingGifted in isBeingGiftedList])
