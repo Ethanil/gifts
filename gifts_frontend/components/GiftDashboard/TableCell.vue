@@ -168,12 +168,14 @@
                             "
                             size="60"
                             :image="item.picture"
+                            @click="emit('openPictureDialog')"
                         />
                         <v-img
                             v-else
                             width="40"
                             height="40"
                             src="\assets\icons\normal_gift.png"
+                            @click="emit('openPictureDialog')"
                         />
                     </div>
                     <div class="d-flex justify-center">
