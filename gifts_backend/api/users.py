@@ -25,8 +25,13 @@ def create(user):
         new_user = user_schema.load(user, session=db.session)
         db.session.add(new_user)
         # TODO internationalisation?
+        if user.get('lastName') != "":
+            listname = f"{user.get('firstName')} {user.get('lastName')}'s Liste"
+        else:
+            listname = f"{user.get('firstName')}'s Liste"
+
         new_giftGroup = giftGroup_schema.load(
-            {"name": f"{user.get('firstName')} {user.get('lastName')}'s Liste", "editable": False}, session=db.session)
+            {"name": listname, "editable": False}, session=db.session)
         db.session.add(new_giftGroup)
         new_user.isBeingGifted.add(IsBeingGifted(giftGroup=new_giftGroup))
         db.session.commit()
@@ -108,7 +113,10 @@ def update(email, new_user_data, user, token_info):
         pass
     if existing_user.firstName != new_user_data.get("firstName") or existing_user.lastName != new_user_data.get("lastName"):
         ownGiftgroup = [isBeingGifted.giftGroup for isBeingGifted in existing_user.isBeingGifted if not isBeingGifted.giftGroup.editable][0]
-        ownGiftgroup.name=f"{new_user_data.get('firstName')} {new_user_data.get('lastName')}'s Liste"
+        if new_user_data.get('lastName') != "":
+            ownGiftgroup.name = f"{new_user_data.get('firstName')} {new_user_data.get('lastName')}'s Liste"
+        else:
+            ownGiftgroup.name = f"{new_user_data.get('firstName')}'s Liste"
     existing_user.firstName = new_user_data.get("firstName")
     existing_user.lastName = new_user_data.get("lastName")
     existing_user.avatar = saveAvatar(new_user_data.get("avatar"), existing_user.avatar)

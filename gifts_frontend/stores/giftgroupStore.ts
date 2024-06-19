@@ -131,14 +131,10 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 res[index].id = dataBaseGiftGroup.id;
                 res[index].editable = dataBaseGiftGroup.editable;
                 res[index].isBeingGifted = dataBaseGiftGroup.isBeingGifted;
-                if (index !== 0) {
+                if (!res[index].isBeingGifted || res[index].editable) {
                     res[index].name = dataBaseGiftGroup.name;
-                } else if (
-                    dataBaseGiftGroup.name ===
-                    `${(data.value as any).firstName} ${
-                        (data.value as any).lastName
-                    }'s Liste`
-                ) {
+                } 
+                else{
                     res[index].name = "Meine Liste";
                 }
                 res[index].isSecretGroup = dataBaseGiftGroup.isSecretGroup;

@@ -92,7 +92,6 @@
                     v-model="formData.lastName"
                     label="Nachname"
                     :disabled="formData.oldPassword === ''"
-                    :rules="[nonEmptyRule('Nachname')]"
                 />
                 <v-text-field
                     v-model="formData.newPassword"

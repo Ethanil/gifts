@@ -436,7 +436,7 @@ function openPictureDialog(picture: string) {
 //**********************************************************************//
 //---------------- Add Gift ----------------//
 const isOwnGroup = computed(
-    () => !giftgroups.value || giftgroups.value[currentTab.value].isBeingGifted,
+    () => !giftgroups.value || !currentTab.value || giftgroups.value[currentTab.value].isBeingGifted,
 );
 const giftAddButtonText = computed(() => {
     if (isOwnGroup.value) return "Geschenk Hinzufügen";
