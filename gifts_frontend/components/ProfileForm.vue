@@ -84,7 +84,7 @@
                 </v-text-field>
                 <v-text-field
                     v-model="formData.firstName"
-                    label="Vorname"
+                    label="Vorname/Alias"
                     :disabled="formData.oldPassword === ''"
                     :rules="[nonEmptyRule('Vorname')]"
                 />

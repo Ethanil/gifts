@@ -15,13 +15,12 @@
             >
                 <v-text-field
                     v-model="registrationFormRef.firstName"
-                    label="Vorname"
+                    label="Vorname/Alias"
                     :rules="[nonEmptyRule('Vorname')]"
                 />
                 <v-text-field
                     v-model="registrationFormRef.lastName"
                     label="Nachname"
-                    :rules="[nonEmptyRule('Nachname')]"
                 />
                 <v-text-field
                     v-model="registrationFormRef.email"
