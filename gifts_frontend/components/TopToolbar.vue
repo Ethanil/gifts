@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-app-bar density="compact" color="primary" scroll-behavior="collapse">
+        <v-app-bar density="compact" color="primary">
             <template #prepend>
                 <v-app-bar-nav-icon @click="emit('iconClick')" />
             </template>

@@ -150,7 +150,7 @@
                                 />
                             </span>
                         </v-col>
-                        <v-col>
+                        <v-col v-if="lgAndUp">
                             <gift-form
                                 v-model:gift-dialog="addGiftDialog"
                                 :prop-gift-data="giftDataToAdd"
@@ -251,6 +251,47 @@
                 </v-data-table>
             </div>
         </v-skeleton-loader>
+        <div
+            v-if="!lgAndUp"
+            class="bg-primary"
+            style="position: fixed; width: 100%; height: min-content; bottom: 0"
+        >
+            <gift-form
+                v-model:gift-dialog="addGiftDialog"
+                :prop-gift-data="giftDataToAdd"
+                style="position: fixed; width: 100%; height: 70px; bottom: 0"
+                @submit-form="addGift"
+            >
+                <template #activator="{ props }">
+                    <v-btn
+                        id="AddButton"
+                        color="primary"
+                        block
+                        height="min-content"
+                        width="min-content"
+                        v-bind="props"
+                    >
+                        <span>{{ giftAddButtonText }}</span>
+                        <template v-if="isOwnGroup" #prepend>
+                            <v-img
+                                width="50px"
+                                height="50px"
+                                :rounded="0"
+                                src="\assets\icons\normal_gift.png"
+                            ></v-img>
+                        </template>
+                        <template v-else #prepend>
+                            <v-img
+                                width="50px"
+                                height="50px"
+                                :rounded="0"
+                                src="\assets\icons\secret_gift.png"
+                            ></v-img>
+                        </template>
+                    </v-btn>
+                </template>
+            </gift-form>
+        </div>
     </div>
     <gift-form
         v-model:gift-dialog="editGiftDialog"
@@ -322,9 +363,12 @@ onMounted(() => {
         giftStore.setGroup(giftgroupStore.giftgroups[0].id);
     });
     userStore.loadFromAPI().then(() => (usersLoaded.value = true));
+    const options = {
+        threshold: 0.75,
+    };
     const observer = new IntersectionObserver((e) => {
         buttonCurrentlyIntersecting.value = e[0].isIntersecting;
-    });
+    }, options);
     waitForElm("#AddButton").then((target) => observer.observe(target));
 });
 watch(currentTab, async (newValue) => {
@@ -543,7 +587,7 @@ function declineInvitation() {
 .floatingButton {
     transition-duration: 0.7s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    top: 0px;
+    top: 50px;
     right: 0px;
     transform: translate(80%);
     position: fixed;
