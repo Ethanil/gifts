@@ -12,4 +12,7 @@ const navBar = ref(true);
 function navBarToggle() {
     navBar.value = !navBar.value;
 }
+onMounted(() => {
+    localStorage.setItem("selectedTheme", "dark");
+});
 </script>
