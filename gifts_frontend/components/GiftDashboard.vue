@@ -436,7 +436,10 @@ function openPictureDialog(picture: string) {
 //**********************************************************************//
 //---------------- Add Gift ----------------//
 const isOwnGroup = computed(
-    () => !giftgroups.value || !currentTab.value || giftgroups.value[currentTab.value].isBeingGifted,
+    () =>
+        !giftgroups.value ||
+        !currentTab.value ||
+        giftgroups.value[currentTab.value].isBeingGifted,
 );
 const giftAddButtonText = computed(() => {
     if (isOwnGroup.value) return "Geschenk Hinzufügen";
@@ -532,7 +535,6 @@ async function addGroup(group: Giftgroup) {
     addGroupDialog.value = false;
 }
 
-
 //---------------- Edit Group ----------------//
 const editGroupDialog = ref(false);
 const groupDataToEdit = ref<Giftgroup>({
@@ -599,5 +601,9 @@ function declineInvitation() {
 }
 .outOfView {
     transform: translate(100%);
+}
+.v-btn.v-slide-group-item--active {
+    padding-left: 35px;
+    background-color: rgb(var(--v-theme-surface-light));
 }
 </style>
