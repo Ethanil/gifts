@@ -7,7 +7,7 @@ from config import db
 import time
 import jwt
 from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, \
-    IsBeingGifted, GiftGroup, IsSpecialUser
+    IsBeingGifted, GiftGroup, IsSpecialUser, HasRequestedReservationFreeing, HasReserved, IsInvited
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -91,8 +91,15 @@ def delete(email, user, token_info):
         if len(exisiting_user.isSpecialUser) > 1:
             abort(403,
                   "not authorized to delete this user")
+    has_requested_reservation_freeing = HasRequestedReservationFreeing.query.filter(
+        HasRequestedReservationFreeing.user_email == email).all()
+    has_reserved = HasReserved.query.filter(HasReserved.user_email == email).all()
+    is_invited = IsInvited.query.filter(IsInvited.user_email == email).all()
+    is_special_user = IsSpecialUser.query.filter(IsSpecialUser.user_email == email).all()
+    for entry in has_requested_reservation_freeing + has_reserved + is_invited + is_special_user:
+        db.session.delete(entry)
     db.session.delete(exisiting_user)
-    db.session.commit()
+    db.session.commit(confirm_deleted_rows=False)
     return make_response(f"User with email {email} succesfully deleted", 204)
 
 
