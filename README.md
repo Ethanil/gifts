@@ -179,8 +179,8 @@ both ports should have an OK-status
 # Port Database from php-giftreg to this app
 ## Users
 ```sql
-INSERT into newSchema.user (avatar, email, firstName, lastName, password)
-SELECT LOWER(u.email) as avatar, LOWER(u.email) as email, u.fullname as firstName, '' as lastName, u.password as password
+INSERT into newSchema.user (avatar, email, firstName, lastName, password, onlyViewing)
+SELECT LOWER(u.email) as avatar, LOWER(u.email) as email, u.fullname as firstName, '' as lastName, u.password as password, false as onlyViewing
 FROM oldSchema.users u;
 ```
 Add any kind of Lastname to users to not have ugly gaps in listnames
@@ -210,7 +210,7 @@ make sure to copy the pictures of the gifts from the old directory into the one 
 ```sql
 INSERT INTO newSchema.has_reserved(gift_id, user_email)
 SELECT g.id as gift_id, LOWER(u.email) as user_email
-FROM oldSchema.allocs join items i on allocs.itemid = i.itemid join users u on allocs.userid = u.userid join newSchema.gift g on g.name = i.description
+FROM oldSchema.allocs join oldSchema.items i on allocs.itemid = i.itemid join oldSchema.users u on allocs.userid = u.userid join newSchema.gift g on g.name = i.description
 ```
 
 # Update Project
