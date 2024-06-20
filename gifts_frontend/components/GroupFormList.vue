@@ -93,8 +93,6 @@
     </v-list>
 </template>
 <script setup lang="ts">
-const userStore = useUserStore();
-const giftgroupStore = useGiftGroupStore();
 import type { PropType } from "vue";
 const { data } = useAuth();
 import avatar from "animal-avatar-generator";
@@ -114,12 +112,12 @@ const outerProps = defineProps({
     },
     startViewingGroupId: { type: Number, default: -1 },
     isOwnGroup: { type: Boolean, default: false },
-    specialUsers:{type: Array<String>, default: []},
+    specialUsers: { type: Array<String>, default: [] },
 });
 const userWithAvatar = computed(() =>
     outerProps.users.map(
         (user) =>
-           [
+            [
                 user,
                 avatar(user.avatar, {
                     size: 32,
@@ -131,5 +129,5 @@ const userWithAvatar = computed(() =>
             ] as [User, string, boolean, boolean],
     ),
 );
-const emit = defineEmits(["action","removeFromGroup"]);
+const emit = defineEmits(["action", "removeFromGroup"]);
 </script>
