@@ -10,14 +10,14 @@
                         typeof item.picture === 'string' && item.picture !== ''
                     "
                     :image="item.picture as string"
-                    :size="60"
+                    :size="100"
                     class="cursor-pointer"
                     @click="emit('openPictureDialog')"
                 />
                 <v-img
                     v-else
-                    width="30"
-                    height="30"
+                    width="70"
+                    height="70"
                     src="\assets\icons\normal_gift.png"
                 />
             </div>
@@ -166,14 +166,14 @@
                                 typeof item.picture === 'string' &&
                                 item.picture !== ''
                             "
-                            size="60"
+                            size="100"
                             :image="item.picture"
                             @click="emit('openPictureDialog')"
                         />
                         <v-img
                             v-else
-                            width="40"
-                            height="40"
+                            width="70"
+                            height="70"
                             src="\assets\icons\normal_gift.png"
                             @click="emit('openPictureDialog')"
                         />
