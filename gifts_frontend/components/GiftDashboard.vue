@@ -437,8 +437,8 @@ function openPictureDialog(picture: string) {
 //---------------- Add Gift ----------------//
 const isOwnGroup = computed(
     () =>
-        !giftgroups.value ||
-        !currentTab.value ||
+        giftgroups.value === undefined ||
+        currentTab.value === undefined ||
         giftgroups.value[currentTab.value].isBeingGifted,
 );
 const giftAddButtonText = computed(() => {

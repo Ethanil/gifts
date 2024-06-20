@@ -15,6 +15,7 @@ import email.utils as utils
 from uuid import uuid4
 import base64
 
+
 def create(user):
     # TODO add avatar
     email = user.get("email").lower()
@@ -22,18 +23,26 @@ def create(user):
     if existing_user is None:
         if user.get("avatar") is None or user.get("avatar") == "":
             user["avatar"] = email
-        new_user = user_schema.load(user, session=db.session)
+        userWithoutSpecialGiftGroup = {'firstName': user.get("firstName"), 'lastName': user.get("lastName"),
+                                       'email': user.get("email"), 'avatar': user.get("avatar"),
+                                       'password': user.get("password")}
+        new_user = user_schema.load(userWithoutSpecialGiftGroup, session=db.session)
         db.session.add(new_user)
-        # TODO internationalisation?
-        if user.get('lastName') != "":
-            listname = f"{user.get('firstName')} {user.get('lastName')}'s Liste"
+        if user.get("specialGiftGroup") is not None:
+            specialGiftGroup = GiftGroup.query.filter(GiftGroup.id == user.get("specialGiftGroup")).one_or_none()
+            if specialGiftGroup is None:
+                abort(400, "Giftgroup with that id does not exist!")
+            new_user.specialGiftGroup = user.get("specialGiftGroup")
         else:
-            listname = f"{user.get('firstName')}'s Liste"
-
-        new_giftGroup = giftGroup_schema.load(
-            {"name": listname, "editable": False}, session=db.session)
-        db.session.add(new_giftGroup)
-        new_user.isBeingGifted.add(IsBeingGifted(giftGroup=new_giftGroup))
+            # TODO internationalisation?
+            if user.get('lastName') != "":
+                listname = f"{user.get('firstName')} {user.get('lastName')}'s Liste"
+            else:
+                listname = f"{user.get('firstName')}'s Liste"
+            new_giftGroup = giftGroup_schema.load(
+                {"name": listname, "editable": False}, session=db.session)
+            db.session.add(new_giftGroup)
+            new_user.isBeingGifted.add(IsBeingGifted(giftGroup=new_giftGroup))
         db.session.commit()
         return user_schema.dump(new_user), 201
     else:
@@ -69,14 +78,23 @@ def get_session(user, token_info):
 
 
 def delete(email, user, token_info):
-    if email != user:
+    exisiting_user = User.query.filter(User.email == email).one_or_none()
+    if exisiting_user is None:
         abort(403,
               "not authorized to delete other users")
-    exisiting_user = User.query.filter(User.email == email).one_or_none()
-    if exisiting_user:
-        db.session.delete(exisiting_user)
-        db.session.commit()
-        return make_response(f"User with email {email} succesfully deleted", 204)
+    if exisiting_user.specialGiftGroup is None:
+        if email != user:
+            abort(403,
+                  "not authorized to delete other users")
+    else:
+        specialGiftGroup = GiftGroup.query.filter(GiftGroup.id == exisiting_user.specialGiftGroup).one_or_none()
+        if specialGiftGroup is not None:
+            if user not in [isBeingGifted.user_email for isBeingGifted in specialGiftGroup.isBeingGifted]:
+                abort(403,
+                      "not authorized to delete this user")
+    db.session.delete(exisiting_user)
+    db.session.commit()
+    return make_response(f"User with email {email} succesfully deleted", 204)
 
 
 def update(email, new_user_data, user, token_info):
@@ -111,8 +129,10 @@ def update(email, new_user_data, user, token_info):
         existing_user.password = new_user_data.get("newPassword")
     else:
         pass
-    if existing_user.firstName != new_user_data.get("firstName") or existing_user.lastName != new_user_data.get("lastName"):
-        ownGiftgroup = [isBeingGifted.giftGroup for isBeingGifted in existing_user.isBeingGifted if not isBeingGifted.giftGroup.editable][0]
+    if existing_user.firstName != new_user_data.get("firstName") or existing_user.lastName != new_user_data.get(
+            "lastName"):
+        ownGiftgroup = [isBeingGifted.giftGroup for isBeingGifted in existing_user.isBeingGifted if
+                        not isBeingGifted.giftGroup.editable][0]
         if new_user_data.get('lastName') != "":
             ownGiftgroup.name = f"{new_user_data.get('firstName')} {new_user_data.get('lastName')}'s Liste"
         else:

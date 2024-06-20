@@ -8,6 +8,7 @@ import os
 from marshmallow import post_dump
 import base64
 
+
 class GiftStrength(str, Enum):
     OKAY = 1  # Okay
     GOOD = 2  # Gut
@@ -30,7 +31,10 @@ class User(db.Model):
     lastName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     password: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     avatar: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
+    specialGiftGroup: db.Mapped[Optional[int]] = db.mapped_column(db.INTEGER,
+                                                                  db.ForeignKey("giftGroup.id", ondelete="CASCADE"))
     resetCode: db.Mapped[Optional[str]] = db.mapped_column(db.VARCHAR(256))
+
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")
     isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="user",
@@ -50,12 +54,11 @@ class User(db.Model):
 
     @db.validates('resetCode')
     def _validate_resetCode(self, key, resetCode):
-        return self.ph.hash(resetCode)\
-
+        return self.ph.hash(resetCode) \
+ \
     @db.validates('email')
     def validate_email(self, key, email):
         return email.lower()
-
 
 
 class GiftGroup(db.Model):
@@ -186,6 +189,8 @@ class UserSchemaWithoutPassword(ma.SQLAlchemySchema):
     firstName = ma.auto_field()
     lastName = ma.auto_field()
     avatar = ma.auto_field()
+    specialGiftGroup = ma.auto_field()
+
     @post_dump
     def process_picture(self, in_data, **kwargs):
         in_data = set_avatar_of_user(in_data)

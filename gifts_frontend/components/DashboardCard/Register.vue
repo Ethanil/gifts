@@ -93,7 +93,12 @@
 </template>
 <script setup lang="ts">
 const loading = ref(false);
+const userStore = useUserStore();
 const { signUp } = useAuth();
+
+const props = defineProps({
+    specialGroupId: { type: Number, required: false, default: null },
+});
 
 const reenteredPasswordRules = [
     (password: string): boolean | string => {
@@ -155,7 +160,15 @@ async function handleRegistrationClick(event: any) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { reentered_password, ...formWithoutReentered } =
                 registrationFormRef.value;
-            const _ = await signUp(formWithoutReentered, { external: true });
+            if (props.specialGroupId) {
+                (formWithoutReentered as any).specialGiftGroup =
+                    props.specialGroupId;
+                const _ = await userStore.createUser(formWithoutReentered);
+            } else {
+                const _ = await signUp(formWithoutReentered, {
+                    external: true,
+                });
+            }
             registerAlert.value = {} as { title: string; text: string };
         } catch (e: any) {
             switch (e.response.status) {
@@ -166,6 +179,8 @@ async function handleRegistrationClick(event: any) {
                     registerAlert.value.title =
                         "unbekannter Fehler: " + e.response;
             }
+        } finally {
+            registrationDialog.value = false;
         }
     }
 }

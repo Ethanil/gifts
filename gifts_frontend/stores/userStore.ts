@@ -5,6 +5,7 @@ export type User = {
     firstName: string;
     lastName: string;
     avatar: string;
+    specialGiftGroup?: number;
 };
 export const useUserStore = defineStore("user", {
     state: () => ({
@@ -40,6 +41,26 @@ export const useUserStore = defineStore("user", {
             } catch (error) {
                 console.log(error);
                 return error;
+            }
+        },
+        async createUser(user: Omit<User, "avatar">) {
+            try {
+                const _ = await api.post(user);
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                this.loadFromAPI();
+            }
+        },
+        async deleteUser(user: User) {
+            try {
+                const _ = await api.delete(`/${user.email}`);
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                this.loadFromAPI();
             }
         },
         async updateUser(

@@ -121,7 +121,6 @@ export const useGiftGroupStore = defineStore("giftgroups", {
     getters: {
         giftgroups(state) {
             const userStore = useUserStore();
-            const { data } = useAuth();
             const res = Array<Giftgroup>(state.databaseGiftgroups.length);
             for (const [
                 index,
@@ -133,8 +132,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 res[index].isBeingGifted = dataBaseGiftGroup.isBeingGifted;
                 if (!res[index].isBeingGifted || res[index].editable) {
                     res[index].name = dataBaseGiftGroup.name;
-                } 
-                else{
+                } else {
                     res[index].name = "Meine Liste";
                 }
                 res[index].isSecretGroup = dataBaseGiftGroup.isSecretGroup;

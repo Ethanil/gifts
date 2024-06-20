@@ -14,7 +14,6 @@ components:
       required:
         - email
         - firstName
-        - lastName
       properties:
         email:
           type: string
@@ -28,6 +27,10 @@ components:
           example: Mustermann
         avatar:
           type: string
+        specialGiftGroup:
+          type: number
+          format: integer
+          default: -1
     User:
       allOf:
         - $ref: '#/components/schemas/UserWithoutPassword'

@@ -132,6 +132,10 @@
                                     <v-row>
                                         <group-form-list
                                             :users="giftingUsers"
+                                            :group-i-d="groupData.id"
+                                            :is-own-group="
+                                                groupData.isBeingGifted
+                                            "
                                             title="Schenkende"
                                             title-icon="mdi-gift-outline"
                                             :own-action-enabled="
@@ -151,6 +155,17 @@
                                             "
                                             @action="putIntoFunction"
                                         />
+                                    </v-row>
+                                    <v-row v-if="propGroupData.isBeingGifted">
+                                        <DashboardCardRegister
+                                            v-model="registrationDialog"
+                                            :special-group-id="propGroupData.id"
+                                        />
+                                        <v-btn
+                                            color="primary"
+                                            @click="registrationDialog = true"
+                                            >Schenkende*n anlegen</v-btn
+                                        >
                                     </v-row>
                                 </v-container>
                             </v-col>
@@ -184,6 +199,7 @@
 <script setup lang="ts">
 const userStore = useUserStore();
 const { data } = useAuth();
+const registrationDialog = ref(false);
 
 //*********************************************************************//
 //-------------------------------- Data -------------------------------//

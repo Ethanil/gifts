@@ -11,7 +11,9 @@
             {{ outerProps.title }}
         </v-list-subheader>
         <template
-            v-for="([user, avt, isBase64], key) in userWithAvatar"
+            v-for="(
+                [user, avt, isBase64, isSpecialGroupUser], key
+            ) in userWithAvatar"
             :key="key"
         >
             <v-list-item>
@@ -31,6 +33,7 @@
                 >
                 <template
                     v-if="
+                        !isSpecialGroupUser &&
                         outerProps.actionEnabled &&
                         (!data ||
                             outerProps.ownActionEnabled ||
@@ -52,7 +55,9 @@
                 </template>
                 <template
                     v-else-if="
-                        outerProps.ownActionEnabled && data.email === user.email
+                        !isSpecialGroupUser &&
+                        outerProps.ownActionEnabled &&
+                        data.email === user.email
                     "
                     #append
                 >
@@ -68,11 +73,27 @@
                     </v-tooltip>
                     <v-icon v-else :icon="ownActionIcon" />
                 </template>
+                <template
+                    v-else-if="isSpecialGroupUser && outerProps.isOwnGroup"
+                    #append
+                >
+                    <v-tooltip>
+                        <template #activator="{ props }">
+                            <v-icon
+                                v-bind="props"
+                                icon="mdi-delete"
+                                @click="userStore.deleteUser(user)"
+                            />
+                        </template>
+                        Nutzer dauerhaft löschen
+                    </v-tooltip>
+                </template>
             </v-list-item>
         </template>
     </v-list>
 </template>
 <script setup lang="ts">
+const userStore = useUserStore();
 import type { PropType } from "vue";
 const { data } = useAuth();
 import avatar from "animal-avatar-generator";
@@ -90,6 +111,8 @@ const outerProps = defineProps({
         type: String as PropType<"do nothing" | "hide">,
         default: "do nothing",
     },
+    groupID: { type: Number, default: -1 },
+    isOwnGroup: { type: Boolean, default: false },
 });
 const userWithAvatar = computed(() =>
     outerProps.users.map(
@@ -101,7 +124,9 @@ const userWithAvatar = computed(() =>
                     blackout: false,
                 }).replaceAll("\n", ""),
                 user.avatar.split(";").length === 2,
-            ] as [User, string, boolean],
+                user.specialGiftGroup &&
+                    user.specialGiftGroup === outerProps.groupID,
+            ] as [User, string, boolean, boolean],
     ),
 );
 const emit = defineEmits(["action"]);

@@ -5,7 +5,19 @@ from config import db
 
 
 def read_all(user, token_info):
-    giftGroups = GiftGroup.query.all()
+    all_users = User.query.all()
+    current_user = None
+    for u in all_users:
+        if u.email == user:
+            current_user = u
+            break
+    giftGroups = []
+    if current_user.specialGiftGroup is not None:
+        giftGroups = [GiftGroup.query.filter(GiftGroup.id == current_user.specialGiftGroup).one_or_none()]
+        if giftGroups is None:
+            abort(500, "Special Giftgroup of this user does not exist!")
+    else:
+        giftGroups = GiftGroup.query.all()
     # decorate giftGroups with Ownership-value
     decorated_gift_groups: list[tuple[GiftGroup, int | float]] = []
     for giftGroup in giftGroups:
@@ -24,17 +36,18 @@ def read_all(user, token_info):
                                    key=lambda tuple: tuple[1])
     giftGroups = [giftGroup for giftGroup, _ in decorated_gift_groups]
     res = giftGroups_schema.dump(giftGroups)
-    all_users = User.query.all()
     for index, entry in enumerate(res):
         entry["usersBeingGifted"] = [isBeingGifted.user.email for isBeingGifted in giftGroups[index].isBeingGifted]
         entry["isBeingGifted"] = user in entry["usersBeingGifted"]
         entry["invitations"] = [isInvited.user.email for isInvited in giftGroups[index].isInvited]
         entry["isInvited"] = user in entry["invitations"]
         entry["invitableUsers"] = [invitableUser.email
-             for invitableUser in all_users
-             if entry["editable"]
-             and invitableUser not in [isInvited.user for isInvited in giftGroups[index].isInvited]
-             and invitableUser not in [isBeingGifted.user for isBeingGifted in giftGroups[index].isBeingGifted]]
+                                   for invitableUser in all_users
+                                   if entry["editable"]
+                                   and invitableUser not in [isInvited.user for isInvited in
+                                                             giftGroups[index].isInvited]
+                                   and invitableUser not in [isBeingGifted.user for isBeingGifted in
+                                                             giftGroups[index].isBeingGifted]]
     return res, 200
 
 
@@ -78,7 +91,8 @@ def update(giftgroup_id, giftgroup, user, token_info):
             f"Giftgroup with id {giftgroup_id} not found"
         )
     existing_relations = existing_giftGroup.isBeingGifted
-    if not any(isBeingGifted.user_email == user for isBeingGifted in existing_relations) and not existing_giftGroup.isSecretGroup:
+    if not any(isBeingGifted.user_email == user for isBeingGifted in
+               existing_relations) and not existing_giftGroup.isSecretGroup:
         abort(
             403,
             f"User {user} is not allowed to update Giftgroup with id {giftgroup_id}"
@@ -139,7 +153,9 @@ def addUserToGroup(giftgroup_id, user, token_info, decline=None):
     if decline is None:
         existing_giftGroup.isBeingGifted.add(IsBeingGifted(user=existing_user))
     if decline is None or decline:
-        existing_giftGroup.isInvited = set(filter(lambda invitation:invitation.user_email!=user,GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none().isInvited))
+        existing_giftGroup.isInvited = set(filter(lambda invitation: invitation.user_email != user,
+                                                  GiftGroup.query.filter(
+                                                      GiftGroup.id == giftgroup_id).one_or_none().isInvited))
     db.session.merge(existing_giftGroup)
     db.session.commit()
     return make_response(f"Giftgroup {giftgroup_id} linked with user_email {user}", 201)
