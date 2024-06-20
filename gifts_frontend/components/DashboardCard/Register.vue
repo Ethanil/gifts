@@ -94,10 +94,11 @@
 <script setup lang="ts">
 const loading = ref(false);
 const userStore = useUserStore();
+const giftgroupStore = useGiftGroupStore();
 const { signUp } = useAuth();
 
 const props = defineProps({
-    specialGroupId: { type: Number, required: false, default: null },
+    startViewingGroup: { type: Number, required: false, default: null },
 });
 
 const reenteredPasswordRules = [
@@ -151,6 +152,7 @@ watch(
 );
 
 const registerAlert = ref({} as { title: string; text: string });
+const emits = defineEmits(["registrationFinished"]);
 async function handleRegistrationClick(event: any) {
     loading.value = true;
     const results = await event;
@@ -160,9 +162,10 @@ async function handleRegistrationClick(event: any) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { reentered_password, ...formWithoutReentered } =
                 registrationFormRef.value;
-            if (props.specialGroupId) {
-                (formWithoutReentered as any).specialGiftGroup =
-                    props.specialGroupId;
+            if (props.startViewingGroup) {
+                (formWithoutReentered as any).startViewingGroup =
+                    props.startViewingGroup;
+                (formWithoutReentered as any).onlyViewing = true;
                 const _ = await userStore.createUser(formWithoutReentered);
             } else {
                 const _ = await signUp(formWithoutReentered, {
@@ -181,6 +184,8 @@ async function handleRegistrationClick(event: any) {
             }
         } finally {
             registrationDialog.value = false;
+            await giftgroupStore.loadFromAPI();
+            emits("registrationFinished", registrationFormRef.value.email);
         }
     }
 }

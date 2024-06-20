@@ -5,7 +5,8 @@ export type User = {
     firstName: string;
     lastName: string;
     avatar: string;
-    specialGiftGroup?: number;
+    onlyViewing?: boolean;
+    startViewingGroup?: number;
 };
 export const useUserStore = defineStore("user", {
     state: () => ({

@@ -7,7 +7,7 @@ from config import db
 import time
 import jwt
 from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, \
-    IsBeingGifted, GiftGroup
+    IsBeingGifted, GiftGroup, IsSpecialUser
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -28,11 +28,12 @@ def create(user):
                                        'password': user.get("password")}
         new_user = user_schema.load(userWithoutSpecialGiftGroup, session=db.session)
         db.session.add(new_user)
-        if user.get("specialGiftGroup") is not None:
-            specialGiftGroup = GiftGroup.query.filter(GiftGroup.id == user.get("specialGiftGroup")).one_or_none()
+        if user.get("onlyViewing") is not None and user.get("startViewingGroup"):
+            specialGiftGroup = GiftGroup.query.filter(GiftGroup.id == user.get("startViewingGroup")).one_or_none()
             if specialGiftGroup is None:
                 abort(400, "Giftgroup with that id does not exist!")
-            new_user.specialGiftGroup = user.get("specialGiftGroup")
+            new_user.onlyViewing = True
+            new_user.isSpecialUser.add(IsSpecialUser(giftGroup=specialGiftGroup))
         else:
             # TODO internationalisation?
             if user.get('lastName') != "":
@@ -82,16 +83,14 @@ def delete(email, user, token_info):
     if exisiting_user is None:
         abort(403,
               "not authorized to delete other users")
-    if exisiting_user.specialGiftGroup is None:
+    if not (exisiting_user.onlyViewing or email == user):
         if email != user:
             abort(403,
                   "not authorized to delete other users")
-    else:
-        specialGiftGroup = GiftGroup.query.filter(GiftGroup.id == exisiting_user.specialGiftGroup).one_or_none()
-        if specialGiftGroup is not None:
-            if user not in [isBeingGifted.user_email for isBeingGifted in specialGiftGroup.isBeingGifted]:
-                abort(403,
-                      "not authorized to delete this user")
+    elif exisiting_user.onlyViewing:
+        if len(exisiting_user.isSpecialUser) > 1:
+            abort(403,
+                  "not authorized to delete this user")
     db.session.delete(exisiting_user)
     db.session.commit()
     return make_response(f"User with email {email} succesfully deleted", 204)
@@ -276,6 +275,7 @@ def resetPassword(email, password_and_code):
             f"Wrong code"
         )
     existing_user.password = password_and_code["password"]
+    existing_user.resetCode = None
     db.session.merge(existing_user)
     db.session.commit()
     return "Password set", 200

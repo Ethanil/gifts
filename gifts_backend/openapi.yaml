@@ -27,7 +27,10 @@ components:
           example: Mustermann
         avatar:
           type: string
-        specialGiftGroup:
+        onlyViewing:
+          type: boolean
+          default: false
+        startViewingGroup:
           type: number
           format: integer
           default: -1
@@ -136,6 +139,11 @@ components:
           type: boolean
           example: false
         usersBeingGifted:
+          type: array
+          items:
+            type: string
+            format: email
+        isSpecialUser:
           type: array
           items:
             type: string
@@ -387,6 +395,11 @@ paths:
           schema:
             type: boolean
           description: Used to decline the Invitation
+        - in: query
+          name: specialUserEmail
+          schema:
+            type: string
+          description: the email of the special user to add to that list
       responses:
         201:
           description: Succesfully created Giftgroup-user relation

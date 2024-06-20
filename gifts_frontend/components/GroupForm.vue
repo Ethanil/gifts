@@ -1,7 +1,7 @@
 <template>
     <v-dialog
         v-model="groupDialog"
-        :max-width="showInviteCol ? '900px' : '600px'"
+        :max-width="showInviteCol ? '1200px' : '900px'"
     >
         <template #activator="{ props }">
             <slot name="activator" :props="props" />
@@ -134,7 +134,11 @@
                                             :users="giftingUsers"
                                             :group-i-d="groupData.id"
                                             :is-own-group="
-                                                groupData.isBeingGifted
+                                                groupData.isBeingGifted ||
+                                                isAllowedToEditTitle
+                                            "
+                                            :special-users="
+                                                groupData.isSpecialUser
                                             "
                                             title="Schenkende"
                                             title-icon="mdi-gift-outline"
@@ -154,18 +158,51 @@
                                                         : `${user.firstName} ${user.lastName} einladen um beschenkt zu werden`
                                             "
                                             @action="putIntoFunction"
+                                            @remove-from-group="
+                                                handleRemoveFromGroup
+                                            "
                                         />
                                     </v-row>
                                     <v-row v-if="propGroupData.isBeingGifted">
                                         <DashboardCardRegister
                                             v-model="registrationDialog"
-                                            :special-group-id="propGroupData.id"
+                                            :start-viewing-group="
+                                                propGroupData.id
+                                            "
+                                            @registration-finished="
+                                                handleRegistrationFinished
+                                            "
                                         />
                                         <v-btn
                                             color="primary"
                                             @click="registrationDialog = true"
                                             >Schenkende*n anlegen</v-btn
                                         >
+                                    </v-row>
+                                </v-container>
+                            </v-col>
+                            <v-col class="d-flex justify-center" :cols="cols">
+                                <v-container>
+                                    <v-row>
+                                        <group-form-list
+                                            :users="addableSpecialUsers"
+                                            :group-i-d="groupData.id"
+                                            title="Mögliche Schenkende"
+                                            title-icon="mdi-gift-outline"
+                                            :own-action-enabled="
+                                                !groupData.isSecretGroup
+                                            "
+                                            :action-icon="'mdi-plus'"
+                                            :action-enabled="
+                                                groupData.isBeingGifted ||
+                                                isAllowedToEditTitle
+                                            "
+                                            :action-tooltip="
+                                                (user: User) =>
+                                                    `${user.firstName} ${user.lastName} als Schenkende*n hinzufügen`
+                                            "
+                                            @action="addAsGifting"
+                                        />
                                     </v-row>
                                 </v-container>
                             </v-col>
@@ -198,6 +235,7 @@
 </template>
 <script setup lang="ts">
 const userStore = useUserStore();
+const giftgroupStore = useGiftGroupStore();
 const { data } = useAuth();
 const registrationDialog = ref(false);
 
@@ -331,8 +369,8 @@ const showInviteCol = computed(
 );
 const cols = computed(() => {
     if (lgAndUp.value) {
-        if (showInviteCol.value && !groupData.value.isSecretGroup) return 4;
-        else return 6;
+        if (showInviteCol.value && !groupData.value.isSecretGroup) return 3;
+        else return 4;
     }
     return 12;
 });
@@ -422,6 +460,10 @@ function joinGroup() {
 const giftingUsers = computed(() =>
     userStore.users.filter(
         (user) =>
+            !(
+                user.onlyViewing &&
+                !groupData.value.isSpecialUser?.includes(user.email)
+            ) &&
             !groupData.value.invitations.find(
                 (invitedUser) => invitedUser.user.email === user.email,
             ) &&
@@ -443,5 +485,41 @@ function putIntoBeingGifted(user: User) {
     if (!groupData.value.usersBeingGifted)
         groupData.value.usersBeingGifted = [];
     groupData.value.usersBeingGifted.push(user);
+}
+//---------------- SpecialUser ----------------//
+const addableSpecialUsers = computed(() =>
+    userStore.users.filter(
+        (user) =>
+            user.onlyViewing &&
+            !groupData.value.isSpecialUser?.includes(user.email),
+    ),
+);
+function addAsGifting(user: User) {
+    giftgroupStore.addSpecialUser(outerProps.propGroupData, user.email);
+    if (!groupData.value.isSpecialUser) groupData.value.isSpecialUser = [];
+    groupData.value.isSpecialUser.push(user.email);
+}
+function handleRemoveFromGroup(user: User) {
+    giftgroupStore.removeFromGroup(outerProps.propGroupData, user.email);
+    groupData.value.isSpecialUser!.splice(
+        groupData.value.isSpecialUser!.findIndex((usr) => usr === user.email),
+        1,
+    );
+    if (
+        !giftgroupStore.giftgroups.find(
+            (giftgroup) =>
+                giftgroup.isSpecialUser?.includes(user.email) &&
+                giftgroup.id != groupData.value.id,
+        )
+    ) {
+        userStore.users.splice(
+            userStore.users!.findIndex((usr) => usr.email === user.email),
+            1,
+        );
+    }
+}
+function handleRegistrationFinished(user_email: string) {
+    if (!groupData.value.isSpecialUser) groupData.value.isSpecialUser = [];
+    groupData.value.isSpecialUser.push(user_email);
 }
 </script>

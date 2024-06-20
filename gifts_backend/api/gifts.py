@@ -3,13 +3,14 @@ from os import getenv
 
 from flask import make_response, abort
 from models import Gift, gift_schema, gifts_schema, GiftGroup, IsBeingGifted, HasReserved, \
-    HasRequestedReservationFreeing, users_schema_without_password
+    HasRequestedReservationFreeing, User
 from config import db
 from werkzeug.datastructures import FileStorage
 import base64
 from uuid import uuid4
 from typing import List
 from enum import Enum
+
 
 class Actions(str, Enum):
     EDIT = "edit"
@@ -52,6 +53,12 @@ def create(giftgroup_id, gift, user, token_info, picture=""):
 
 
 def read(giftgroup_id, user, token_info):
+    current_user = User.query.filter(User.email == user).one_or_none()
+    if current_user is None:
+        abort(400, "This user does not exist!")
+    if current_user.onlyViewing:
+        if giftgroup_id not in [isSpecialUser.giftGroup_id for isSpecialUser in current_user.isSpecialUser]:
+            abort(403, "No acces to that group!")
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -62,7 +69,15 @@ def read(giftgroup_id, user, token_info):
 
 
 def read_all(user, token_info):
-    gifts = filter_gifts(Gift.query.all(), user)
+    current_user = User.query.filter(User.email == user).one_or_none()
+    if current_user is None:
+        abort(400, "This user does not exist!")
+    all_gifts = Gift.query.all()
+    if current_user.onlyViewing:
+        viewAbleGiftGroups = [giftGroup.id for giftGroup in
+                              [isSpecialUser.giftGroup for isSpecialUser in current_user.isSpecialUser]]
+        all_gifts = [gift for gift in all_gifts if gift.giftGroup_id in viewAbleGiftGroups]
+    gifts = filter_gifts(all_gifts, user)
     dumpedGifts = gifts_schema.dump(gifts)
     res = {}
     for index, entry in enumerate(dumpedGifts):
@@ -106,7 +121,8 @@ def add_is_secret_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
 
 def add_calls_to_action_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
     if Actions.FREE_RESERVE in gift_dict['availableActions']:
-        gift_dict['freeForReservationRequest'] = [reservationRequest.user.email for reservationRequest in gift.hasRequestedReservationFreeing]
+        gift_dict['freeForReservationRequest'] = [reservationRequest.user.email for reservationRequest in
+                                                  gift.hasRequestedReservationFreeing]
     return gift_dict
 
 
@@ -244,7 +260,8 @@ def delete(gift_id, giftgroup_id, user, token_info):
     return make_response(f"Gift with id {gift_id} succesfully deleted from Giftgroup {existing_giftGroup.name}", 204)
 
 
-def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=None, request_free_reserve=None, deny_free_reserve=None):
+def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=None, request_free_reserve=None,
+          deny_free_reserve=None):
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(

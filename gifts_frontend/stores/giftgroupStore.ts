@@ -11,11 +11,14 @@ export type Giftgroup = {
     isInvited?: boolean;
     usersBeingGifted?: User[];
     invitableUsers?: User[];
+    isSpecialUser?: string[];
 };
-type DataBaseGiftGroup = Omit<
-    Omit<Omit<Giftgroup, "usersBeingGifted">, "invitableUsers">,
-    "invitations"
-> & {
+type DataBaseGiftGroup = 
+    Omit<
+        Omit<Omit<Giftgroup, "usersBeingGifted">, "invitableUsers">,
+        "invitations"
+    >
+     & {
     invitations: string[];
     usersBeingGifted: string[];
     invitableUsers: string[];
@@ -117,6 +120,31 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 await this.loadFromAPI();
             }
         },
+        async addSpecialUser(giftgroup: Giftgroup, user_email:string){
+            try {
+                const _ = await api.post(
+                    `/${giftgroup.id}?specialUserEmail=${user_email}`,
+                    transformToDataBaseGiftGroup(giftgroup),
+                );
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                await this.loadFromAPI();
+            }
+        },
+        async removeFromGroup(giftgroup: Giftgroup, user_email:string){
+            try {
+                const _ = await api.delete(
+                    `/${giftgroup.id}/${user_email}`
+                );
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                await this.loadFromAPI();
+            }
+        }
     },
     getters: {
         giftgroups(state) {
@@ -158,6 +186,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                                 (user) => user.email === invitable_user,
                             )!,
                     );
+                res[index].isSpecialUser = dataBaseGiftGroup.isSpecialUser;
             }
             return res;
         },

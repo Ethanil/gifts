@@ -31,14 +31,15 @@ class User(db.Model):
     lastName: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     password: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     avatar: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
-    specialGiftGroup: db.Mapped[Optional[int]] = db.mapped_column(db.INTEGER,
-                                                                  db.ForeignKey("giftGroup.id", ondelete="CASCADE"))
+    onlyViewing: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
     resetCode: db.Mapped[Optional[str]] = db.mapped_column(db.VARCHAR(256))
 
     isBeingGifted: db.Mapped[Set["IsBeingGifted"]] = db.relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")
     isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="user",
                                                              cascade="all, delete-orphan")
+    isSpecialUser: db.Mapped[Set["IsSpecialUser"]] = db.relationship(back_populates="user",
+                                                                     cascade="all, delete-orphan")
     hasReserved: db.Mapped[Set["HasReserved"]] = db.relationship(back_populates="user", cascade="all, delete-orphan")
     hasRequestedReservationFreeing: db.Mapped[Set["HasRequestedReservationFreeing"]] = db.relationship(
         back_populates="user", cascade="all, delete-orphan")
@@ -56,7 +57,8 @@ class User(db.Model):
     def _validate_resetCode(self, key, resetCode):
         return self.ph.hash(resetCode) \
  \
-    @db.validates('email')
+            @ db.validates('email')
+
     def validate_email(self, key, email):
         return email.lower()
 
@@ -72,6 +74,8 @@ class GiftGroup(db.Model):
                                                                      cascade="all, delete-orphan", passive_deletes=True)
     isInvited: db.Mapped[Set["IsInvited"]] = db.relationship(back_populates="giftGroup",
                                                              cascade="all, delete-orphan", passive_deletes=True)
+    isSpecialUser: db.Mapped[Set["IsSpecialUser"]] = db.relationship(back_populates="giftGroup",
+                                                                     cascade="all, delete-orphan", passive_deletes=True)
     name: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
     isSecretGroup: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
 
@@ -94,6 +98,16 @@ class IsInvited(db.Model):
     giftGroup: db.Mapped["GiftGroup"] = db.relationship(back_populates="isInvited")
     user_email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256), db.ForeignKey("user.email"), primary_key=True)
     user: db.Mapped["User"] = db.relationship(back_populates="isInvited")
+
+
+class IsSpecialUser(db.Model):
+    __tablename__ = "isSpecialUser"
+
+    giftGroup_id: db.Mapped[int] = db.mapped_column(db.INTEGER, db.ForeignKey("giftGroup.id", ondelete="CASCADE"),
+                                                    primary_key=True)
+    giftGroup: db.Mapped["GiftGroup"] = db.relationship(back_populates="isSpecialUser")
+    user_email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256), db.ForeignKey("user.email"), primary_key=True)
+    user: db.Mapped["User"] = db.relationship(back_populates="isSpecialUser")
 
 
 class HasReserved(db.Model):
@@ -189,7 +203,7 @@ class UserSchemaWithoutPassword(ma.SQLAlchemySchema):
     firstName = ma.auto_field()
     lastName = ma.auto_field()
     avatar = ma.auto_field()
-    specialGiftGroup = ma.auto_field()
+    onlyViewing = ma.auto_field()
 
     @post_dump
     def process_picture(self, in_data, **kwargs):
@@ -221,6 +235,11 @@ class IsBeingGiftedSchema(ma.SQLAlchemyAutoSchema):
 class IsInvitedSchema(ma.SQLAlchemyAutoSchema):
     class Meta(BaseSchema.Meta):
         model = IsInvited
+
+
+class IsSpecialUserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta(BaseSchema.Meta):
+        model = IsSpecialUser
 
 
 class GiftSchema(ma.SQLAlchemyAutoSchema):
@@ -258,6 +277,8 @@ isBeingGifted_schema = IsBeingGiftedSchema()
 isBeingGifteds_schema = IsBeingGiftedSchema(many=True)
 isInvited_schema = IsInvitedSchema()
 isInviteds_schema = IsInvitedSchema(many=True)
+isspecialUser_schema = IsSpecialUserSchema()
+isspecialUsers_schema = IsSpecialUserSchema(many=True)
 gift_schema = GiftSchema()
 gifts_schema = GiftSchema(many=True)
 comment_schema = CommentSchema()

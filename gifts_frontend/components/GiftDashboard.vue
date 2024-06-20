@@ -70,7 +70,11 @@
                     </template>
                 </v-tabs>
             </template>
-            <v-tabs hide-slider direction="vertical">
+            <v-tabs
+                v-if="isAllowedToCreateNewLists"
+                hide-slider
+                direction="vertical"
+            >
                 <v-tab disabled height="20px" />
                 <v-tab
                     color="primary"
@@ -261,32 +265,42 @@
                 @submit-form="addGift"
             >
                 <template #activator="{ props }">
-                    <v-btn
-                        id="AddButton"
-                        color="primary"
-                        block
-                        height="min-content"
-                        width="min-content"
-                        v-bind="props"
+                    <div
+                        v-if="!lgAndUp && currentGroup"
+                        class="bg-primary"
+                        style="
+                            position: fixed;
+                            width: 100%;
+                            height: min-content;
+                            bottom: 0;
+                        "
                     >
-                        <span>{{ giftAddButtonText }}</span>
-                        <template v-if="isOwnGroup" #prepend>
-                            <v-img
-                                width="50px"
-                                height="50px"
-                                :rounded="0"
-                                src="\assets\icons\normal_gift.png"
-                            ></v-img>
-                        </template>
-                        <template v-else #prepend>
-                            <v-img
-                                width="50px"
-                                height="50px"
-                                :rounded="0"
-                                src="\assets\icons\secret_gift.png"
-                            ></v-img>
-                        </template>
-                    </v-btn>
+                        <v-btn
+                            color="primary"
+                            block
+                            height="min-content"
+                            width="min-content"
+                            v-bind="props"
+                        >
+                            <span>{{ giftAddButtonText }}</span>
+                            <template v-if="isOwnGroup" #prepend>
+                                <v-img
+                                    width="50px"
+                                    height="50px"
+                                    :rounded="0"
+                                    src="\assets\icons\normal_gift.png"
+                                ></v-img>
+                            </template>
+                            <template v-else #prepend>
+                                <v-img
+                                    width="50px"
+                                    height="50px"
+                                    :rounded="0"
+                                    src="\assets\icons\secret_gift.png"
+                                ></v-img>
+                            </template>
+                        </v-btn>
+                    </div>
                 </template>
             </gift-form>
         </v-skeleton-loader>
@@ -323,6 +337,11 @@ const navBarToggle = defineModel<boolean>("navBarToggle", {
     type: Boolean,
     required: true,
 });
+const { data } = useAuth();
+const isAllowedToCreateNewLists = computed(
+    () => !(data.value as unknown as User).onlyViewing,
+);
+
 const emits = defineEmits(["navBarToggle"]);
 //---------------- Table ----------------//
 const giftgroupStore = useGiftGroupStore();
@@ -358,7 +377,8 @@ function waitForElm(selector: string): Promise<Element> {
 onMounted(() => {
     giftgroupStore.loadFromAPI().then(() => {
         giftStore.loadFromAPI();
-        giftStore.setGroup(giftgroupStore.giftgroups[0].id);
+        if (giftgroupStore.giftgroups && giftgroupStore.giftgroups.length > 0)
+            giftStore.setGroup(giftgroupStore.giftgroups[0].id);
     });
     userStore.loadFromAPI().then(() => (usersLoaded.value = true));
     const options = {

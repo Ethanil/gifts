@@ -82,10 +82,10 @@
                             <v-icon
                                 v-bind="props"
                                 icon="mdi-delete"
-                                @click="userStore.deleteUser(user)"
+                                @click="emit('removeFromGroup', user)"
                             />
                         </template>
-                        Nutzer dauerhaft löschen
+                        Schenkende*r entfernen
                     </v-tooltip>
                 </template>
             </v-list-item>
@@ -94,6 +94,7 @@
 </template>
 <script setup lang="ts">
 const userStore = useUserStore();
+const giftgroupStore = useGiftGroupStore();
 import type { PropType } from "vue";
 const { data } = useAuth();
 import avatar from "animal-avatar-generator";
@@ -111,23 +112,24 @@ const outerProps = defineProps({
         type: String as PropType<"do nothing" | "hide">,
         default: "do nothing",
     },
-    groupID: { type: Number, default: -1 },
+    startViewingGroupId: { type: Number, default: -1 },
     isOwnGroup: { type: Boolean, default: false },
+    specialUsers:{type: Array<String>, default: []},
 });
 const userWithAvatar = computed(() =>
     outerProps.users.map(
         (user) =>
-            [
+           [
                 user,
                 avatar(user.avatar, {
                     size: 32,
                     blackout: false,
                 }).replaceAll("\n", ""),
                 user.avatar.split(";").length === 2,
-                user.specialGiftGroup &&
-                    user.specialGiftGroup === outerProps.groupID,
+                user.onlyViewing &&
+                    outerProps.specialUsers.includes(user.email),
             ] as [User, string, boolean, boolean],
     ),
 );
-const emit = defineEmits(["action"]);
+const emit = defineEmits(["action","removeFromGroup"]);
 </script>
