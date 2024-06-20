@@ -251,15 +251,13 @@
                 </v-data-table>
             </div>
         </v-skeleton-loader>
-        <div
-            v-if="!lgAndUp"
-            class="bg-primary"
+        <v-skeleton-loader
+            :loading="!currentGroup"
             style="position: fixed; width: 100%; height: min-content; bottom: 0"
         >
             <gift-form
                 v-model:gift-dialog="addGiftDialog"
                 :prop-gift-data="giftDataToAdd"
-                style="position: fixed; width: 100%; height: 70px; bottom: 0"
                 @submit-form="addGift"
             >
                 <template #activator="{ props }">
@@ -291,7 +289,7 @@
                     </v-btn>
                 </template>
             </gift-form>
-        </div>
+        </v-skeleton-loader>
     </div>
     <gift-form
         v-model:gift-dialog="editGiftDialog"

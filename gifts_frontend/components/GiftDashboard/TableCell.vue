@@ -149,7 +149,7 @@
                 </v-col>
             </v-row>
             <v-row>
-                <v-col cols="7">
+                <v-col cols="5">
                     <GiftDashboardActions
                         :item="item"
                         @do-action="
