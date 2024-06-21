@@ -62,7 +62,7 @@
                     :append-inner-icon="
                         showPassword2 ? 'mdi-eye' : 'mdi-eye-off'
                     "
-                    label="Passwort"
+                    label="Passwort erneut eingeben"
                     counter
                     validate-on="input"
                     max-errors="10"

@@ -222,8 +222,9 @@ def sendPasswordResetEmail(email):
             f"User with email {email} does not exist"
         )
     resetCode = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    print(resetCode)
     existing_user.resetCode = resetCode
-    sendResetEmail(resetCode, email)
+    # sendResetEmail(resetCode, email)
     db.session.merge(existing_user)
     db.session.commit()
 
@@ -282,7 +283,7 @@ def resetPassword(email, password_and_code):
             f"Wrong code"
         )
     existing_user.password = password_and_code["password"]
-    existing_user.resetCode = None
+    existing_user.resetCode = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     db.session.merge(existing_user)
     db.session.commit()
     return "Password set", 200
