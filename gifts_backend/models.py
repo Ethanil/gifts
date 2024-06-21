@@ -55,10 +55,9 @@ class User(db.Model):
 
     @db.validates('resetCode')
     def _validate_resetCode(self, key, resetCode):
-        return self.ph.hash(resetCode) \
- \
-            @ db.validates('email')
+        return self.ph.hash(resetCode)
 
+    @db.validates('email')
     def validate_email(self, key, email):
         return email.lower()
 
