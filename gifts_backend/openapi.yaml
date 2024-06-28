@@ -86,7 +86,6 @@ components:
           type: number
           format: float
           minimum: 0
-          multipleOf: 0.01
           example: 12.24
         giftStrength:
           type: string
