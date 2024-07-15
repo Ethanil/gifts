@@ -115,7 +115,7 @@ async function handleLoginClick(event: any) {
                     break;
                 default:
                     loginAlert.value.title =
-                        "unbekannter Fehler: " + e.response;
+                        "unbekannter Fehler: code:" + e.response.status + " statusText: " + e.response.statusText + " details: " + e.response._data.detail;
             }
         }
     }
