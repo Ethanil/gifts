@@ -476,6 +476,16 @@ const giftDataToAdd = ref<Gift>({
 });
 async function addGift(gift: Gift) {
     await giftStore.addGift(gift);
+    giftDataToAdd.value = {
+    id: 0,
+    name: "",
+    price: 0,
+    giftStrength: 3,
+    description: "",
+    link: "",
+    picture: "",
+    availableActions: [],
+};
     addGiftDialog.value = false;
 }
 

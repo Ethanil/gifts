@@ -152,6 +152,7 @@ async function submitForm(event: any) {
             availableActions: [],
         } as Gift;
         emit("submitForm", gift);
+        giftImage.value = undefined;
     }
 }
 </script>
