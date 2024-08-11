@@ -260,13 +260,13 @@
             style="position: fixed; width: 100%; height: min-content; bottom: 0"
         >
             <gift-form
+                v-if="!lgAndUp && currentGroup"
                 v-model:gift-dialog="addGiftDialog"
                 :prop-gift-data="giftDataToAdd"
                 @submit-form="addGift"
             >
                 <template #activator="{ props }">
                     <div
-                        v-if="!lgAndUp && currentGroup"
                         class="bg-primary"
                         style="
                             position: fixed;
