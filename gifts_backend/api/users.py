@@ -211,7 +211,11 @@ def login(authentication):
 
 
 def decode_token(token):
-    return jwt.decode(token, key, issuer=issuer, algorithms=algorithm)
+    try:
+        return jwt.decode(token, key, issuer=issuer, algorithms=algorithm)
+    except jwt.ExpiredSignatureError:
+        pass
+
 
 
 def sendPasswordResetEmail(email):
