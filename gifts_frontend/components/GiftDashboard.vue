@@ -152,7 +152,8 @@
                                         editGroup(giftgroups[currentTab])
                                     "
                                 />
-                            </span>
+                            </span><br>
+                            <span class="text-caption">Zuletzt geupdated: {{ giftgroups[currentTab].lastUpdated?.toLocaleString() }}</span>
                         </v-col>
                         <v-col v-if="lgAndUp">
                             <gift-form

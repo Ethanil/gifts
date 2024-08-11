@@ -10,7 +10,7 @@ import base64
 from uuid import uuid4
 from typing import List
 from enum import Enum
-
+from api.giftgroups import updateLastUpdated
 
 class Actions(str, Enum):
     EDIT = "edit"
@@ -48,6 +48,7 @@ def create(giftgroup_id, gift, user, token_info, picture=""):
         )
     new_gift = Gift(**gift, user_email=user)
     existing_giftGroup.gift.add(new_gift)
+    updateLastUpdated(user, existing_giftGroup)
     db.session.commit()
     return gift_schema.dump(new_gift), 201
 
@@ -231,6 +232,7 @@ def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
     existing_gift.price = gift.get("price")
     existing_gift.link = gift.get("link")
     existing_gift.giftStrength = gift.get("giftStrength")
+    updateLastUpdated(user, existing_giftGroup)
     db.session.merge(existing_gift)
     db.session.commit()
     return gift_schema.dump(existing_gift), 200
@@ -255,6 +257,7 @@ def delete(gift_id, giftgroup_id, user, token_info):
             404,
             f"Not allowed to delete gift with id {gift_id}"
         )
+    updateLastUpdated(user, existing_giftGroup)
     db.session.delete(existing_gift)
     db.session.commit()
     return make_response(f"Gift with id {gift_id} succesfully deleted from Giftgroup {existing_giftGroup.name}", 204)
@@ -341,5 +344,6 @@ def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=No
             reservation = HasRequestedReservationFreeing.query.filter(HasRequestedReservationFreeing.gift_id == gift_id,
                                                                       HasRequestedReservationFreeing.user_email == user).one_or_none()
             db.session.delete(reservation)
+    updateLastUpdated(user, existing_giftGroup)
     db.session.commit()
     return 200

@@ -76,6 +76,8 @@ class GiftGroup(db.Model):
     isSpecialUser: db.Mapped[Set["IsSpecialUser"]] = db.relationship(back_populates="giftGroup",
                                                                      cascade="all, delete-orphan", passive_deletes=True)
     name: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
+
+    lastUpdated:  db.Mapped[datetime] = db.mapped_column(db.DateTime)
     isSecretGroup: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
 
 

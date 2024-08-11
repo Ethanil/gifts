@@ -1,3 +1,5 @@
+import datetime
+
 from flask import make_response, abort
 from models import GiftGroup, giftGroup_schema, giftGroups_schema, User, IsBeingGifted, IsInvited, IsSpecialUser, \
     HasRequestedReservationFreeing, HasReserved
@@ -66,6 +68,7 @@ def create(giftgroup, user, token_info):
     sanitized_giftgroup['name'] = giftgroup['name']
     sanitized_giftgroup['isSecretGroup'] = giftgroup['isSecretGroup']
     sanitized_giftgroup['editable'] = True
+    sanitized_giftgroup['lastUpdated'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     new_giftGroup = giftGroup_schema.load(sanitized_giftgroup, session=db.session)
     db.session.add(new_giftGroup)
     if giftgroup.get('invitations') is not None:
@@ -130,6 +133,7 @@ def update(giftgroup_id, giftgroup, user, token_info):
         isBeingGiftedEmails = []
     existing_giftGroup.isBeingGifted = set(
         filter(lambda isBeingGifted: isBeingGifted.user_email in isBeingGiftedEmails, existing_giftGroup.isBeingGifted))
+    updateLastUpdated(user, existing_giftGroup)
     if len(existing_giftGroup.isBeingGifted) == 0:
         db.session.delete(existing_giftGroup)
     else:
@@ -177,6 +181,7 @@ def addUserToGroup(giftgroup_id, user, token_info, decline=None, specialUserEmai
             existing_giftGroup.isInvited = set(filter(lambda invitation: invitation.user_email != user,
                                                       GiftGroup.query.filter(
                                                           GiftGroup.id == giftgroup_id).one_or_none().isInvited))
+    updateLastUpdated(user, existing_giftGroup)
     db.session.merge(existing_giftGroup)
     db.session.commit()
     return make_response(f"Giftgroup {giftgroup_id} linked with user_email {user}", 201)
@@ -228,6 +233,13 @@ def removeUserFromGroup(email, giftgroup_id, user, token_info):
                 404,
                 f"User with email {email} is not being gifted in Giftgroup {giftgroup_id}"
             )
+    if user in (group.user_email for group in existing_giftGroup.isBeingGifted):
+        existing_giftGroup.lastUpdated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     db.session.delete(existing_relation)
     db.session.commit()
     return make_response(f"User with email {email} succesfully deleted from Giftgroup {existing_giftGroup.name}", 204)
+
+
+def updateLastUpdated(user, giftgroup):
+    if user in (group.user_email for group in giftgroup.isBeingGifted) or giftgroup.isSecretGroup:
+        giftgroup.lastUpdated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

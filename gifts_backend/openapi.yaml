@@ -160,6 +160,9 @@ components:
           items:
             type: string
             format: email
+        lastUpdated:
+          type: string
+          format: date-time
     Event:
       type: object
       required:

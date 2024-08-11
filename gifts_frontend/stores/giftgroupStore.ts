@@ -12,14 +12,16 @@ export type Giftgroup = {
     usersBeingGifted?: User[];
     invitableUsers?: User[];
     isSpecialUser?: string[];
+    lastUpdated?: Date;
 };
 type DataBaseGiftGroup = Omit<
-    Omit<Omit<Giftgroup, "usersBeingGifted">, "invitableUsers">,
+    Omit<Omit<Omit<Giftgroup, "lastUpdated">, "usersBeingGifted">, "invitableUsers">,
     "invitations"
 > & {
     invitations: string[];
     usersBeingGifted: string[];
     invitableUsers: string[];
+    lastUpdated: string;
 };
 function transformToDataBaseGiftGroup(giftgroup: Giftgroup): DataBaseGiftGroup {
     const res = {} as DataBaseGiftGroup;
@@ -49,6 +51,7 @@ function transformToDataBaseGiftGroup(giftgroup: Giftgroup): DataBaseGiftGroup {
     } else {
         res.invitableUsers = [];
     }
+    res.lastUpdated = "";
     return res;
 }
 export const useGiftGroupStore = defineStore("giftgroups", {
@@ -62,6 +65,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 defaults.headers.Authorization = String(token.value);
                 const response = await api.get({});
                 this.databaseGiftgroups = response as DataBaseGiftGroup[];
+                console.log(this.databaseGiftgroups[0].lastUpdated)
             } catch (error) {
                 console.log(error);
                 return error;
@@ -183,6 +187,7 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                             )!,
                     );
                 res[index].isSpecialUser = dataBaseGiftGroup.isSpecialUser;
+                res[index].lastUpdated = new Date(Date.parse(dataBaseGiftGroup.lastUpdated));
             }
             return res;
         },
