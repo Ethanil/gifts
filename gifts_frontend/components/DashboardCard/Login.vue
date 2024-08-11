@@ -114,9 +114,9 @@ async function handleLoginClick(event: any) {
                     loginAlert.value.title = "Passwort falsch";
                     break;
                 default:
-                if (e.response.status)
-                    loginAlert.value.title =
-                        "unbekannter Fehler: code:" + e.response.status;
+                    if (e.response.status)
+                        loginAlert.value.title =
+                            "unbekannter Fehler: code:" + e.response.status;
                     if (e.response.statusText)
                         loginAlert.value.title +=
                             " statusText: " + e.response.statusText;

@@ -115,7 +115,8 @@ export const useGiftStore = defineStore("gift", {
                 console.log(error);
                 return error;
             } finally {
-                this.loadFromAPI();
+                await this.loadFromAPI();
+                await useGiftGroupStore().loadFromAPI();
             }
         },
         async updateGift(_gift: Gift) {
@@ -155,6 +156,7 @@ export const useGiftStore = defineStore("gift", {
                 return error;
             } finally {
                 await this.loadFromAPI();
+                await useGiftGroupStore().loadFromAPI();
             }
         },
         async deleteGift(gift: Gift) {
@@ -165,6 +167,7 @@ export const useGiftStore = defineStore("gift", {
                 return error;
             } finally {
                 await this.loadFromAPI();
+                await useGiftGroupStore().loadFromAPI();
             }
         },
         async doAction(
@@ -203,6 +206,7 @@ export const useGiftStore = defineStore("gift", {
                 return error;
             } finally {
                 await this.loadFromAPI();
+                await useGiftGroupStore().loadFromAPI();
             }
         },
     },

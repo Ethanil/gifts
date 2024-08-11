@@ -15,7 +15,10 @@ export type Giftgroup = {
     lastUpdated?: Date;
 };
 type DataBaseGiftGroup = Omit<
-    Omit<Omit<Omit<Giftgroup, "lastUpdated">, "usersBeingGifted">, "invitableUsers">,
+    Omit<
+        Omit<Omit<Giftgroup, "lastUpdated">, "usersBeingGifted">,
+        "invitableUsers"
+    >,
     "invitations"
 > & {
     invitations: string[];
@@ -65,7 +68,6 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 defaults.headers.Authorization = String(token.value);
                 const response = await api.get({});
                 this.databaseGiftgroups = response as DataBaseGiftGroup[];
-                console.log(this.databaseGiftgroups[0].lastUpdated)
             } catch (error) {
                 console.log(error);
                 return error;
@@ -187,7 +189,9 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                             )!,
                     );
                 res[index].isSpecialUser = dataBaseGiftGroup.isSpecialUser;
-                res[index].lastUpdated = new Date(Date.parse(dataBaseGiftGroup.lastUpdated));
+                res[index].lastUpdated = new Date(
+                    Date.parse(dataBaseGiftGroup.lastUpdated),
+                );
             }
             return res;
         },

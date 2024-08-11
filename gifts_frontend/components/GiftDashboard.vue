@@ -151,9 +151,9 @@
                                     @click.stop="
                                         editGroup(giftgroups[currentTab])
                                     "
-                                />
-                            </span><br>
-                            <span class="text-caption">Zuletzt geupdated: {{ giftgroups[currentTab].lastUpdated?.toLocaleString() }}</span>
+                                /> </span
+                            ><br />
+                            <span class="text-caption">{{ lastUpdated }}</span>
                         </v-col>
                         <v-col v-if="lgAndUp">
                             <gift-form
@@ -478,15 +478,15 @@ const giftDataToAdd = ref<Gift>({
 async function addGift(gift: Gift) {
     await giftStore.addGift(gift);
     giftDataToAdd.value = {
-    id: 0,
-    name: "",
-    price: 0,
-    giftStrength: 3,
-    description: "",
-    link: "",
-    picture: "",
-    availableActions: [],
-};
+        id: 0,
+        name: "",
+        price: 0,
+        giftStrength: 3,
+        description: "",
+        link: "",
+        picture: "",
+        availableActions: [],
+    };
     addGiftDialog.value = false;
 }
 
@@ -610,6 +610,95 @@ function declineInvitation() {
         groupDataToEdit.value = giftgroups.value[currentTab.value];
     });
 }
+
+//---------------- last Updated ----------------//
+const currentTime = ref(new Date());
+const updateCurrentTime = () => {
+    currentTime.value = new Date();
+};
+const updateTimeInterval = setInterval(updateCurrentTime, 1000);
+onBeforeUnmount(() => {
+    clearInterval(updateTimeInterval);
+});
+const lastUpdated = computed(() => {
+    let timestamp = giftgroups.value[currentTab.value].lastUpdated;
+    if (!timestamp) timestamp = new Date();
+    const seconds = Math.floor(
+        (currentTime.value.getTime() - timestamp.getTime()) / 1000,
+    );
+
+    let interval = seconds / 31536000;
+    if (interval > 1) {
+        return `vor ${Math.floor(interval)} Jahre${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+    }
+
+    interval = seconds / 2592000;
+    if (interval > 1) {
+        return `vor ${Math.floor(interval)} Monate${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+    }
+
+    interval = seconds / 86400;
+    if (interval > 1) {
+        return `vor ${Math.floor(interval)} Tage${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+    }
+
+    interval = seconds / 3600;
+    if (interval > 1) {
+        return `vor ${Math.floor(interval)} Stunde${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+    }
+
+    interval = seconds / 60;
+    if (interval > 1) {
+        return `vor ${Math.floor(interval)} Minute${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+    }
+
+    return `jetzt aktualisiert`;
+});
+// const lastUpdated = ref(new String());
+// const updatelastUpdated = () => {
+//     var timestamp = giftgroups.value[currentTab.value].lastUpdated;
+//     if (!timestamp) timestamp = new Date();
+//     const seconds = Math.floor(
+//         (new Date().getTime() - timestamp.getTime()) / 1000,
+//     );
+//     console.log(timestamp,seconds)
+
+//     var interval = seconds / 31536000;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Jahre${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 2592000;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Monate${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 86400;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Tage${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 3600;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Stunde${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 60;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Minute${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     lastUpdated.value = `jetzt aktualisiert`;
+// };
+// const updateTimeInterval = setInterval(updatelastUpdated, 1000);
+// onBeforeUnmount(() => {
+//     clearInterval(updateTimeInterval);
+// });
 </script>
 <style lang="scss">
 .tabtext {
