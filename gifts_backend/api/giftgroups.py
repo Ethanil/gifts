@@ -136,8 +136,11 @@ def update(giftgroup_id, giftgroup, user, token_info):
     updateLastUpdated(user, existing_giftGroup)
     if len(existing_giftGroup.isBeingGifted) == 0:
         db.session.delete(existing_giftGroup)
-    else:
-        db.session.merge(existing_giftGroup)
+        db.session.commit()
+        return make_response(f"Giftlist with id {existing_giftGroup.id} succesfully deleted",
+                             204)
+
+    db.session.merge(existing_giftGroup)
     db.session.commit()
     return giftGroup_schema.dump(existing_giftGroup), 201
 
