@@ -42,6 +42,7 @@
                     v-model.number="giftData.price"
                     label="Preis des Geschenks"
                     suffix="€"
+                    :rules="[isNumberRule('Preis')]"
                 />
                 <v-container>
                     <v-row>
