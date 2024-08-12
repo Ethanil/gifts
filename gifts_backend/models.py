@@ -157,7 +157,7 @@ class Gift(db.Model):
 
 @event.listens_for(Gift, 'after_delete')
 def delete_picture(mapper, connection, target):
-    if target.picture is not None and target.picture != '':
+    if target.picture is not None and target.picture != '' and os.path.isfile(target.picture):
         os.remove(target.picture)
 
 

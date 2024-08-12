@@ -38,8 +38,6 @@ def create(giftgroup_id, gift, user, token_info, picture=""):
         image_filename = os.path.join(folder_path, filename)
         picture.save(image_filename)
         gift['picture'] = image_filename
-    else:
-        gift["picture"] = ""
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -212,7 +210,7 @@ def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
             f"Not allowed to edit gift with id {gift_id}"
         )
     if isinstance(picture, FileStorage):
-        if existing_gift.picture is None or existing_gift.picture == "":
+        if existing_gift.picture is None or existing_gift.picture == "" or not os.path.isfile(existing_gift.picture):
             filename = f"{uuid4()}.{picture.content_type.split('/')[1]}"
             folder_path = getenv("PICTURE_STORAGE")
 
@@ -226,6 +224,10 @@ def update(gift_id, giftgroup_id, gift, user, token_info, picture=""):
             image_filename = existing_gift.picture
         picture.save(image_filename)
         gift['picture'] = image_filename
+        existing_gift.picture = gift.get("picture")
+    else:
+        if existing_gift.picture is not None and existing_gift.picture != "" and os.path.isfile(existing_gift.picture):
+            os.remove(existing_gift.picture)
         existing_gift.picture = gift.get("picture")
     existing_gift.name = gift.get("name")
     existing_gift.description = gift.get("description")
