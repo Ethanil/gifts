@@ -31,7 +31,7 @@
                 size="small"
             />
         </template>
-        <template v-else-if="itemKey == 'price'"> {{ itemVal }} € </template>
+        <template v-else-if="itemKey == 'price'"> {{ price }} € </template>
         <template v-else-if="itemKey == 'availableActions'">
             <GiftDashboardActions
                 :item="item"
@@ -198,7 +198,7 @@
                     </div>
                 </v-col>
                 <v-col>
-                    <div class="d-flex justify-center">{{ item.price }} €</div>
+                    <div class="d-flex justify-center">{{ price }} €</div>
                 </v-col>
             </v-row>
             <v-dialog
@@ -297,6 +297,7 @@ const outerProps = defineProps({
     item: { type: Object as PropType<Gift>, required: true },
     mobile: { type: Boolean, default: false },
 });
+const price = computed(()=>outerProps.item.price.toFixed(2))
 const giftStrength = computed(() => outerProps.item.giftStrength);
 const rating = outerProps.item.giftStrength;
 const emit = defineEmits([
