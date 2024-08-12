@@ -1,6 +1,10 @@
 <template>
     <div>
-        <v-app-bar density="compact" color="primary" :style="lgAndUp?'' : computedStyle">
+        <v-app-bar
+            density="compact"
+            color="primary"
+            :style="lgAndUp ? '' : computedStyle"
+        >
             <template #prepend>
                 <v-app-bar-nav-icon @click="emit('iconClick')" />
             </template>
@@ -91,11 +95,15 @@ function toggleTheme() {
     theme.global.name.value = selectedTheme;
 }
 
-const scrollY = ref(window.scrollY)
-const updateScrollY = () => {scrollY.value = window.scrollY;}
+const scrollY = ref(window.scrollY);
+const updateScrollY = () => {
+    scrollY.value = window.scrollY;
+};
 window.addEventListener("scroll", updateScrollY);
 window.addEventListener("resize", updateScrollY);
-const computedStyle = computed(()=>"position:absolute; transition:none; top:"+scrollY.value+"px;")
+const computedStyle = computed(
+    () => "position:absolute; transition:none; top:" + scrollY.value + "px;",
+);
 </script>
 
 <style></style>

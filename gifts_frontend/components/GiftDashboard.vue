@@ -258,7 +258,11 @@
         </v-skeleton-loader>
         <v-skeleton-loader
             :loading="!currentGroup"
-            :style="'position: absolute; width: 100%; height: min-content; top:'+ toptest+';' "
+            :style="
+                'position: absolute; width: 100%; height: min-content; top:' +
+                toptest +
+                ';'
+            "
         >
             <gift-form
                 v-if="!lgAndUp && currentGroup"
@@ -269,10 +273,7 @@
                 <template #activator="{ props }">
                     <div
                         class="bg-primary"
-                        style="
-                            width: 100%;
-                            height: min-content;
-                        "
+                        style="width: 100%; height: min-content"
                     >
                         <v-btn
                             color="primary"
@@ -331,9 +332,13 @@
 </template>
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
-const mobileButtonY = ref(window.scrollY)
-const toptest = computed(()=> window.innerHeight + mobileButtonY.value - 50 + 'px')
-const updateMobileButtonY = () => {mobileButtonY.value = window.scrollY;}
+const mobileButtonY = ref(window.scrollY);
+const toptest = computed(
+    () => window.innerHeight + mobileButtonY.value - 50 + "px",
+);
+const updateMobileButtonY = () => {
+    mobileButtonY.value = window.scrollY;
+};
 window.addEventListener("scroll", updateMobileButtonY);
 window.addEventListener("resize", updateMobileButtonY);
 const { lgAndUp } = useDisplay();
