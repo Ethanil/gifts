@@ -256,9 +256,10 @@
                 </v-data-table>
             </div>
         </v-skeleton-loader>
+        {{ what }}
         <v-skeleton-loader
             :loading="!currentGroup"
-            style="position: fixed; width: 100%; height: min-content; bottom: 0"
+            :style="'position: absolute; width: 100%; height: min-content; top:'+ toptest+';' "
         >
             <gift-form
                 v-if="!lgAndUp && currentGroup"
@@ -270,10 +271,8 @@
                     <div
                         class="bg-primary"
                         style="
-                            position: fixed;
                             width: 100%;
                             height: min-content;
-                            bottom: 0;
                         "
                     >
                         <v-btn
@@ -333,6 +332,11 @@
 </template>
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
+const mobileButtonY = ref(window.scrollY)
+const toptest = computed(()=> window.innerHeight + mobileButtonY.value - 50 + 'px')
+const updateMobileButtonY = () => {mobileButtonY.value = window.scrollY;}
+window.addEventListener("scroll", updateMobileButtonY);
+window.addEventListener("resize", updateMobileButtonY);
 const { lgAndUp } = useDisplay();
 const navBarToggle = defineModel<boolean>("navBarToggle", {
     type: Boolean,
@@ -654,51 +658,6 @@ const lastUpdated = computed(() => {
 
     return `jetzt aktualisiert`;
 });
-// const lastUpdated = ref(new String());
-// const updatelastUpdated = () => {
-//     var timestamp = giftgroups.value[currentTab.value].lastUpdated;
-//     if (!timestamp) timestamp = new Date();
-//     const seconds = Math.floor(
-//         (new Date().getTime() - timestamp.getTime()) / 1000,
-//     );
-//     console.log(timestamp,seconds)
-
-//     var interval = seconds / 31536000;
-//     if (interval > 1) {
-//         lastUpdated.value = `vor ${Math.floor(interval)} Jahre${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
-//         return;
-//     }
-
-//     interval = seconds / 2592000;
-//     if (interval > 1) {
-//         lastUpdated.value = `vor ${Math.floor(interval)} Monate${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
-//         return;
-//     }
-
-//     interval = seconds / 86400;
-//     if (interval > 1) {
-//         lastUpdated.value = `vor ${Math.floor(interval)} Tage${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
-//         return;
-//     }
-
-//     interval = seconds / 3600;
-//     if (interval > 1) {
-//         lastUpdated.value = `vor ${Math.floor(interval)} Stunde${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
-//         return;
-//     }
-
-//     interval = seconds / 60;
-//     if (interval > 1) {
-//         lastUpdated.value = `vor ${Math.floor(interval)} Minute${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
-//         return;
-//     }
-
-//     lastUpdated.value = `jetzt aktualisiert`;
-// };
-// const updateTimeInterval = setInterval(updatelastUpdated, 1000);
-// onBeforeUnmount(() => {
-//     clearInterval(updateTimeInterval);
-// });
 </script>
 <style lang="scss">
 .tabtext {
