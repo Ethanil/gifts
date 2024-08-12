@@ -263,6 +263,7 @@
                 toptest +
                 ';'
             "
+            id="mobileButton"
         >
             <gift-form
                 v-if="!lgAndUp && currentGroup"
@@ -281,20 +282,21 @@
                             height="min-content"
                             width="min-content"
                             v-bind="props"
+                            style = "font-size: 2.5vh;"
                         >
                             <span>{{ giftAddButtonText }}</span>
                             <template v-if="isOwnGroup" #prepend>
                                 <v-img
-                                    width="50px"
-                                    height="50px"
+                                    width="8vh"
+                                    height="8vh"
                                     :rounded="0"
                                     src="\assets\icons\normal_gift.png"
                                 ></v-img>
                             </template>
                             <template v-else #prepend>
                                 <v-img
-                                    width="50px"
-                                    height="50px"
+                                    width="8vh"
+                                    height="8vh"
                                     :rounded="0"
                                     src="\assets\icons\secret_gift.png"
                                 ></v-img>
@@ -334,7 +336,12 @@
 import { useDisplay } from "vuetify";
 const mobileButtonY = ref(window.scrollY);
 const toptest = computed(
-    () => window.innerHeight + mobileButtonY.value - 50 + "px",
+    () => {
+        const mobileButton = document.querySelector("#mobileButton");
+        var buttonHeight = 50;
+        if(mobileButton) {buttonHeight = mobileButton.clientHeight;}
+        return window.innerHeight + mobileButtonY.value - buttonHeight + "px"
+    },
 );
 const updateMobileButtonY = () => {
     mobileButtonY.value = window.scrollY;
