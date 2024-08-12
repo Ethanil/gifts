@@ -77,7 +77,7 @@ class GiftGroup(db.Model):
                                                                      cascade="all, delete-orphan", passive_deletes=True)
     name: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
 
-    lastUpdated:  db.Mapped[datetime] = db.mapped_column(db.DateTime)
+    lastUpdated:  db.Mapped[datetime] = db.mapped_column(db.DateTime, default=datetime.now)
     isSecretGroup: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
 
 
