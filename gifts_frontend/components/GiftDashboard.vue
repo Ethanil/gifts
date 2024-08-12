@@ -256,7 +256,6 @@
                 </v-data-table>
             </div>
         </v-skeleton-loader>
-        {{ what }}
         <v-skeleton-loader
             :loading="!currentGroup"
             :style="'position: absolute; width: 100%; height: min-content; top:'+ toptest+';' "
