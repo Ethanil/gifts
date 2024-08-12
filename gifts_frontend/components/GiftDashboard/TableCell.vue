@@ -297,7 +297,7 @@ const outerProps = defineProps({
     item: { type: Object as PropType<Gift>, required: true },
     mobile: { type: Boolean, default: false },
 });
-const price = computed(() => outerProps.item.price.toFixed(2));
+const price = computed(() => outerProps.item.price - Number(outerProps.item.price.toFixed(0)) > 0 ? outerProps.item.price.toFixed(2) : outerProps.item.price);
 const giftStrength = computed(() => outerProps.item.giftStrength);
 const rating = outerProps.item.giftStrength;
 const emit = defineEmits([
