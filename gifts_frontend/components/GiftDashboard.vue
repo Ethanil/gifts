@@ -86,6 +86,9 @@
                     Liste erstellen
                 </v-tab>
             </v-tabs>
+            <template #append>
+                <span class="text-caption" id="version">v1.0.0</span>
+            </template>
         </v-navigation-drawer>
         <v-skeleton-loader
             :loading="!currentGroup"
