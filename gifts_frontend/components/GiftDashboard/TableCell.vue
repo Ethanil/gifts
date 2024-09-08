@@ -298,7 +298,7 @@ const outerProps = defineProps({
     mobile: { type: Boolean, default: false },
 });
 const price = computed(() =>
-    outerProps.item.price - Number(outerProps.item.price.toFixed(0)) > 0
+    outerProps.item.price - Number(outerProps.item.price.toFixed(0)) != 0
         ? outerProps.item.price.toFixed(2)
         : outerProps.item.price,
 );
