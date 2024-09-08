@@ -1,10 +1,6 @@
 <template>
     <div>
-        <v-app-bar
-            density="compact"
-            color="primary"
-            :style="lgAndUp ? '' : computedStyle"
-        >
+        <v-app-bar density="compact" color="primary">
             <template #prepend>
                 <v-app-bar-nav-icon @click="emit('iconClick')" />
             </template>
@@ -82,8 +78,6 @@
 <script setup lang="ts">
 const emit = defineEmits(["iconClick", "openProfile"]);
 import { useTheme } from "vuetify";
-import { useDisplay } from "vuetify";
-const { lgAndUp } = useDisplay();
 const { signOut, status, data } = useAuth();
 async function logout() {
     await signOut();
@@ -94,16 +88,6 @@ function toggleTheme() {
     localStorage.setItem("selectedTheme", selectedTheme);
     theme.global.name.value = selectedTheme;
 }
-
-const scrollY = ref(window.scrollY);
-const updateScrollY = () => {
-    scrollY.value = window.scrollY;
-};
-window.addEventListener("scroll", updateScrollY);
-window.addEventListener("resize", updateScrollY);
-const computedStyle = computed(
-    () => "position:absolute; transition:none; top:" + scrollY.value + "px;",
-);
 </script>
 
 <style></style>

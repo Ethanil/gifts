@@ -2,7 +2,7 @@
     <NuxtLayout>
         <v-app>
             <v-system-bar v-if="false" />
-            <v-main :style="'--v-layout-bottom:' +mobileButtonHeight +'px'">
+            <v-main  :style="'--v-layout-bottom: 50px'">
                 <NuxtPage />
             </v-main>
         </v-app>
@@ -21,11 +21,4 @@ onMounted(() => {
         localStorage.setItem("selectedTheme", "light");
     }
 });
-const mobileButtonHeight = ref(0);
-const updateMobileButtonHeight = () => {
-    const mobileButton = document.querySelector("#mobileButton");
-    if(mobileButton) {mobileButtonHeight.value = mobileButton.clientHeight;}
-    else mobileButtonHeight.value = 0;
-}
-window.addEventListener("resize", updateMobileButtonHeight);
 </script>

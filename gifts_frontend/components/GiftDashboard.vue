@@ -258,12 +258,7 @@
         </v-skeleton-loader>
         <v-skeleton-loader
             :loading="!currentGroup"
-            :style="
-                'position: absolute; width: 100%; height: min-content; top:' +
-                toptest +
-                ';'
-            "
-            id="mobileButton"
+            style="position: fixed; width: 100%; height: min-content; bottom: 0"
         >
             <gift-form
                 v-if="!lgAndUp && currentGroup"
@@ -274,7 +269,12 @@
                 <template #activator="{ props }">
                     <div
                         class="bg-primary"
-                        style="width: 100%; height: min-content"
+                        style="
+                            position: fixed;
+                            width: 100%;
+                            height: min-content;
+                            bottom: 0;
+                        "
                     >
                         <v-btn
                             color="primary"
@@ -282,6 +282,7 @@
                             height="min-content"
                             width="min-content"
                             v-bind="props"
+                            id="mobileButton"
                             style = "font-size: 2.5vh;"
                         >
                             <span>{{ giftAddButtonText }}</span>
@@ -334,20 +335,6 @@
 </template>
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
-const mobileButtonY = ref(window.scrollY);
-const toptest = computed(
-    () => {
-        const mobileButton = document.querySelector("#mobileButton");
-        var buttonHeight = 50;
-        if(mobileButton) {buttonHeight = mobileButton.clientHeight;}
-        return window.innerHeight + mobileButtonY.value - buttonHeight + "px"
-    },
-);
-const updateMobileButtonY = () => {
-    mobileButtonY.value = window.scrollY;
-};
-window.addEventListener("scroll", updateMobileButtonY);
-window.addEventListener("resize", updateMobileButtonY);
 const { lgAndUp } = useDisplay();
 const navBarToggle = defineModel<boolean>("navBarToggle", {
     type: Boolean,
@@ -669,6 +656,51 @@ const lastUpdated = computed(() => {
 
     return `jetzt aktualisiert`;
 });
+// const lastUpdated = ref(new String());
+// const updatelastUpdated = () => {
+//     var timestamp = giftgroups.value[currentTab.value].lastUpdated;
+//     if (!timestamp) timestamp = new Date();
+//     const seconds = Math.floor(
+//         (new Date().getTime() - timestamp.getTime()) / 1000,
+//     );
+//     console.log(timestamp,seconds)
+
+//     var interval = seconds / 31536000;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Jahre${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 2592000;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Monate${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 86400;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Tage${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 3600;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Stunde${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     interval = seconds / 60;
+//     if (interval > 1) {
+//         lastUpdated.value = `vor ${Math.floor(interval)} Minute${Math.floor(interval) == 1 ? "" : "n"} aktualisiert`;
+//         return;
+//     }
+
+//     lastUpdated.value = `jetzt aktualisiert`;
+// };
+// const updateTimeInterval = setInterval(updatelastUpdated, 1000);
+// onBeforeUnmount(() => {
+//     clearInterval(updateTimeInterval);
+// });
 </script>
 <style lang="scss">
 .tabtext {
