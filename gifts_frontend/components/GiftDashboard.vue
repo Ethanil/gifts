@@ -283,21 +283,20 @@
                             width="min-content"
                             v-bind="props"
                             id="mobileButton"
-                            style = "font-size: 2.5vh;"
                         >
                             <span>{{ giftAddButtonText }}</span>
                             <template v-if="isOwnGroup" #prepend>
                                 <v-img
-                                    width="8vh"
-                                    height="8vh"
+                                    width="50px"
+                                    height="50px"
                                     :rounded="0"
                                     src="\assets\icons\normal_gift.png"
                                 ></v-img>
                             </template>
                             <template v-else #prepend>
                                 <v-img
-                                    width="8vh"
-                                    height="8vh"
+                                    width="50px"
+                                    height="50px"
                                     :rounded="0"
                                     src="\assets\icons\secret_gift.png"
                                 ></v-img>

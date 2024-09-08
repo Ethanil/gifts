@@ -2,7 +2,7 @@
     <NuxtLayout>
         <v-app>
             <v-system-bar v-if="false" />
-            <v-main  :style="'--v-layout-bottom: 50px'">
+            <v-main style="--v-layout-bottom: 50px">
                 <NuxtPage />
             </v-main>
         </v-app>
