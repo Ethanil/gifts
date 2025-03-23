@@ -107,6 +107,8 @@ components:
           items:
             type: string
             format: email
+        isReceived:
+          type: boolean
         availableActions:
           type: array
           items:

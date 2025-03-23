@@ -143,6 +143,7 @@ class Gift(db.Model):
     picture: db.Mapped[Optional[str]] = db.mapped_column(db.TEXT)
     giftStrength: db.Mapped[GiftStrength] = db.mapped_column(db.Enum(GiftStrength))
     freeForReservation: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
+    isReceived: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
 
     giftGroup_id: db.Mapped[int] = db.mapped_column(db.Integer, db.ForeignKey("giftGroup.id"))
     user_email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256), db.ForeignKey("user.email"))
