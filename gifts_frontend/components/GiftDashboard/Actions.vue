@@ -106,17 +106,39 @@ const actions = [
             emits("doAction", outerProps.item, { requestFreeReserve: false }),
         icon: "custom:MessageLockOffOutline",
     },
+    {
+        actionType: "mark as received",
+        tooltipText: "Als erhalten markieren",
+        signal: () =>
+            emits("doAction", outerProps.item, { markAsReceived: true }),
+        icon: "mdi-gift-open-outline",
+    },
+    {
+        actionType: "mark as not received",
+        tooltipText: "Als noch nicht erhalten markieren",
+        signal: () =>
+            emits("doAction", outerProps.item, { markAsReceived: false }),
+        icon: "mdi-gift-off-outline",
+    },
 ] as {
     actionType: string;
     tooltipText: string;
     signal: () => void;
     icon: string;
 }[];
-const filteredActions = computed(() =>
-    actions.filter((action) =>
+const filteredActions = computed(() => {
+    const availableActions = actions.filter((action) =>
         outerProps.item.availableActions.includes(action.actionType),
-    ),
-);
+    );
+    if (outerProps.item.isReceived) {
+        return availableActions.filter(
+            (action) =>
+                action.actionType == "mark as not received" ||
+                action.actionType == "delete",
+        );
+    }
+    return availableActions;
+});
 
 //---------------- Delete Gift ----------------//
 const deleteConfirmationDialog = ref(false);

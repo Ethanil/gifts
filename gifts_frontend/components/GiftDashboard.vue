@@ -239,7 +239,28 @@
                 </v-container>
                 <v-data-table
                     :headers="tableHeaders"
-                    :items="giftStore?.getGiftsOfCurrentGroup"
+                    :items="nonReceivedGifts"
+                    :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
+                    items-per-page="-1"
+                >
+                    <template v-if="!lgAndUp" #headers></template>
+                    <template #item="{ internalItem, item }">
+                        <GiftDashboardTableRow
+                            :item="item"
+                            :internal-item="internalItem"
+                            :headers="tableHeaders"
+                            @delete-gift="deleteGift"
+                            @edit-gift="editGift"
+                            @do-action="do_Action"
+                            @open-picture-dialog="openPictureDialog"
+                        />
+                    </template>
+                    <template #bottom />
+                </v-data-table>
+                <h1>Erhaltene Geschenke</h1>
+                <v-data-table
+                    :headers="tableHeaders"
+                    :items="receivedGifts"
                     :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
                     items-per-page="-1"
                 >
@@ -351,6 +372,13 @@ const emits = defineEmits(["navBarToggle"]);
 //---------------- Table ----------------//
 const giftgroupStore = useGiftGroupStore();
 const giftStore = useGiftStore();
+const allGifts = computed(() => giftStore?.getGiftsOfCurrentGroup);
+const receivedGifts = computed(() =>
+    allGifts.value.filter((gift) => gift.isReceived),
+);
+const nonReceivedGifts = computed(() =>
+    allGifts.value.filter((gift) => !gift.isReceived),
+);
 const currentTab = ref(0);
 const currentGroup = computed(() => {
     if (giftgroups.value !== undefined && currentTab.value !== undefined)

@@ -13,6 +13,7 @@ export type Gift = {
     freeForReservation?: boolean;
     isSecretGift?: boolean;
     reservingUsers?: User[];
+    isReceived?: boolean;
 };
 export type DatabaseGift = Omit<
     Omit<Gift, "freeForReservationRequest">,
@@ -177,6 +178,7 @@ export const useGiftStore = defineStore("gift", {
                 freeReserve?: boolean;
                 requestFreeReserve?: boolean;
                 denyFreeReserve?: boolean;
+                markAsReceived?: boolean;
             },
         ) {
             const gift = transformToDataBaseGift(_gift);
@@ -196,6 +198,10 @@ export const useGiftStore = defineStore("gift", {
                 queryString += queryString !== "" ? "?" : "";
                 queryString +=
                     "deny_free_reserve=" + queryParams.denyFreeReserve;
+            }
+            if (queryParams.markAsReceived !== undefined) {
+                queryString += queryString !== "" ? "?" : "";
+                queryString += "mark_as_received=" + queryParams.markAsReceived;
             }
             try {
                 const _ = await api.patch(
@@ -228,6 +234,7 @@ export const useGiftStore = defineStore("gift", {
                 result[index].picture = databaseGift.picture;
                 result[index].availableActions = databaseGift.availableActions;
                 result[index].isSecretGift = databaseGift.isSecretGift;
+                result[index].isReceived = databaseGift.isReceived;
                 if (Object.hasOwn(databaseGift, "freeForReservationRequest"))
                     result[index].freeForReservationRequest =
                         databaseGift.freeForReservationRequest!.map(

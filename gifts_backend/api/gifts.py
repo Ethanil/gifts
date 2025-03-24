@@ -22,6 +22,8 @@ class Actions(str, Enum):
     DENY_FREE_RESERVE = "deny free reserve"
     REQUEST_FREE_RESERVE = "request free reserve"
     STOP_REQUEST_FREE_RESERVE = "stop request free reserve"
+    MARK_AS_RECEIVED = "mark as received"
+    MARK_AS_NOT_RECEIVED = "mark as not received"
 
 
 def create(giftgroup_id, gift, user, token_info, picture=""):
@@ -136,32 +138,34 @@ def getActions(gift: Gift, user: str) -> List[Actions]:
     users_that_are_being_gifted = [isBeingGifted.user_email for isBeingGifted in
                                    gift.giftGroup.isBeingGifted]
     # User that are beeing gifted should be able to edit gifts of their being-gifted-partners
-    if user in users_that_are_being_gifted:
+    if user in users_that_are_being_gifted or user == gift.user_email:
         actions.append(Actions.EDIT)
         actions.append(Actions.DELETE)
-    else:
-        if user == gift.user_email:
-            actions.append(Actions.EDIT)
-            actions.append(Actions.DELETE)
-        users_that_have_gift_reserved = [hasReserved.user_email for hasReserved in
-                                         gift.hasReserved]
-        users_that_have_requested_reservation_freeing = [hasRequestedReservationFreeing.user_email for
-                                                         hasRequestedReservationFreeing in
-                                                         gift.hasRequestedReservationFreeing]
-        if user not in users_that_have_gift_reserved:
-            if len(users_that_have_gift_reserved) == 0 or gift.freeForReservation:
-                actions.append(Actions.RESERVE)
-            elif not gift.freeForReservation:
-                if user not in users_that_have_requested_reservation_freeing:
-                    actions.append(Actions.REQUEST_FREE_RESERVE)
-                else:
-                    actions.append(Actions.STOP_REQUEST_FREE_RESERVE)
+        if gift.isReceived:
+            actions.append(Actions.MARK_AS_NOT_RECEIVED)
         else:
-            actions.append(Actions.STOP_RESERVE)
-            if gift.freeForReservation:
-                actions.append(Actions.STOP_FREE_RESERVE)
+            actions.append(Actions.MARK_AS_RECEIVED)
+    if user in users_that_are_being_gifted:
+        return actions
+    users_that_have_gift_reserved = [hasReserved.user_email for hasReserved in
+                                     gift.hasReserved]
+    users_that_have_requested_reservation_freeing = [hasRequestedReservationFreeing.user_email for
+                                                     hasRequestedReservationFreeing in
+                                                     gift.hasRequestedReservationFreeing]
+    if user not in users_that_have_gift_reserved:
+        if len(users_that_have_gift_reserved) == 0 or gift.freeForReservation:
+            actions.append(Actions.RESERVE)
+        elif not gift.freeForReservation:
+            if user not in users_that_have_requested_reservation_freeing:
+                actions.append(Actions.REQUEST_FREE_RESERVE)
             else:
-                actions.append(Actions.FREE_RESERVE)
+                actions.append(Actions.STOP_REQUEST_FREE_RESERVE)
+    else:
+        actions.append(Actions.STOP_RESERVE)
+        if gift.freeForReservation:
+            actions.append(Actions.STOP_FREE_RESERVE)
+        else:
+            actions.append(Actions.FREE_RESERVE)
     return actions
 
 
@@ -266,7 +270,7 @@ def delete(gift_id, giftgroup_id, user, token_info):
 
 
 def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=None, request_free_reserve=None,
-          deny_free_reserve=None):
+          deny_free_reserve=None, mark_as_received=None):
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -346,6 +350,9 @@ def patch(gift_id, giftgroup_id, user, token_info, reserve=None, free_reserve=No
             reservation = HasRequestedReservationFreeing.query.filter(HasRequestedReservationFreeing.gift_id == gift_id,
                                                                       HasRequestedReservationFreeing.user_email == user).one_or_none()
             db.session.delete(reservation)
+
+    if mark_as_received is not None:
+        existing_gift.isReceived = mark_as_received
     updateLastUpdated(user, existing_giftGroup)
     db.session.commit()
     return 200

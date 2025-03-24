@@ -619,6 +619,11 @@ paths:
           schema:
             type: boolean
           description: Whether the user requests to deny the free reservation request
+        - in: query
+          name: mark_as_received
+          schema:
+            type: boolean
+          description: Whether the gift should be marked as received or not
       responses:
         200:
           description: Successfully updated gift
