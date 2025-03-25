@@ -87,7 +87,7 @@
                 </v-tab>
             </v-tabs>
             <template #append>
-                <span id="version" class="text-caption">v1.0.0</span>
+                <span id="version" class="text-caption">v1.1.0</span>
             </template>
         </v-navigation-drawer>
         <v-skeleton-loader
