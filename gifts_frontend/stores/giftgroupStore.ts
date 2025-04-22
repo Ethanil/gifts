@@ -13,10 +13,15 @@ export type Giftgroup = {
     invitableUsers?: User[];
     isSpecialUser?: string[];
     lastUpdated?: Date;
+    shareToken?: string;
+    shareTokenExpireDate?: Date;
 };
 type DataBaseGiftGroup = Omit<
     Omit<
-        Omit<Omit<Giftgroup, "lastUpdated">, "usersBeingGifted">,
+        Omit<
+            Omit<Omit<Giftgroup, "shareTokenExpireDate">, "lastUpdated">,
+            "usersBeingGifted"
+        >,
         "invitableUsers"
     >,
     "invitations"
@@ -25,6 +30,7 @@ type DataBaseGiftGroup = Omit<
     usersBeingGifted: string[];
     invitableUsers: string[];
     lastUpdated: string;
+    shareTokenExpireDate: string;
 };
 function transformToDataBaseGiftGroup(giftgroup: Giftgroup): DataBaseGiftGroup {
     const res = {} as DataBaseGiftGroup;
@@ -72,6 +78,10 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 console.log(error);
                 return error;
             }
+        },
+        async loadWithShareTokenFromAPI(shareToken: string) {
+            const response = await api.get(`shared/${shareToken}`);
+            this.databaseGiftgroups = [response] as DataBaseGiftGroup[];
         },
         async addGroup(giftgroup: Giftgroup) {
             try {
@@ -147,6 +157,63 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 await this.loadFromAPI();
             }
         },
+        async generateShareToken(
+            giftgroup_id: number,
+            expireDate: Date,
+        ): Promise<string> {
+            let shareToken;
+            if (!expireDate) return "";
+            try {
+                const localDate = new Date(
+                    expireDate.getTime() -
+                        expireDate.getTimezoneOffset() * 60000,
+                )
+                    .toISOString()
+                    .split("T")[0];
+                shareToken = await api.post(
+                    `/${giftgroup_id}/share?endDate=${localDate}`,
+                );
+                shareToken = (shareToken as any)["shareToken"] as string;
+            } catch (error) {
+                console.log(error);
+                return error as string;
+            } finally {
+                await this.loadFromAPI();
+            }
+            return shareToken;
+        },
+        async deleteShareToken(giftgroup_id: number) {
+            try {
+                const _ = await api.delete(`/${giftgroup_id}/share`);
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                await this.loadFromAPI();
+            }
+        },
+        async updateShareTokenExpireDate(
+            giftgroup_id: number,
+            expireDate: Date,
+        ) {
+            if (!expireDate) return;
+            try {
+                const localDate = new Date(
+                    expireDate.getTime() -
+                        expireDate.getTimezoneOffset() * 60000,
+                )
+                    .toISOString()
+                    .split("T")[0];
+                const _ = await api.patch(
+                    `/${giftgroup_id}/share?endDate=${localDate}`,
+                );
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                await this.loadFromAPI();
+            }
+        },
     },
     getters: {
         giftgroups(state) {
@@ -191,6 +258,10 @@ export const useGiftGroupStore = defineStore("giftgroups", {
                 res[index].isSpecialUser = dataBaseGiftGroup.isSpecialUser;
                 res[index].lastUpdated = new Date(
                     Date.parse(dataBaseGiftGroup.lastUpdated),
+                );
+                res[index].shareToken = dataBaseGiftGroup.shareToken;
+                res[index].shareTokenExpireDate = new Date(
+                    Date.parse(dataBaseGiftGroup.shareTokenExpireDate),
                 );
             }
             return res;

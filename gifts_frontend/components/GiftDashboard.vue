@@ -1,6 +1,7 @@
 <template>
     <div class="d-flex flex-row">
         <v-navigation-drawer
+            v-if="data"
             v-model="navBarToggle"
             @update:model-value="emits('navBarToggle')"
         >
@@ -71,7 +72,7 @@
                 </v-tabs>
             </template>
             <v-tabs
-                v-if="isAllowedToCreateNewLists"
+                v-if="data && isAllowedToCreateNewLists"
                 hide-slider
                 direction="vertical"
             >
@@ -87,7 +88,7 @@
                 </v-tab>
             </v-tabs>
             <template #append>
-                <span id="version" class="text-caption">v1.1.0</span>
+                <span id="version" class="text-caption">v1.2.0</span>
             </template>
         </v-navigation-drawer>
         <v-skeleton-loader
@@ -135,7 +136,7 @@
             >
                 <v-container>
                     <v-row>
-                        <v-col :cols="lgAndUp ? 'auto' : '12'">
+                        <v-col v-if="data" :cols="lgAndUp ? 'auto' : '12'">
                             <span
                                 class="text-h5 cursor-pointer"
                                 @click.stop="editGroup(giftgroups[currentTab])"
@@ -158,8 +159,16 @@
                             ><br />
                             <span class="text-caption">{{ lastUpdated }}</span>
                         </v-col>
+                        <v-col v-else>
+                            <span class="text-h5">{{
+                                giftgroups[currentTab].name
+                            }}</span>
+                            <br />
+                            <span class="text-caption">{{ lastUpdated }}</span>
+                        </v-col>
                         <v-col v-if="lgAndUp">
                             <gift-form
+                                v-if="data"
                                 v-model:gift-dialog="addGiftDialog"
                                 :prop-gift-data="giftDataToAdd"
                                 @submit-form="addGift"
@@ -301,6 +310,7 @@
                         "
                     >
                         <v-btn
+                            v-if="data"
                             v-bind="props"
                             id="mobileButton"
                             color="primary"
@@ -358,6 +368,7 @@
 </template>
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
+import { useRoute, useRouter } from "vue-router";
 const { lgAndUp } = useDisplay();
 const navBarToggle = defineModel<boolean>("navBarToggle", {
     type: Boolean,
@@ -365,7 +376,7 @@ const navBarToggle = defineModel<boolean>("navBarToggle", {
 });
 const { data } = useAuth();
 const isAllowedToCreateNewLists = computed(
-    () => !(data.value as unknown as User).onlyViewing,
+    () => !(data.value as unknown as User)?.onlyViewing || false,
 );
 
 const emits = defineEmits(["navBarToggle"]);
@@ -379,6 +390,8 @@ const receivedGifts = computed(() =>
 const nonReceivedGifts = computed(() =>
     allGifts.value.filter((gift) => !gift.isReceived),
 );
+const route = useRoute();
+const router = useRouter();
 const currentTab = ref(0);
 const currentGroup = computed(() => {
     if (giftgroups.value !== undefined && currentTab.value !== undefined)
@@ -407,13 +420,60 @@ function waitForElm(selector: string): Promise<Element> {
         });
     });
 }
-onMounted(() => {
-    giftgroupStore.loadFromAPI().then(() => {
-        giftStore.loadFromAPI();
-        if (giftgroupStore.giftgroups && giftgroupStore.giftgroups.length > 0)
-            giftStore.setGroup(giftgroupStore.giftgroups[0].id);
-    });
-    userStore.loadFromAPI().then(() => (usersLoaded.value = true));
+onMounted(async () => {
+    if (route.path === "/shared") {
+        const shareToken = route.query.shareToken as string;
+        if (!shareToken) {
+            router.push("/badShareToken");
+            return;
+        }
+        try {
+            await giftgroupStore.loadWithShareTokenFromAPI(shareToken);
+            await giftStore.loadWithShareTokenFromAPI(shareToken);
+            const firstGroup = giftgroupStore.giftgroups[0];
+            if (firstGroup) {
+                giftStore.setGroup(firstGroup.id);
+            } else {
+                console.error("No gift groups found.");
+                router.push("/badShareToken");
+            }
+        } catch (err) {
+            console.error(err);
+            router.push("/badShareToken");
+        }
+    } else {
+        giftgroupStore.loadFromAPI().then(() => {
+            giftStore.loadFromAPI();
+            if (
+                giftgroupStore.giftgroups &&
+                giftgroupStore.giftgroups.length > 0
+            ) {
+                let groupName = "";
+                const groupQuery = route.query.giftlistname;
+                if (groupQuery) {
+                    groupName = decodeURIComponent(groupQuery as string);
+                } else {
+                    groupName = giftgroups.value[0].name;
+                    router.push({
+                        query: {
+                            ...route.query,
+                            giftlistname: encodeURIComponent(
+                                giftgroups.value[0].name,
+                            ),
+                        },
+                    });
+                }
+                const index = giftgroupStore.giftgroups.findIndex(
+                    (g) => g.name === groupName,
+                );
+                if (index !== -1) {
+                    currentTab.value = index;
+                    giftStore.setGroup(giftgroupStore.giftgroups[index].id);
+                }
+            }
+        });
+        userStore.loadFromAPI().then(() => (usersLoaded.value = true));
+    }
     const options = {
         threshold: 0.75,
     };
@@ -424,6 +484,13 @@ onMounted(() => {
 });
 watch(currentTab, async (newValue) => {
     await giftStore.setGroup(giftgroupStore.giftgroups[newValue].id);
+    const groupName = encodeURIComponent(giftgroups.value[newValue].name);
+    router.push({
+        query: {
+            ...route.query,
+            giftlistname: groupName,
+        },
+    });
 });
 const giftgroups = computed(() => {
     return giftgroupStore.giftgroups;

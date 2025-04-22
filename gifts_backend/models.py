@@ -79,7 +79,8 @@ class GiftGroup(db.Model):
 
     lastUpdated:  db.Mapped[datetime] = db.mapped_column(db.DateTime, default=datetime.now)
     isSecretGroup: db.Mapped[bool] = db.mapped_column(db.Boolean, default=False)
-
+    shareToken: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
+    shareTokenExpireDate:  db.Mapped[datetime] = db.mapped_column(db.DateTime)
 
 class IsBeingGifted(db.Model):
     __tablename__ = "isBeingGifted"

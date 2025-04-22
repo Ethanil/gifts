@@ -165,6 +165,14 @@ components:
         lastUpdated:
           type: string
           format: date-time
+        shareToken:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          description: Unique token for read-only sharing
+        date-time:
+          type: string
+          format: date-time
     Event:
       type: object
       required:
@@ -407,6 +415,98 @@ paths:
       responses:
         201:
           description: Succesfully created Giftgroup-user relation
+  /giftgroups/{giftgroup_id}/share:
+    post:
+      operationId: api.giftgroups.generate_share_token
+      tags: [ Gift Groups ]
+      summary: Generate share token for read-only access
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the user should be removed from
+          example: 4
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: the time the shareToken should expire, in ISO 8601 format (e.g., 2025-04-22)
+      responses:
+        200:
+          description: Returns share token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shareToken:
+                    type: string
+                    format: uuid
+    delete:
+      operationId: api.giftgroups.delete_share_token
+      tags:
+        - Gift Groups
+      summary: remove the share token for read-only access
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the user should be removed from
+          example: 4
+      responses:
+        204:
+          description: Succesfully removed the share token from the giftgroup
+    patch:
+      operationId: api.giftgroups.update_share_token_date
+      tags:
+        - Gift Groups
+      summary: change the end-date for a shareToken
+      parameters:
+        - in: path
+          name: giftgroup_id
+          schema:
+            type: integer
+            format: integer
+          required: true
+          description: the id of the group the user should be removed from
+          example: 4
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: the time the shareToken should expire, in ISO 8601 format (e.g., 2025-04-22T18:30:00Z)
+      responses:
+        200:
+          description: Succesfully changed the the share token expire date
+  /giftgroups/shared/{share_token}:
+    get:
+      operationId: api.giftgroups.read_by_share_token
+      tags: [ Gift Groups ]
+      summary: Get gift group by share token (no auth required)
+      parameters:
+        - in: path
+          name: share_token
+          schema: { type: string, format: uuid }
+          required: true
+      responses:
+        200:
+          description: Gift group data (read-only view)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftGroup"
+      security:
+        [ ]
   /giftgroups/{giftgroup_id}/{email}:
     delete:
       operationId: api.giftgroups.removeUserFromGroup
@@ -503,6 +603,31 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Gift"
+  /gifts/shared/{share_token}:
+    get:
+      operationId: api.gifts.read_with_share_token
+      tags:
+        - Gift
+      summary: Read the list of Gifts seen with the share token in that Group
+      parameters:
+        - in: path
+          name: share_token
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: the share token for this giftgroup
+      responses:
+        200:
+          description: Succesfully read Gift list read only
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Gift"
+      security:
+        [ ]
   /gifts:
     get:
       operationId: api.gifts.read_all

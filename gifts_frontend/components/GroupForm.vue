@@ -43,8 +43,88 @@
                     </v-card-title>
                     <span v-if="groupData.isSecretGroup" class="text-subtitle1"
                         >Dies ist eine geheime Gruppe, die Beschenkten können
-                        diese Gruppe nicht sehen!</span
-                    >
+                        diese Gruppe nicht sehen! <br
+                    /></span>
+                    <div v-if="isOwner">
+                        <v-container> </v-container>
+                        <v-row v-if="groupData.shareToken">
+                            <v-col>
+                                <span>
+                                    {{ shareLink }}
+                                    <v-icon
+                                        icon="mdi-content-copy"
+                                        @click="copyShareLinkToClipboard"
+                                    ></v-icon
+                                ></span>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col :cols="shareCols">
+                                <v-date-input
+                                    v-model="shareTokenDate"
+                                    :allowed-dates="onlyFutureDates"
+                                    label="Link gültig bis"
+                                    :hide-details="true"
+                                    :display-format="dateFormat"
+                                ></v-date-input>
+                            </v-col>
+                            <v-col :cols="shareCols">
+                                <v-btn
+                                    :disabled="
+                                        shareTokenDate === undefined ||
+                                        isNaN(shareTokenDate.getTime())
+                                    "
+                                    color="primary"
+                                    :style="shareButtonStyle"
+                                    @click="generateShareToken"
+                                >
+                                    <span
+                                        style="
+                                            white-space: break-spaces;
+                                            font-size: 1.1em;
+                                        "
+                                        >Teilbaren Link erzeugen</span
+                                    >
+                                </v-btn>
+                            </v-col>
+                            <v-col :cols="shareCols">
+                                <v-btn
+                                    :disabled="
+                                        groupData.shareToken == '' ||
+                                        shareTokenDate ==
+                                            groupData.shareTokenExpireDate
+                                    "
+                                    color="primary"
+                                    :style="shareButtonStyle"
+                                    @click="changeShareTokenDate"
+                                >
+                                    <span
+                                        style="
+                                            white-space: break-spaces;
+                                            font-size: 1.1em;
+                                        "
+                                        >Datum aktualisieren</span
+                                    >
+                                </v-btn>
+                            </v-col>
+                            <v-col :cols="shareCols">
+                                <v-btn
+                                    :disabled="groupData.shareToken == ''"
+                                    color="primary"
+                                    :style="shareButtonStyle"
+                                    @click="deleteShareToken"
+                                >
+                                    <span
+                                        style="
+                                            white-space: break-spaces;
+                                            font-size: 1.1em;
+                                        "
+                                        >Teilbaren Link löschen</span
+                                    >
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </div>
                     <v-container>
                         <v-row no-gutters>
                             <v-col class="d-flex justify-center" :cols="cols">
@@ -231,6 +311,9 @@
                 </v-form>
             </v-skeleton-loader>
         </v-card>
+        <v-snackbar v-model="sharelinkSnackbar" :timeout="5000" color="success">
+            {{ shareLink }} ins Clipboard kopiert
+        </v-snackbar>
     </v-dialog>
 </template>
 <script setup lang="ts">
@@ -238,7 +321,7 @@ const userStore = useUserStore();
 const giftgroupStore = useGiftGroupStore();
 const { data } = useAuth();
 const registrationDialog = ref(false);
-
+const baseUrl = window.location.origin;
 //*********************************************************************//
 //-------------------------------- Data -------------------------------//
 //*********************************************************************//
@@ -360,6 +443,79 @@ async function submitForm(event: any) {
 }
 
 //*********************************************************************//
+//-------------------------------- Share ------------------------------//
+//*********************************************************************//
+
+const shareButtonStyle = computed(() => {
+    if (lgAndUp.value) {
+        return "height: 100%;";
+    }
+    return "width: 100%";
+});
+
+const shareCols = computed(() => {
+    if (lgAndUp.value) {
+        return 3;
+    }
+    return 12;
+});
+function dateFormat(date: Date): string {
+    return date.toLocaleDateString();
+}
+
+const onlyFutureDates = (date: unknown) => {
+    if (!(date instanceof Date)) {
+        return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Strip time for accurate comparison
+    const selectedDate = new Date(date);
+    return selectedDate >= today;
+};
+
+watch(
+    () => outerProps.propGroupData.shareTokenExpireDate,
+    (newVal) => {
+        shareTokenDate.value = newVal;
+    },
+);
+const shareTokenDate = ref(outerProps.propGroupData.shareTokenExpireDate);
+const sharelinkSnackbar = ref(false);
+function deleteShareToken() {
+    giftgroupStore.deleteShareToken(groupData.value.id);
+    groupData.value.shareToken = "";
+    shareTokenDate.value = undefined;
+    groupData.value.shareTokenExpireDate = shareTokenDate.value;
+}
+
+async function generateShareToken() {
+    if (shareTokenDate.value) {
+        groupData.value.shareToken = await giftgroupStore.generateShareToken(
+            groupData.value.id,
+            shareTokenDate.value,
+        );
+        groupData.value.shareTokenExpireDate = shareTokenDate.value;
+    }
+}
+
+async function changeShareTokenDate() {
+    if (shareTokenDate.value) {
+        await giftgroupStore.updateShareTokenExpireDate(
+            groupData.value.id,
+            shareTokenDate.value,
+        );
+        groupData.value.shareTokenExpireDate = shareTokenDate.value;
+    }
+}
+const shareLink = computed(
+    () => `${baseUrl}/shared?shareToken=${groupData.value.shareToken}`,
+);
+function copyShareLinkToClipboard() {
+    navigator.clipboard.writeText(shareLink.value);
+    sharelinkSnackbar.value = true;
+}
+
+//*********************************************************************//
 //-------------------------------- Visual -----------------------------//
 //*********************************************************************//
 import { useDisplay } from "vuetify";
@@ -378,6 +534,11 @@ const buttonText = computed(() => {
     if (willDeleteGroup.value) return "Liste löschen";
     else return "Liste speichern";
 });
+const isOwner = computed(
+    () =>
+        groupData.value.isBeingGifted ||
+        (!groupData.value.isBeingGifted && groupData.value.isSecretGroup),
+);
 const isAllowedToEditTitle = computed(
     () =>
         isAllowedToEdit.value ||

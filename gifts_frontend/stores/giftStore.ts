@@ -77,6 +77,12 @@ export const useGiftStore = defineStore("gift", {
                 return error;
             }
         },
+        async loadWithShareTokenFromAPI(shareToken: string) {
+            const response = await api.get(`shared/${shareToken}`);
+            this.gifts = response as {
+                [key: number]: DatabaseGift[];
+            };
+        },
         setGroup(giftGroup_id: number) {
             this.groupId = giftGroup_id;
         },

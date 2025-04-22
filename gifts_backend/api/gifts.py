@@ -59,7 +59,7 @@ def read(giftgroup_id, user, token_info):
         abort(400, "This user does not exist!")
     if current_user.onlyViewing:
         if giftgroup_id not in [isSpecialUser.giftGroup_id for isSpecialUser in current_user.isSpecialUser]:
-            abort(403, "No acces to that group!")
+            abort(403, "No access to that group!")
     existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
     if existing_giftGroup is None:
         abort(
@@ -67,6 +67,16 @@ def read(giftgroup_id, user, token_info):
             f"Giftgroup with id {giftgroup_id} does not exist"
         )
     return filter_dump_and_add_fields_to_gifts(existing_giftGroup.gift, user), 200
+
+
+def read_with_share_token(share_token):
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.shareToken == share_token).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"No Giftgroup with shareToken {share_token} could be found"
+        )
+    return {existing_giftGroup.id: filter_dump_and_add_fields_to_gifts(existing_giftGroup.gift, "")}, 200
 
 
 def read_all(user, token_info):
@@ -135,6 +145,8 @@ def add_actions_to_gift(gift_dict: dict, gift: Gift, user: str) -> dict:
 
 def getActions(gift: Gift, user: str) -> List[Actions]:
     actions: List[Actions] = []
+    if user == "":
+        return actions
     users_that_are_being_gifted = [isBeingGifted.user_email for isBeingGifted in
                                    gift.giftGroup.isBeingGifted]
     # User that are beeing gifted should be able to edit gifts of their being-gifted-partners

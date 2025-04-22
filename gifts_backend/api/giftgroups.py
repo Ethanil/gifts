@@ -5,7 +5,7 @@ from models import GiftGroup, giftGroup_schema, giftGroups_schema, User, IsBeing
     HasRequestedReservationFreeing, HasReserved
 from config import db
 from api.users import delete
-
+import uuid
 
 def read_all(user, token_info):
     all_users = User.query.all()
@@ -25,6 +25,8 @@ def read_all(user, token_info):
     # decorate giftGroups with Ownership-value
     decorated_gift_groups: list[tuple[GiftGroup, int | float]] = []
     for giftGroup in giftGroups:
+        if giftGroup.shareToken != "":
+            IsShareTokenExpired(giftGroup.shareToken)
         if giftGroup.isSecretGroup and user in [isBeingGifted.user.email for isBeingGifted in giftGroup.isBeingGifted]:
             continue
         emails_of_usersBeinggifted = [isBeinggifted.user_email for isBeinggifted in giftGroup.isBeingGifted]
@@ -246,3 +248,122 @@ def removeUserFromGroup(email, giftgroup_id, user, token_info):
 def updateLastUpdated(user, giftgroup):
     if user in (group.user_email for group in giftgroup.isBeingGifted) or giftgroup.isSecretGroup:
         giftgroup.lastUpdated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def generate_share_token(giftgroup_id, endDate,user, token_info):
+    try:
+        date = datetime.date.fromisoformat(endDate)
+    except Exception as e:
+        abort(
+            400,
+            str(e)
+        )
+    if date <datetime.date.today():
+        abort(400,
+              "Expiredate is before the current date")
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"Giftgroup with id {giftgroup_id} not found"
+        )
+    existing_relations = existing_giftGroup.isBeingGifted
+    if not any(isBeingGifted.user_email == user for isBeingGifted in
+               existing_relations) and not existing_giftGroup.isSecretGroup:
+        abort(
+            403,
+            f"User {user} is not allowed to update Giftgroup with id {giftgroup_id}"
+        )
+    myuuid = uuid.uuid4()
+    existing_giftGroup.shareTokenExpireDate = date
+    existing_giftGroup.shareToken = str(myuuid)
+    db.session.merge(existing_giftGroup)
+    db.session.commit()
+    return make_response({"shareToken": str(myuuid)}, 200)
+
+
+def delete_share_token(giftgroup_id,user, token_info):
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"Giftgroup with id {giftgroup_id} not found"
+        )
+    existing_relations = existing_giftGroup.isBeingGifted
+    if not any(isBeingGifted.user_email == user for isBeingGifted in
+               existing_relations) and not existing_giftGroup.isSecretGroup:
+        abort(
+            403,
+            f"User {user} is not allowed to update Giftgroup with id {giftgroup_id}"
+        )
+    existing_giftGroup.shareToken = ""
+    existing_giftGroup.shareTokenExpireDate = "0000-00-00 00:00:00"
+    db.session.merge(existing_giftGroup)
+    db.session.commit()
+    return make_response("shareToken succesfully deleted", 204)
+
+def IsShareTokenExpired(share_token):
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.shareToken == share_token).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"No Giftgroup with shareToken {share_token} could be found"
+        )
+    if existing_giftGroup.shareTokenExpireDate < datetime.datetime.now():
+        existing_giftGroup.shareToken = ""
+        existing_giftGroup.shareTokenExpireDate = "0000-00-00 00:00:00"
+        db.session.merge(existing_giftGroup)
+        db.session.commit()
+        return True
+    return False
+
+
+def read_by_share_token(share_token):
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.shareToken == share_token).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"No Giftgroup with shareToken {share_token} could be found"
+        )
+    if IsShareTokenExpired(share_token):
+        return make_response("shareToken already expired", 404)
+    res = giftGroup_schema.dump(existing_giftGroup)
+    res["usersBeingGifted"] = [isBeingGifted.user.email for isBeingGifted in existing_giftGroup.isBeingGifted]
+    res["isBeingGifted"] = False
+    res["invitations"] = [isInvited.user.email for isInvited in existing_giftGroup.isInvited]
+    res["isInvited"] = False
+    res["isSpecialUser"] = False
+    res["invitableUsers"] = []
+    return res, 201
+
+def update_share_token_date(giftgroup_id, endDate, user, token_info):
+    try:
+        date = datetime.date.fromisoformat(endDate)
+    except Exception as e:
+        abort(
+            400,
+            str(e)
+        )
+    if date < datetime.date.today():
+        abort(400,
+              "Expiredate is before the current date")
+    existing_giftGroup = GiftGroup.query.filter(GiftGroup.id == giftgroup_id).one_or_none()
+    if existing_giftGroup is None:
+        abort(
+            404,
+            f"Giftgroup with id {giftgroup_id} not found"
+        )
+    existing_relations = existing_giftGroup.isBeingGifted
+    if not any(isBeingGifted.user_email == user for isBeingGifted in
+               existing_relations) and not existing_giftGroup.isSecretGroup:
+        abort(
+            403,
+            f"User {user} is not allowed to update Giftgroup with id {giftgroup_id}"
+        )
+    if existing_giftGroup.shareToken == "":
+        abort(403,
+              f"Giftgroup has no ShareToken, expireDate can't be changed")
+    existing_giftGroup.shareTokenExpireDate = date
+    db.session.merge(existing_giftGroup)
+    db.session.commit()
+    return make_response("shareToken succesfully updated", 200)

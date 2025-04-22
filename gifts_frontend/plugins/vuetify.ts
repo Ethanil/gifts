@@ -6,6 +6,8 @@ import { customSVGs } from "~/assets/customSvgs";
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
 
+import { VDateInput } from "vuetify/labs/VDateInput";
+
 export default defineNuxtPlugin((app) => {
     const vuetify = createVuetify({
         icons: {
@@ -14,6 +16,9 @@ export default defineNuxtPlugin((app) => {
                 mdi,
                 custom: customSVGs,
             },
+        },
+        components: {
+            VDateInput,
         },
     });
     app.vueApp.use(vuetify);
