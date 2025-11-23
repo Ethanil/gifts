@@ -9,12 +9,13 @@ load_dotenv()
 app = config.connex_app
 app.add_api(config.basedir / "openapi.yaml", name="api_v1", options={"swagger_ui": True})
 
-def ensure_database_schema():
+def ensure_database_schema() -> None:
     """
     Checks for missing tables or columns and updates the DB schema.
     This logic is separated so it can be called when running directly.
     """
     with app.app.app_context():
+        print("ensuring database schema")
         inspector = inspect(config.db.engine)
         # Loop through models
         for table_class in config.db.Model.__subclasses__():
@@ -44,7 +45,7 @@ def ensure_database_schema():
         # Now create any missing tables
         config.db.create_all()
 
+ensure_database_schema()
+
 if __name__ == "__main__":
-    # If running with 'python main.py', we run migrations and start the built-in server
-    ensure_database_schema()
     app.run(host=getenv('BACKEND_HOST', '0.0.0.0'), port=int(getenv('BACKEND_PORT', 5000)))
