@@ -5,12 +5,15 @@ from sqlalchemy import inspect, text
 from sqlalchemy.exc import OperationalError
 from models import *  # Ensure all models are imported
 
+load_dotenv()
+app = config.connex_app
+app.add_api(config.basedir / "openapi.yaml", name="api_v1", options={"swagger_ui": True})
 
-
-if __name__ == "__main__":
-    load_dotenv()
-    app = config.connex_app
-    app.add_api(config.basedir / "openapi.yaml", name="api_v1", options={"swagger_ui": True})
+def ensure_database_schema():
+    """
+    Checks for missing tables or columns and updates the DB schema.
+    This logic is separated so it can be called when running directly.
+    """
     with app.app.app_context():
         inspector = inspect(config.db.engine)
         # Loop through models
@@ -41,4 +44,7 @@ if __name__ == "__main__":
         # Now create any missing tables
         config.db.create_all()
 
-    app.run(host=getenv('BACKEND_HOST'), port=int(getenv('BACKEND_PORT')))
+if __name__ == "__main__":
+    # If running with 'python main.py', we run migrations and start the built-in server
+    ensure_database_schema()
+    app.run(host=getenv('BACKEND_HOST', '0.0.0.0'), port=int(getenv('BACKEND_PORT', 5000)))
