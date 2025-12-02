@@ -68,12 +68,14 @@
                     </v-menu>
                 </div>
             </template>
-            <div v-if="status === 'authenticated'" class="d-flex align-center ga-2">
+            <div
+                v-if="status === 'authenticated'"
+                class="d-flex align-center ga-2"
+            >
                 <v-btn
                     variant="tonal"
                     elevation="1"
-                    @click.stop.prevent="handleGeschenkeClick"
-                    :active="route.path === '/'"
+                    :to="{ path: '/', query: route.query }"
                     class="px-2 px-sm-4"
                     min-width="0"
                 >
@@ -84,7 +86,7 @@
                 <v-btn
                     variant="tonal"
                     elevation="1"
-                    to="/guestManagement"
+                    :to="{ path: '/guestManagement' }"
                     class="px-2 px-sm-4"
                     min-width="0"
                 >
@@ -92,7 +94,11 @@
                     <span class="d-none d-sm-inline ms-2">Gast Verwaltung</span>
                 </v-btn>
             </div>
-            <router-link v-else style="text-decoration: none; color: inherit" to="/">
+            <router-link
+                v-else
+                style="text-decoration: none; color: inherit"
+                to="/"
+            >
                 <v-toolbar-title>Geschenke</v-toolbar-title>
             </router-link>
         </v-app-bar>
@@ -113,15 +119,7 @@ function toggleTheme() {
     theme.global.name.value = selectedTheme;
 }
 
-const router = useRouter();
 const route = useRoute();
-
-function handleGeschenkeClick() {
-    if (route.path !== '/') {
-        router.push('/');
-    }
-}
-
 </script>
 
 <style></style>

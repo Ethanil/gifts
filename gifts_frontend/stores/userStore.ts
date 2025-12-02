@@ -12,12 +12,12 @@ export type User = {
 export type GuestInformation = {
     id: string;
     email: string;
-    password: string; 
-}
+    password: string;
+};
 export const useUserStore = defineStore("user", {
     state: () => ({
         users: [] as User[],
-        guestInfomrations: [] as GuestInformation[],
+        guestInformations: [] as GuestInformation[],
     }),
 
     actions: {
@@ -108,7 +108,7 @@ export const useUserStore = defineStore("user", {
                 const { token } = useAuth();
                 defaults.headers.Authorization = String(token.value);
                 const response = await api.get("/guests");
-                this.guestInfomrations = response as GuestInformation[];
+                this.guestInformations = response as GuestInformation[];
             } catch (error) {
                 console.log(error);
                 return error;

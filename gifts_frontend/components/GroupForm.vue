@@ -316,26 +316,23 @@
                 <v-card-title>Gast zugriff gewähren</v-card-title>
                 <v-card-text>
                     <v-checkbox-btn
-                    v-model="hasExpirationDate"
-                    label="Zugriff zeitlich begrenzen"
-                ></v-checkbox-btn>
-                <v-date-input
-                    v-if="hasExpirationDate"
-                    v-model="expirationDate"
-                    :allowed-dates="onlyFutureDates"
-                    label="Gast Zugriff gewähren bis"
-                    :hide-details="true"
-                    :display-format="dateFormat"
-                ></v-date-input>
+                        v-model="hasExpirationDate"
+                        label="Zugriff zeitlich begrenzen"
+                    ></v-checkbox-btn>
+                    <v-date-input
+                        v-if="hasExpirationDate"
+                        v-model="expirationDate"
+                        :allowed-dates="onlyFutureDates"
+                        label="Gast Zugriff gewähren bis"
+                        :hide-details="true"
+                        :display-format="dateFormat"
+                    ></v-date-input>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="primary" @click="addAsGifting">
                         Gast zugriff gewähren
                     </v-btn>
-                    <v-btn
-                        color="primary"
-                        @click="addGuestDialog = false"
-                    >
+                    <v-btn color="primary" @click="addGuestDialog = false">
                         Abbrechen
                     </v-btn>
                 </v-card-actions>
@@ -688,8 +685,8 @@ const addableSpecialUsers = computed(() =>
             !groupData.value.isSpecialUser?.includes(user.email),
     ),
 );
-let openedGuestUser: User|null = null;
-function openAddGuestDialog(user:User){
+let openedGuestUser: User | null = null;
+function openAddGuestDialog(user: User) {
     openedGuestUser = user;
     addGuestDialog.value = true;
 }

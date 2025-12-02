@@ -53,7 +53,7 @@
     </v-dialog>
 </template>
 <script setup lang="ts">
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 const loading = ref(false);
 const userStore = useUserStore();
 const giftgroupStore = useGiftGroupStore();
@@ -82,9 +82,8 @@ const registrationFormRef = ref({
     email: "",
     password: "",
     useExpirationDate: false,
-    dateUntil: "" as Date | string
+    dateUntil: "" as Date | string,
 });
-
 
 const registerAlert = ref({} as { title: string; text: string });
 const emits = defineEmits(["registrationFinished"]);
@@ -97,14 +96,17 @@ async function handleRegistrationClick(event: any) {
             (registrationFormRef.value as any).startViewingGroup =
                 props.startViewingGroup;
             (registrationFormRef.value as any).onlyViewing = true;
-            (registrationFormRef.value as any).email= `${uuidv4()}@guest.com`;
-            (registrationFormRef.value as any).password= uuidv4();
-            if (!registrationFormRef.value.useExpirationDate){
+            (registrationFormRef.value as any).email = `${uuidv4()}@guest.com`;
+            (registrationFormRef.value as any).password = uuidv4();
+            if (!registrationFormRef.value.useExpirationDate) {
                 (registrationFormRef.value as any).dateUntil = "";
-            }else{
+            } else {
                 const localDate = new Date(
                     (registrationFormRef.value.dateUntil as Date).getTime() -
-                        (registrationFormRef.value.dateUntil as Date).getTimezoneOffset() * 60000,
+                        (
+                            registrationFormRef.value.dateUntil as Date
+                        ).getTimezoneOffset() *
+                            60000,
                 )
                     .toISOString()
                     .split("T")[0];

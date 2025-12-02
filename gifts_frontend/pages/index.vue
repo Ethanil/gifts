@@ -8,7 +8,7 @@
     </div>
 </template>
 <script setup lang="ts">
-const navBar = ref(true);
+const navBar = ref(false);
 function navBarToggle() {
     navBar.value = !navBar.value;
 }

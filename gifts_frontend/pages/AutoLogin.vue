@@ -1,6 +1,5 @@
 <template>
-    <div>
-    </div>
+    <div></div>
 </template>
 <script setup lang="ts">
 definePageMeta({
@@ -14,12 +13,12 @@ onMounted(async () => {
 });
 
 const { signIn } = useAuth();
-async function login(username:string, password:string){
+async function login(username: string, password: string) {
     try {
         const data = {
             email: username,
             password: password,
-        }
+        };
         console.log(data);
         const _ = await signIn(data, { external: true });
     } catch (e: any) {
@@ -32,7 +31,9 @@ async function login(username:string, password:string){
                 break;
             default:
                 if (e.response.status)
-                    console.warn("unbekannter Fehler: code:" + e.response.status);
+                    console.warn(
+                        "unbekannter Fehler: code:" + e.response.status,
+                    );
                 if (e.response.statusText)
                     console.warn(" statusText: " + e.response.statusText);
                 if (e.response._data.detail)

@@ -88,7 +88,15 @@
                 </v-tab>
             </v-tabs>
             <template #append>
-                <span id="version" class="text-caption">{{ version }} <div v-if="!isUpToDate" >Neuere Version verfügbar: <a href="https://github.com/Ethanil/gifts">{{ currentVersion }}</a></div></span>
+                <span id="version" class="text-caption"
+                    >{{ version }}
+                    <div v-if="!isUpToDate">
+                        Neuere Version verfügbar:
+                        <a href="https://github.com/Ethanil/gifts">{{
+                            currentVersion
+                        }}</a>
+                    </div></span
+                >
             </template>
         </v-navigation-drawer>
         <v-skeleton-loader
@@ -381,50 +389,53 @@ const isAllowedToCreateNewLists = computed(
 
 const emits = defineEmits(["navBarToggle"]);
 const currentVersion = ref<string>("");
-const version = "v1.2.1"
-const compareVersions = (v1: string, v2:string) => {
-  const parse = (v:string) => v.replace(/^v/, '').split('.').map(Number);
-  const parts1 = parse(v1);
-  const parts2 = parse(v2);
-  const maxLength = Math.max(parts1.length, parts2.length);
-  for (let i = 0; i < maxLength; i++) {
-    const num1 = parts1[i] || 0;
-    const num2 = parts2[i] || 0;
-    
-    if (num1 > num2) return 1;
-    if (num1 < num2) return -1;
-  }
-  return 0;
-};
-const isUpToDate = computed(() => compareVersions(version, currentVersion.value) >= 0);
-async function getLatestReleaseVersion(owner:string, repo:string) {
-  const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28'
-      }
-    });
+const version = "v1.2.1";
+const compareVersions = (v1: string, v2: string) => {
+    const parse = (v: string) => v.replace(/^v/, "").split(".").map(Number);
+    const parts1 = parse(v1);
+    const parts2 = parse(v2);
+    const maxLength = Math.max(parts1.length, parts2.length);
+    for (let i = 0; i < maxLength; i++) {
+        const num1 = parts1[i] || 0;
+        const num2 = parts2[i] || 0;
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.error('Error: Repository not found or no releases published.');
-        return null;
-      }
-      throw new Error(`API request failed with status ${response.status}`);
+        if (num1 > num2) return 1;
+        if (num1 < num2) return -1;
     }
+    return 0;
+};
+const isUpToDate = computed(
+    () => compareVersions(version, currentVersion.value) >= 0,
+);
+async function getLatestReleaseVersion(owner: string, repo: string) {
+    const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+    try {
+        const response = await fetch(url, {
+            headers: {
+                Accept: "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+        });
 
-    const data = await response.json();
-    
-    const version = data.tag_name;
-    
-    console.log(`The latest release for ${owner}/${repo} is: ${version}`);
-    return version;
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.error(
+                    "Error: Repository not found or no releases published.",
+                );
+                return null;
+            }
+            throw new Error(
+                `API request failed with status ${response.status}`,
+            );
+        }
 
-  } catch (error) {
-    console.error('Failed to fetch release version:', error);
-  }
+        const data = await response.json();
+
+        const version = data.tag_name;
+        return version;
+    } catch (error) {
+        console.error("Failed to fetch release version:", error);
+    }
 }
 
 //---------------- Table ----------------//
@@ -528,7 +539,7 @@ onMounted(async () => {
         buttonCurrentlyIntersecting.value = e[0].isIntersecting;
     }, options);
     waitForElm("#AddButton").then((target) => observer.observe(target));
-    currentVersion.value = await getLatestReleaseVersion('ethanil', 'gifts');
+    currentVersion.value = await getLatestReleaseVersion("ethanil", "gifts");
 });
 watch(currentTab, async (newValue) => {
     await giftStore.setGroup(giftgroupStore.giftgroups[newValue].id);
