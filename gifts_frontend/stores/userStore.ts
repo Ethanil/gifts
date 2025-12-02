@@ -7,10 +7,17 @@ export type User = {
     avatar: string;
     onlyViewing?: boolean;
     startViewingGroup?: number;
+    dateUntil?: Date | string;
 };
+export type GuestInformation = {
+    id: string;
+    email: string;
+    password: string; 
+}
 export const useUserStore = defineStore("user", {
     state: () => ({
         users: [] as User[],
+        guestInfomrations: [] as GuestInformation[],
     }),
 
     actions: {
@@ -94,6 +101,17 @@ export const useUserStore = defineStore("user", {
                     password: newPassword !== "" ? newPassword : oldPassword,
                 });
                 this.loadFromAPI();
+            }
+        },
+        async loadGuestInformation() {
+            try {
+                const { token } = useAuth();
+                defaults.headers.Authorization = String(token.value);
+                const response = await api.get("/guests");
+                this.guestInfomrations = response as GuestInformation[];
+            } catch (error) {
+                console.log(error);
+                return error;
             }
         },
     },

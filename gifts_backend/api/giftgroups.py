@@ -203,28 +203,20 @@ def removeUserFromGroup(email, giftgroup_id, user, token_info):
     if userWithThatEmail.onlyViewing:
         if email not in [isSpecialUser.user_email for isSpecialUser in existing_giftGroup.isSpecialUser]:
             abort(404, f"User with email {email} can't be removed from that group")
-        existing_relation = \
-            [isSpecialUser for isSpecialUser in existing_giftGroup.isSpecialUser if isSpecialUser.user_email == email][
-                0]
-        if len(userWithThatEmail.isSpecialUser) <= 1:
-            delete(email, email, user)
-            db.session.commit()
-            return make_response(f"User with email {email} succesfully deleted", 204)
-        else:
-            has_requested_reservation_freeing = HasRequestedReservationFreeing.query.filter(
-                HasRequestedReservationFreeing.user_email == email).all()
-            has_requested_reservation_freeing = [requested for requested in has_requested_reservation_freeing if
-                                                 requested.gift.giftGroup_id == giftgroup_id]
-            has_reserved = HasReserved.query.filter(HasReserved.user_email == email).all()
-            has_reserved = [reserved for reserved in has_reserved if reserved.gift.giftGroup_id == giftgroup_id]
-            is_invited = IsInvited.query.filter(IsInvited.user_email == email,
-                                                IsInvited.giftGroup_id == giftgroup_id).all()
-            is_special_user = IsSpecialUser.query.filter(IsSpecialUser.user_email == email,
-                                                         IsSpecialUser.giftGroup_id == giftgroup_id).all()
-            for entry in has_requested_reservation_freeing + has_reserved + is_invited + is_special_user:
-                db.session.delete(entry)
-            db.session.commit()
-            return make_response(f"User with email {email} succesfully removed from that group", 204)
+        has_requested_reservation_freeing = HasRequestedReservationFreeing.query.filter(
+            HasRequestedReservationFreeing.user_email == email).all()
+        has_requested_reservation_freeing = [requested for requested in has_requested_reservation_freeing if
+                                             requested.gift.giftGroup_id == giftgroup_id]
+        has_reserved = HasReserved.query.filter(HasReserved.user_email == email).all()
+        has_reserved = [reserved for reserved in has_reserved if reserved.gift.giftGroup_id == giftgroup_id]
+        is_invited = IsInvited.query.filter(IsInvited.user_email == email,
+                                            IsInvited.giftGroup_id == giftgroup_id).all()
+        is_special_user = IsSpecialUser.query.filter(IsSpecialUser.user_email == email,
+                                                     IsSpecialUser.giftGroup_id == giftgroup_id).all()
+        for entry in has_requested_reservation_freeing + has_reserved + is_invited + is_special_user:
+            db.session.delete(entry)
+        db.session.commit()
+        return make_response(f"User with email {email} succesfully removed from that group", 204)
     else:
         existing_relation = IsBeingGifted.query.filter(IsBeingGifted.giftGroup_id == giftgroup_id,
                                                        IsBeingGifted.user_email == email).one_or_none()

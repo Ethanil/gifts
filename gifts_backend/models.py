@@ -7,7 +7,7 @@ from sqlalchemy import event
 import os
 from marshmallow import post_dump
 import base64
-
+import uuid
 
 class GiftStrength(str, Enum):
     OKAY = 1  # Okay
@@ -46,7 +46,7 @@ class User(db.Model):
     gift: db.Mapped[Set["Gift"]] = db.relationship(back_populates="user", cascade="all, delete-orphan")
     comment: db.Mapped[Set["Comment"]] = db.relationship(back_populates="user", cascade="all, delete-orphan")
     event: db.Mapped[Set["Event"]] = db.relationship(back_populates="user", cascade="all, delete-orphan")
-
+    guest: db.Mapped["Guest"] = db.relationship(back_populates="user", cascade="all, delete-orphan")
     ph = PasswordHasher()
 
     @db.validates('password')
@@ -60,6 +60,14 @@ class User(db.Model):
     @db.validates('email')
     def validate_email(self, key, email):
         return email.lower()
+
+
+class Guest(db.Model):
+    __tablename__ = "guest"
+    id: db.Mapped[uuid.UUID] = db.mapped_column(db.Uuid, primary_key=True, default = uuid.uuid4)
+    email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256),db.ForeignKey("user.email"),  unique=True )
+    user: db.Mapped["User"] = db.relationship(back_populates="guest")
+    password: db.Mapped[str] = db.mapped_column(db.VARCHAR(256))
 
 
 class GiftGroup(db.Model):
@@ -110,7 +118,7 @@ class IsSpecialUser(db.Model):
     giftGroup: db.Mapped["GiftGroup"] = db.relationship(back_populates="isSpecialUser")
     user_email: db.Mapped[str] = db.mapped_column(db.VARCHAR(256), db.ForeignKey("user.email"), primary_key=True)
     user: db.Mapped["User"] = db.relationship(back_populates="isSpecialUser")
-
+    accessExpireDate:  db.Mapped[datetime] = db.mapped_column(db.DateTime, nullable=True)
 
 class HasReserved(db.Model):
     __tablename__ = "has_reserved"
@@ -225,6 +233,11 @@ def set_avatar_of_user(user):
     return user
 
 
+class GuestSchema(ma.SQLAlchemyAutoSchema):
+    class Meta(BaseSchema.Meta):
+        model = Guest
+        include_fk = True
+
 class GiftGroupSchema(ma.SQLAlchemyAutoSchema):
     class Meta(BaseSchema.Meta):
         model = GiftGroup
@@ -272,6 +285,8 @@ class HasRequestedReservationFreeingSchema(ma.SQLAlchemyAutoSchema):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
+guest_schema = GuestSchema()
+guests_schema = GuestSchema(many=True)
 user_schema_without_password = UserSchemaWithoutPassword()
 users_schema_without_password = UserSchemaWithoutPassword(many=True)
 giftGroup_schema = GiftGroupSchema()

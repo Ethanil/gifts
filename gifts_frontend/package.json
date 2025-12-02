@@ -34,6 +34,7 @@
         "@vueuse/core": "^10.7.1",
         "animal-avatar-generator": "^1.2.0",
         "mande": "^2.0.8",
-        "pinia": "^2.1.7"
+        "pinia": "^2.1.7",
+        "uuid": "^13.0.0"
     }
 }

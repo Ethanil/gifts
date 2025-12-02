@@ -244,7 +244,7 @@
                                         />
                                     </v-row>
                                     <v-row v-if="propGroupData.isBeingGifted">
-                                        <DashboardCardRegister
+                                        <DashboardCardGuestRegister
                                             v-model="registrationDialog"
                                             :start-viewing-group="
                                                 propGroupData.id
@@ -281,7 +281,7 @@
                                                 (user: User) =>
                                                     `${user.firstName} ${user.lastName} als Schenkende*n hinzufügen`
                                             "
-                                            @action="addAsGifting"
+                                            @action="openAddGuestDialog"
                                         />
                                     </v-row>
                                 </v-container>
@@ -311,12 +311,45 @@
                 </v-form>
             </v-skeleton-loader>
         </v-card>
+        <v-dialog v-model="addGuestDialog" max-width="450px">
+            <v-card>
+                <v-card-title>Gast zugriff gewähren</v-card-title>
+                <v-card-text>
+                    <v-checkbox-btn
+                    v-model="hasExpirationDate"
+                    label="Zugriff zeitlich begrenzen"
+                ></v-checkbox-btn>
+                <v-date-input
+                    v-if="hasExpirationDate"
+                    v-model="expirationDate"
+                    :allowed-dates="onlyFutureDates"
+                    label="Gast Zugriff gewähren bis"
+                    :hide-details="true"
+                    :display-format="dateFormat"
+                ></v-date-input>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn color="primary" @click="addAsGifting">
+                        Gast zugriff gewähren
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        @click="addGuestDialog = false"
+                    >
+                        Abbrechen
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <v-snackbar v-model="sharelinkSnackbar" :timeout="5000" color="success">
             {{ shareLink }} ins Clipboard kopiert
         </v-snackbar>
     </v-dialog>
 </template>
 <script setup lang="ts">
+const addGuestDialog = ref(false);
+const hasExpirationDate = ref(false);
+const expirationDate = ref("");
 const userStore = useUserStore();
 const giftgroupStore = useGiftGroupStore();
 const { data } = useAuth();
@@ -655,10 +688,18 @@ const addableSpecialUsers = computed(() =>
             !groupData.value.isSpecialUser?.includes(user.email),
     ),
 );
-function addAsGifting(user: User) {
+let openedGuestUser: User|null = null;
+function openAddGuestDialog(user:User){
+    openedGuestUser = user;
+    addGuestDialog.value = true;
+}
+function addAsGifting() {
+    const user = openedGuestUser as User;
     giftgroupStore.addSpecialUser(outerProps.propGroupData, user.email);
     if (!groupData.value.isSpecialUser) groupData.value.isSpecialUser = [];
     groupData.value.isSpecialUser.push(user.email);
+    addGuestDialog.value = false;
+    openedGuestUser = null;
 }
 function handleRemoveFromGroup(user: User) {
     giftgroupStore.removeFromGroup(outerProps.propGroupData, user.email);
@@ -666,18 +707,6 @@ function handleRemoveFromGroup(user: User) {
         groupData.value.isSpecialUser!.findIndex((usr) => usr === user.email),
         1,
     );
-    if (
-        !giftgroupStore.giftgroups.find(
-            (giftgroup) =>
-                giftgroup.isSpecialUser?.includes(user.email) &&
-                giftgroup.id != groupData.value.id,
-        )
-    ) {
-        userStore.users.splice(
-            userStore.users!.findIndex((usr) => usr.email === user.email),
-            1,
-        );
-    }
 }
 function handleRegistrationFinished(user_email: string) {
     if (!groupData.value.isSpecialUser) groupData.value.isSpecialUser = [];

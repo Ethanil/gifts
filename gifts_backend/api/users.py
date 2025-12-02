@@ -7,7 +7,8 @@ from config import db
 import time
 import jwt
 from models import User, user_schema, user_schema_without_password, users_schema_without_password, giftGroup_schema, \
-    IsBeingGifted, GiftGroup, IsSpecialUser, HasRequestedReservationFreeing, HasReserved, IsInvited
+    IsBeingGifted, GiftGroup, IsSpecialUser, HasRequestedReservationFreeing, HasReserved, IsInvited, guest_schema, \
+    Guest, guests_schema
 from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -33,7 +34,11 @@ def create(user):
             if specialGiftGroup is None:
                 abort(400, "Giftgroup with that id does not exist!")
             new_user.onlyViewing = True
-            new_user.isSpecialUser.add(IsSpecialUser(giftGroup=specialGiftGroup))
+            accessExpirationDate = user.get("dateUntil")
+            if accessExpirationDate == "":
+                accessExpirationDate = None
+            new_user.isSpecialUser.add(IsSpecialUser(giftGroup=specialGiftGroup, accessExpireDate=accessExpirationDate))
+            new_user.guest = Guest(email=user.get("email"), password=user.get("password"))
         else:
             # TODO internationalisation?
             if user.get('lastName') != "":
@@ -99,7 +104,7 @@ def delete(email, user, token_info):
     for entry in has_requested_reservation_freeing + has_reserved + is_invited + is_special_user:
         db.session.delete(entry)
     db.session.delete(exisiting_user)
-    db.session.commit(confirm_deleted_rows=False)
+    db.session.commit()
     return make_response(f"User with email {email} succesfully deleted", 204)
 
 
@@ -290,3 +295,14 @@ def resetPassword(email, password_and_code):
     db.session.merge(existing_user)
     db.session.commit()
     return "Password set", 200
+
+
+def get_guest_information(user, token_info):
+    exisiting_user = User.query.filter(User.email == token_info.get("username")).one_or_none()
+    if exisiting_user is None or exisiting_user.onlyViewing:
+        abort(
+            401,
+            f"User is not authorized to see guest information"
+        )
+    guests = Guest.query.all()
+    return guests_schema.dump(guests), 200

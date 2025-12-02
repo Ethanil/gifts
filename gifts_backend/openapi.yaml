@@ -34,6 +34,10 @@ components:
           type: number
           format: integer
           default: -1
+        dateUntil:
+          type: string
+          format: date-time
+          default: ""
     User:
       allOf:
         - $ref: '#/components/schemas/UserWithoutPassword'
@@ -331,6 +335,37 @@ paths:
       responses:
         200:
           description: Succesfully updated user
+  /users/guests:
+    get:
+      operationId: api.users.get_guest_information
+      tags:
+        - User
+      summary: Read the information of guests
+      responses:
+        200:
+          description: Succesfully read guest information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    id:
+                      type: string
+                      description: The unique id
+                    email:
+                      type: string
+                      format: email
+                      description: The guest's email address
+                    password:
+                      type: string
+                      description: The guest's password hash
+        401:
+          description: User is not authorized to read guest information
   /giftgroups:
     get:
       operationId: api.giftgroups.read_all

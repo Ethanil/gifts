@@ -68,8 +68,32 @@
                     </v-menu>
                 </div>
             </template>
-            <router-link style="text-decoration: none; color: inherit" to="/">
-                <v-toolbar-title> Geschenke </v-toolbar-title>
+            <div v-if="status === 'authenticated'" class="d-flex align-center ga-2">
+                <v-btn
+                    variant="tonal"
+                    elevation="1"
+                    @click.stop.prevent="handleGeschenkeClick"
+                    :active="route.path === '/'"
+                    class="px-2 px-sm-4"
+                    min-width="0"
+                >
+                    <v-icon>mdi-gift</v-icon>
+                    <span class="d-none d-sm-inline ms-2">Geschenke</span>
+                </v-btn>
+
+                <v-btn
+                    variant="tonal"
+                    elevation="1"
+                    to="/guestManagement"
+                    class="px-2 px-sm-4"
+                    min-width="0"
+                >
+                    <v-icon>mdi-account-group</v-icon>
+                    <span class="d-none d-sm-inline ms-2">Gast Verwaltung</span>
+                </v-btn>
+            </div>
+            <router-link v-else style="text-decoration: none; color: inherit" to="/">
+                <v-toolbar-title>Geschenke</v-toolbar-title>
             </router-link>
         </v-app-bar>
     </div>
@@ -88,6 +112,16 @@ function toggleTheme() {
     localStorage.setItem("selectedTheme", selectedTheme);
     theme.global.name.value = selectedTheme;
 }
+
+const router = useRouter();
+const route = useRoute();
+
+function handleGeschenkeClick() {
+    if (route.path !== '/') {
+        router.push('/');
+    }
+}
+
 </script>
 
 <style></style>
