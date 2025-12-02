@@ -23,7 +23,10 @@
                             <v-card>
                                 <v-list>
                                     <ProfileForm
-                                        v-if="status === 'authenticated'"
+                                        v-if="
+                                            status === 'authenticated' &&
+                                            isFullUser
+                                        "
                                     >
                                         <template #activator="{ props }">
                                             <v-list-item
@@ -84,6 +87,7 @@
                 </v-btn>
 
                 <v-btn
+                    v-if="isFullUser"
                     variant="tonal"
                     elevation="1"
                     :to="{ path: '/guestManagement' }"
@@ -109,6 +113,9 @@
 const emit = defineEmits(["iconClick", "openProfile"]);
 import { useTheme } from "vuetify";
 const { signOut, status, data } = useAuth();
+const isFullUser = computed(
+    () => !(data.value as unknown as User)?.onlyViewing || false,
+);
 async function logout() {
     await signOut();
 }

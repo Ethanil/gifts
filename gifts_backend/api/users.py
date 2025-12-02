@@ -120,6 +120,11 @@ def update(email, new_user_data, user, token_info):
             404,
             f"User with email {email} not found"
         )
+    if existing_user.onlyViewing:
+        abort(
+            401,
+            f"User with email {email} is a guest"
+        )
     try:
         existing_user.ph.verify(existing_user.password, new_user_data.get("oldPassword"))
     except:
@@ -229,6 +234,11 @@ def sendPasswordResetEmail(email):
         abort(
             401,
             f"User with email {email} does not exist"
+        )
+    if existing_user.onlyViewing:
+        abort(
+            401,
+            f"User with email {email} is a guest"
         )
     resetCode = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     existing_user.resetCode = resetCode
