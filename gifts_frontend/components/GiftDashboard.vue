@@ -389,7 +389,7 @@ const isAllowedToCreateNewLists = computed(
 
 const emits = defineEmits(["navBarToggle"]);
 const currentVersion = ref<string>("");
-const version = "v1.2.1";
+const version = "v1.2.2";
 const compareVersions = (v1: string, v2: string) => {
     const parse = (v: string) => v.replace(/^v/, "").split(".").map(Number);
     const parts1 = parse(v1);

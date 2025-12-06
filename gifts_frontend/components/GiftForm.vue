@@ -133,7 +133,7 @@ const outerProps = defineProps({
         default: "Geschenk hinzufügen",
     },
 });
-const giftImage = ref<File[] | undefined>(undefined);
+const giftImage = ref<File | undefined>(undefined);
 const isBase64String = (val: string) => {
     if (!val || typeof val !== "string") return false;
     let splitData = val.split(",");
@@ -158,13 +158,14 @@ watch(outerProps.propGiftData, (newVal) => {
 
 const giftData = ref<Gift>(outerProps.propGiftData);
 
-async function handleImageInput(files: File[] | undefined) {
-    if (!files || files.length != 1) {
+async function handleImageInput(image: File | undefined) {
+    console.log("handling", image);
+    if (!image) {
         giftData.value.picture = "";
         return;
     }
-    const image = files[0];
     const type = image.type.split("/");
+    console.log(type);
     if (type[0] !== "image" || (type[1] !== "jpeg" && type[1] !== "png")) {
         giftData.value.picture = "";
         return;
