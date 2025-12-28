@@ -185,13 +185,22 @@ def getActions(gift: Gift, user: str) -> List[Actions]:
 def add_image_to_gift(gift: dict) -> dict:
     picture = gift.get('picture')
     if picture is not None and picture != "" and os.path.isfile(picture):
-        with open(picture, "rb") as img_file:
-            image_data = img_file.read()
-        base64_image = base64.b64encode(image_data).decode("utf-8")
-        image_format = picture.split('.')[1]
-        base64_string = f"data:image/{image_format};base64,{base64_image}"
-        gift['picture'] = base64_string
+        picture_storage = getenv("PICTURE_STORAGE")
+        gift['picture'] = transform_path_to_api_uri(picture)
+        # with open(picture, "rb") as img_file:
+        #     image_data = img_file.read()
+        # base64_image = base64.b64encode(image_data).decode("utf-8")
+        # image_format = picture.split('.')[1]
+        # base64_string = f"data:image/{image_format};base64,{base64_image}"
+        # gift['picture'] = base64_string
     return gift
+
+def transform_path_to_api_uri(picture: str) -> str:
+    host = getenv("BACKEND_HOST", "127.0.0.1")
+    port = getenv("BACKEND_PORT", "5000")
+    use_https = getenv("BACKEND_USE_HTTPS", "true").lower() in ("1", "true", "yes")
+    scheme = "https" if use_https else "http"
+    return f"{scheme}://{host}:{port}/api/images/{os.path.basename(picture)}"
 
 
 def filter_gifts(gifts: List[Gift], user: str) -> List[Gift]:

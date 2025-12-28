@@ -787,6 +787,30 @@ paths:
       responses:
         200:
           description: Successfully updated gift
+  /images/{image_name}:
+    get:
+      operationId: api.images.serve_image
+      tags:
+        - Images
+      summary: Serve uploaded image files
+      parameters:
+        - in: path
+          name: image_name
+          required: true
+          schema:
+            type: string
+          description: Name of the image file (basename only)
+      responses:
+        200:
+          description: Image binary
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Image not found
+      security: []
   /events:
     post:
       operationId: api.events.create

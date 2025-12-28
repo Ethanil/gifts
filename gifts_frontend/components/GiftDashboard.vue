@@ -99,6 +99,8 @@
                 >
             </template>
         </v-navigation-drawer>
+        <div v-if="route.query.giftlistname"
+        style="width: 100%; height: 100%; bottom: 0">
         <v-skeleton-loader
             :loading="!currentGroup"
             type="heading, table"
@@ -347,7 +349,11 @@
                     </div>
                 </template>
             </gift-form>
-        </v-skeleton-loader>
+        </v-skeleton-loader></div>
+        
+        <BottomLegendCard v-else
+        style="width: 100%; height: 100%; bottom: 0"></BottomLegendCard>
+        
     </div>
     <gift-form
         v-model:gift-dialog="editGiftDialog"
@@ -450,7 +456,7 @@ const nonReceivedGifts = computed(() =>
 );
 const route = useRoute();
 const router = useRouter();
-const currentTab = ref(0);
+const currentTab = ref(-1);
 const currentGroup = computed(() => {
     if (giftgroups.value !== undefined && currentTab.value !== undefined)
         return giftgroups.value[currentTab.value];
@@ -510,17 +516,18 @@ onMounted(async () => {
                 const groupQuery = route.query.giftlistname;
                 if (groupQuery) {
                     groupName = decodeURIComponent(groupQuery as string);
-                } else {
-                    groupName = giftgroups.value[0].name;
-                    router.push({
-                        query: {
-                            ...route.query,
-                            giftlistname: encodeURIComponent(
-                                giftgroups.value[0].name,
-                            ),
-                        },
-                    });
-                }
+                } 
+                // else {
+                //     groupName = giftgroups.value[0].name;
+                //     router.push({
+                //         query: {
+                //             ...route.query,
+                //             giftlistname: encodeURIComponent(
+                //                 giftgroups.value[0].name,
+                //             ),
+                //         },
+                //     });
+                // }
                 const index = giftgroupStore.giftgroups.findIndex(
                     (g) => g.name === groupName,
                 );
