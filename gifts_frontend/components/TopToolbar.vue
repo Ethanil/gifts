@@ -81,7 +81,9 @@
                     :to="{ path: '/', query: route.query }"
                     class="px-2 px-sm-4"
                     min-width="0"
-                    :active="route.path=='/' && route.query.giftlistname != null"
+                    :active="
+                        route.path == '/' && route.query.giftlistname != null
+                    "
                 >
                     <v-icon>mdi-gift</v-icon>
                     <span class="d-none d-sm-inline ms-2">Geschenke</span>

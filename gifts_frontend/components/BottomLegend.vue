@@ -5,9 +5,13 @@
         </template>
         <BottomLegendCard></BottomLegendCard>
     </v-bottom-sheet> -->
-    <v-btn icon="mdi-help" :to="{ path: '/', query: {} }" :active="route.path=='/' && !route.query.giftlistname"/>
+    <v-btn
+        icon="mdi-help"
+        :to="{ path: '/', query: {} }"
+        :active="route.path == '/' && !route.query.giftlistname"
+    />
 </template>
 <script setup lang="ts">
-import { useRoute} from "vue-router";
+import { useRoute } from "vue-router";
 const route = useRoute();
 </script>

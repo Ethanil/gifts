@@ -99,261 +99,286 @@
                 >
             </template>
         </v-navigation-drawer>
-        <div v-if="route.query.giftlistname"
-        style="width: 100%; height: 100%; bottom: 0">
-        <v-skeleton-loader
-            :loading="!currentGroup"
-            type="heading, table"
-            style="width: 100%"
+        <div
+            v-if="route.query.giftlistname"
+            style="width: 100%; height: 100%; bottom: 0"
         >
-            <GiftDashboardBanner
-                v-if="currentGroup!.isInvited"
-                :banner-text="'Du wurdest eingeladen in dieser Gruppe beschenkt zu werden!'"
+            <v-skeleton-loader
+                :loading="!currentGroup"
+                type="heading, table"
+                style="width: 100%"
             >
-                <template #actions>
-                    <v-btn text="Annehmen" @click.stop="joinGroup" />
-                    <v-btn text="Ablehnen" @click.stop="declineInvitation" />
-                </template>
-            </GiftDashboardBanner>
-            <GiftDashboardBanner
-                v-for="(gift, key) in giftsWithFreeReserveRequest"
-                :key="key"
-                :banner-text="generateFreeReserveText(gift)"
-            >
-                <template #actions>
-                    <v-btn
-                        text="Annehmen"
-                        @click.stop="
-                            do_Action(gift, {
-                                freeReserve: true,
-                            })
-                        "
-                    />
-                    <v-btn
-                        text="Ablehnen"
-                        @click.stop="
-                            do_Action(gift, {
-                                denyFreeReserve: true,
-                            })
-                        "
-                    />
-                </template>
-            </GiftDashboardBanner>
-            <div
-                v-if="giftgroups[currentTab] && !currentGroup!.isInvited"
-                class="ma-auto pa-7"
-                style="width: 100%; height: 100%"
-            >
-                <v-container>
-                    <v-row>
-                        <v-col v-if="data" :cols="lgAndUp ? 'auto' : '12'">
-                            <span
-                                class="text-h5 cursor-pointer"
-                                @click.stop="editGroup(giftgroups[currentTab])"
-                            >
-                                {{ giftgroups[currentTab].name }}
-                                <v-icon
-                                    :icon="
-                                        giftgroups[currentTab].editable &&
-                                        (giftgroups[currentTab].isBeingGifted ||
-                                            giftgroups[currentTab]
-                                                .isSecretGroup)
-                                            ? 'mdi-pencil'
-                                            : 'mdi-information'
-                                    "
-                                    size="small"
+                <GiftDashboardBanner
+                    v-if="currentGroup!.isInvited"
+                    :banner-text="'Du wurdest eingeladen in dieser Gruppe beschenkt zu werden!'"
+                >
+                    <template #actions>
+                        <v-btn text="Annehmen" @click.stop="joinGroup" />
+                        <v-btn
+                            text="Ablehnen"
+                            @click.stop="declineInvitation"
+                        />
+                    </template>
+                </GiftDashboardBanner>
+                <GiftDashboardBanner
+                    v-for="(gift, key) in giftsWithFreeReserveRequest"
+                    :key="key"
+                    :banner-text="generateFreeReserveText(gift)"
+                >
+                    <template #actions>
+                        <v-btn
+                            text="Annehmen"
+                            @click.stop="
+                                do_Action(gift, {
+                                    freeReserve: true,
+                                })
+                            "
+                        />
+                        <v-btn
+                            text="Ablehnen"
+                            @click.stop="
+                                do_Action(gift, {
+                                    denyFreeReserve: true,
+                                })
+                            "
+                        />
+                    </template>
+                </GiftDashboardBanner>
+                <div
+                    v-if="giftgroups[currentTab] && !currentGroup!.isInvited"
+                    class="ma-auto pa-7"
+                    style="width: 100%; height: 100%"
+                >
+                    <v-container>
+                        <v-row>
+                            <v-col v-if="data" :cols="lgAndUp ? 'auto' : '12'">
+                                <span
+                                    class="text-h5 cursor-pointer"
                                     @click.stop="
                                         editGroup(giftgroups[currentTab])
                                     "
-                                /> </span
-                            ><br />
-                            <span class="text-caption">{{ lastUpdated }}</span>
-                        </v-col>
-                        <v-col v-else>
-                            <span class="text-h5">{{
-                                giftgroups[currentTab].name
-                            }}</span>
-                            <br />
-                            <span class="text-caption">{{ lastUpdated }}</span>
-                        </v-col>
-                        <v-col v-if="lgAndUp">
-                            <gift-form
-                                v-if="data"
-                                v-model:gift-dialog="addGiftDialog"
-                                :prop-gift-data="giftDataToAdd"
-                                @submit-form="addGift"
-                            >
-                                <template #activator="{ props }">
-                                    <v-btn
-                                        id="AddButton"
-                                        :class="'pa-4'"
-                                        height="min-content"
-                                        width="min-content"
-                                        color="primary"
-                                        v-bind="props"
-                                    >
-                                        <template v-if="isOwnGroup" #prepend>
-                                            <v-img
-                                                width="80px"
-                                                height="80px"
-                                                :rounded="0"
-                                                src="\assets\icons\normal_gift.png"
-                                            ></v-img>
-                                        </template>
-                                        <template v-else #prepend>
-                                            <v-img
-                                                width="80px"
-                                                height="80px"
-                                                :rounded="0"
-                                                src="\assets\icons\secret_gift.png"
-                                            ></v-img>
-                                        </template>
-                                        <span
-                                            style="
-                                                white-space: break-spaces;
-                                                font-size: 1.1em;
-                                            "
-                                            >{{ giftAddButtonText }}</span
-                                        >
-                                    </v-btn>
-                                    <v-btn
-                                        :class="
-                                            !buttonCurrentlyIntersecting
-                                                ? 'pa-4 floatingButton'
-                                                : 'pa-4 floatingButton outOfView'
+                                >
+                                    {{ giftgroups[currentTab].name }}
+                                    <v-icon
+                                        :icon="
+                                            giftgroups[currentTab].editable &&
+                                            (giftgroups[currentTab]
+                                                .isBeingGifted ||
+                                                giftgroups[currentTab]
+                                                    .isSecretGroup)
+                                                ? 'mdi-pencil'
+                                                : 'mdi-information'
                                         "
-                                        height="min-content"
-                                        width="min-content"
-                                        color="primary"
-                                        v-bind="props"
-                                    >
-                                        <template v-if="isOwnGroup" #prepend>
-                                            <v-img
-                                                width="80px"
-                                                height="80px"
-                                                :rounded="0"
-                                                src="\assets\icons\normal_gift.png"
-                                            ></v-img>
-                                        </template>
-                                        <template v-else #prepend>
-                                            <v-img
-                                                width="80px"
-                                                height="80px"
-                                                :rounded="0"
-                                                src="\assets\icons\secret_gift.png"
-                                            ></v-img>
-                                        </template>
-                                        <span
-                                            style="
-                                                white-space: break-spaces;
-                                                font-size: 1.1em;
-                                            "
-                                            >{{ giftAddButtonText }}</span
+                                        size="small"
+                                        @click.stop="
+                                            editGroup(giftgroups[currentTab])
+                                        "
+                                    /> </span
+                                ><br />
+                                <span class="text-caption">{{
+                                    lastUpdated
+                                }}</span>
+                            </v-col>
+                            <v-col v-else>
+                                <span class="text-h5">{{
+                                    giftgroups[currentTab].name
+                                }}</span>
+                                <br />
+                                <span class="text-caption">{{
+                                    lastUpdated
+                                }}</span>
+                            </v-col>
+                            <v-col v-if="lgAndUp">
+                                <gift-form
+                                    v-if="data"
+                                    v-model:gift-dialog="addGiftDialog"
+                                    :prop-gift-data="giftDataToAdd"
+                                    @submit-form="addGift"
+                                >
+                                    <template #activator="{ props }">
+                                        <v-btn
+                                            id="AddButton"
+                                            :class="'pa-4'"
+                                            height="min-content"
+                                            width="min-content"
+                                            color="primary"
+                                            v-bind="props"
                                         >
-                                    </v-btn>
-                                </template>
-                            </gift-form>
-                        </v-col>
-                    </v-row>
-                </v-container>
-                <v-data-table
-                    :headers="tableHeaders"
-                    :items="nonReceivedGifts"
-                    :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
-                    items-per-page="-1"
-                >
-                    <template v-if="!lgAndUp" #headers></template>
-                    <template #item="{ internalItem, item }">
-                        <GiftDashboardTableRow
-                            :item="item"
-                            :internal-item="internalItem"
-                            :headers="tableHeaders"
-                            @delete-gift="deleteGift"
-                            @edit-gift="editGift"
-                            @do-action="do_Action"
-                            @open-picture-dialog="openPictureDialog"
-                        />
-                    </template>
-                    <template #bottom />
-                </v-data-table>
-                <h1>Erhaltene Geschenke</h1>
-                <v-data-table
-                    :headers="tableHeaders"
-                    :items="receivedGifts"
-                    :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
-                    items-per-page="-1"
-                >
-                    <template v-if="!lgAndUp" #headers></template>
-                    <template #item="{ internalItem, item }">
-                        <GiftDashboardTableRow
-                            :item="item"
-                            :internal-item="internalItem"
-                            :headers="tableHeaders"
-                            @delete-gift="deleteGift"
-                            @edit-gift="editGift"
-                            @do-action="do_Action"
-                            @open-picture-dialog="openPictureDialog"
-                        />
-                    </template>
-                    <template #bottom />
-                </v-data-table>
-            </div>
-        </v-skeleton-loader>
-        <v-skeleton-loader
-            :loading="!currentGroup"
-            style="position: fixed; width: 100%; height: min-content; bottom: 0"
-        >
-            <gift-form
-                v-if="!lgAndUp && currentGroup"
-                v-model:gift-dialog="addGiftDialog"
-                :prop-gift-data="giftDataToAdd"
-                @submit-form="addGift"
-            >
-                <template #activator="{ props }">
-                    <div
-                        class="bg-primary"
-                        style="
-                            position: fixed;
-                            width: 100%;
-                            height: min-content;
-                            bottom: 0;
-                        "
+                                            <template
+                                                v-if="isOwnGroup"
+                                                #prepend
+                                            >
+                                                <v-img
+                                                    width="80px"
+                                                    height="80px"
+                                                    :rounded="0"
+                                                    src="\assets\icons\normal_gift.png"
+                                                ></v-img>
+                                            </template>
+                                            <template v-else #prepend>
+                                                <v-img
+                                                    width="80px"
+                                                    height="80px"
+                                                    :rounded="0"
+                                                    src="\assets\icons\secret_gift.png"
+                                                ></v-img>
+                                            </template>
+                                            <span
+                                                style="
+                                                    white-space: break-spaces;
+                                                    font-size: 1.1em;
+                                                "
+                                                >{{ giftAddButtonText }}</span
+                                            >
+                                        </v-btn>
+                                        <v-btn
+                                            :class="
+                                                !buttonCurrentlyIntersecting
+                                                    ? 'pa-4 floatingButton'
+                                                    : 'pa-4 floatingButton outOfView'
+                                            "
+                                            height="min-content"
+                                            width="min-content"
+                                            color="primary"
+                                            v-bind="props"
+                                        >
+                                            <template
+                                                v-if="isOwnGroup"
+                                                #prepend
+                                            >
+                                                <v-img
+                                                    width="80px"
+                                                    height="80px"
+                                                    :rounded="0"
+                                                    src="\assets\icons\normal_gift.png"
+                                                ></v-img>
+                                            </template>
+                                            <template v-else #prepend>
+                                                <v-img
+                                                    width="80px"
+                                                    height="80px"
+                                                    :rounded="0"
+                                                    src="\assets\icons\secret_gift.png"
+                                                ></v-img>
+                                            </template>
+                                            <span
+                                                style="
+                                                    white-space: break-spaces;
+                                                    font-size: 1.1em;
+                                                "
+                                                >{{ giftAddButtonText }}</span
+                                            >
+                                        </v-btn>
+                                    </template>
+                                </gift-form>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                    <v-data-table
+                        :headers="tableHeaders"
+                        :items="nonReceivedGifts"
+                        :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
+                        items-per-page="-1"
                     >
-                        <v-btn
-                            v-if="data"
-                            v-bind="props"
-                            id="mobileButton"
-                            color="primary"
-                            block
-                            height="min-content"
-                            width="min-content"
+                        <template v-if="!lgAndUp" #headers></template>
+                        <template #item="{ internalItem, item }">
+                            <GiftDashboardTableRow
+                                :item="item"
+                                :internal-item="internalItem"
+                                :headers="tableHeaders"
+                                @delete-gift="deleteGift"
+                                @edit-gift="editGift"
+                                @do-action="do_Action"
+                                @open-picture-dialog="openPictureDialog"
+                            />
+                        </template>
+                        <template #bottom />
+                    </v-data-table>
+                    <h1>Erhaltene Geschenke</h1>
+                    <v-data-table
+                        :headers="tableHeaders"
+                        :items="receivedGifts"
+                        :sort-by="[{ key: 'giftStrength', order: 'desc' }]"
+                        items-per-page="-1"
+                    >
+                        <template v-if="!lgAndUp" #headers></template>
+                        <template #item="{ internalItem, item }">
+                            <GiftDashboardTableRow
+                                :item="item"
+                                :internal-item="internalItem"
+                                :headers="tableHeaders"
+                                @delete-gift="deleteGift"
+                                @edit-gift="editGift"
+                                @do-action="do_Action"
+                                @open-picture-dialog="openPictureDialog"
+                            />
+                        </template>
+                        <template #bottom />
+                    </v-data-table>
+                </div>
+            </v-skeleton-loader>
+            <v-skeleton-loader
+                :loading="!currentGroup"
+                style="
+                    position: fixed;
+                    width: 100%;
+                    height: min-content;
+                    bottom: 0;
+                "
+            >
+                <gift-form
+                    v-if="!lgAndUp && currentGroup"
+                    v-model:gift-dialog="addGiftDialog"
+                    :prop-gift-data="giftDataToAdd"
+                    @submit-form="addGift"
+                >
+                    <template #activator="{ props }">
+                        <div
+                            class="bg-primary"
+                            style="
+                                position: fixed;
+                                width: 100%;
+                                height: min-content;
+                                bottom: 0;
+                            "
                         >
-                            <span>{{ giftAddButtonText }}</span>
-                            <template v-if="isOwnGroup" #prepend>
-                                <v-img
-                                    width="50px"
-                                    height="50px"
-                                    :rounded="0"
-                                    src="\assets\icons\normal_gift.png"
-                                ></v-img>
-                            </template>
-                            <template v-else #prepend>
-                                <v-img
-                                    width="50px"
-                                    height="50px"
-                                    :rounded="0"
-                                    src="\assets\icons\secret_gift.png"
-                                ></v-img>
-                            </template>
-                        </v-btn>
-                    </div>
-                </template>
-            </gift-form>
-        </v-skeleton-loader></div>
-        
-        <BottomLegendCard v-else
-        style="width: 100%; height: 100%; bottom: 0"></BottomLegendCard>
-        
+                            <v-btn
+                                v-if="data"
+                                v-bind="props"
+                                id="mobileButton"
+                                color="primary"
+                                block
+                                height="min-content"
+                                width="min-content"
+                            >
+                                <span>{{ giftAddButtonText }}</span>
+                                <template v-if="isOwnGroup" #prepend>
+                                    <v-img
+                                        width="50px"
+                                        height="50px"
+                                        :rounded="0"
+                                        src="\assets\icons\normal_gift.png"
+                                    ></v-img>
+                                </template>
+                                <template v-else #prepend>
+                                    <v-img
+                                        width="50px"
+                                        height="50px"
+                                        :rounded="0"
+                                        src="\assets\icons\secret_gift.png"
+                                    ></v-img>
+                                </template>
+                            </v-btn>
+                        </div>
+                    </template>
+                </gift-form>
+            </v-skeleton-loader>
+        </div>
+
+        <BottomLegendCard
+            v-else
+            style="width: 100%; height: 100%; bottom: 0"
+        ></BottomLegendCard>
     </div>
     <gift-form
         v-model:gift-dialog="editGiftDialog"
@@ -395,7 +420,7 @@ const isAllowedToCreateNewLists = computed(
 
 const emits = defineEmits(["navBarToggle"]);
 const currentVersion = ref<string>("");
-const version = "v1.2.2";
+const version = "v1.2.3";
 const compareVersions = (v1: string, v2: string) => {
     const parse = (v: string) => v.replace(/^v/, "").split(".").map(Number);
     const parts1 = parse(v1);
@@ -516,7 +541,7 @@ onMounted(async () => {
                 const groupQuery = route.query.giftlistname;
                 if (groupQuery) {
                     groupName = decodeURIComponent(groupQuery as string);
-                } 
+                }
                 // else {
                 //     groupName = giftgroups.value[0].name;
                 //     router.push({
